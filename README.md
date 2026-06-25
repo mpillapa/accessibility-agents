@@ -65,7 +65,7 @@ La estrategia A1 es la recomendada para producción: es la más rápida, la úni
 
 ```
 accessibility-agents/
-├── proyecto_final.ipynb          Notebook completo del proyecto, listo para Colab
+├── proyecto_final.ipynb          Notebook completo del proyecto
 ├── data/
 │   └── intents/
 │       ├── dataset.csv           415 frases etiquetadas, 83 por intención
@@ -81,10 +81,14 @@ accessibility-agents/
 ├── modelo.joblib                 Mejor modelo entrenado, listo para usar
 ├── resultados_evaluacion.csv     Resultados crudos de la evaluación
 ├── requirements.txt              Dependencias
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
 El entregable principal es `proyecto_final.ipynb`, que reúne todo en un solo documento. Los notebooks de la carpeta `notebooks/` son el desarrollo por fases.
+
+Como apoyo hay dos documentos de lectura. `TUTORIAL_proyecto_final.pdf` recorre el notebook celda por celda, explicando el código y mostrando cada resultado. `GUIA_DEFENSA.md` es una guía de estudio que resume el código, los números clave y la diferencia entre las tres estrategias de ruteo A1, B y A2.
 
 ---
 
