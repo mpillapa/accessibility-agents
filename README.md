@@ -57,7 +57,7 @@ Los embeddings ganan en todas las métricas. La mayor mejora está en emergencia
 | B: razonamiento del modelo de lenguaje | El modelo razona y delega solo | ~72% estimado | 4.48 s |
 | A2: híbrido | El modelo usa el clasificador como herramienta | ~95% en muestra | 11.89 s |
 
-La estrategia A1 es la recomendada para producción: es la más rápida, la única medible de forma exacta, determinista y auditable.
+La estrategia A1 es la recomendada para producción: es la más rápida, la única medible de forma exacta, determinista y auditable. 
 
 ---
 
