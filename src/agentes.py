@@ -15,6 +15,12 @@ Versiones de ruteo implementadas:
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 
+# Nota de autoria: la estructura base de los agentes con CrewAI se desarrollo
+# con ayuda de Claude. Prompt de referencia que se le dio:
+#   "Como armo en CrewAI un Orchestrator que delegue la consulta a agentes
+#    especialistas segun la intencion, y como expongo mi clasificador de
+#    scikit-learn como una herramienta del agente?"
+
 # ============================================================
 # Configuración del LLM
 # ============================================================

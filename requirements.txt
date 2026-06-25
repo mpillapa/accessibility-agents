@@ -3,8 +3,10 @@ scikit-learn
 sentence-transformers
 matplotlib
 seaborn
+wordcloud
 joblib
 jupyter
 crewai
 crewai-tools
 nest-asyncio
+requests
