@@ -1,8 +1,5 @@
-"""
-Funciones para usar el clasificador entrenado.
-El entrenamiento se hace en notebooks/01_clasificador.ipynb.
-Aquí solo cargamos el modelo y predecimos.
-"""
+# Funciones para usar el clasificador ya entrenado (el entrenamiento vive en
+# notebooks/01_clasificador.ipynb). Aquí solo cargamos el modelo y predecimos.
 
 import joblib
 from sentence_transformers import SentenceTransformer
@@ -12,8 +9,8 @@ _modelo = None
 _embedder = None
 
 
+# Carga el modelo entrenado desde disco (y el embedder si el modelo lo usa).
 def cargar_modelo(ruta="modelo.joblib"):
-    """Carga el modelo entrenado desde disco."""
     global _modelo
     _modelo = joblib.load(ruta)
     # Si el modelo usa embeddings, cargamos también el embedder
@@ -26,13 +23,9 @@ def cargar_modelo(ruta="modelo.joblib"):
     return _modelo
 
 
+# Recibe una frase y devuelve un dict con la intención predicha, la confianza
+# y todas las probabilidades por etiqueta.
 def predecir(texto):
-    """
-    Recibe una frase y devuelve la intención predicha + confianza.
-
-    Retorna:
-        dict con 'intencion', 'confianza', 'todas_las_probabilidades'
-    """
     if _modelo is None:
         cargar_modelo()
 
@@ -42,7 +35,6 @@ def predecir(texto):
     else:  # embeddings
         X = _embedder.encode([texto])
 
-    # Predecir
     clasificador = _modelo["clasificador"]
     probabilidades = clasificador.predict_proba(X)[0]
     indice_predicho = probabilidades.argmax()

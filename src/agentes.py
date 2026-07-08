@@ -1,47 +1,21 @@
-"""
-Sistema multi-agente de accesibilidad para adultos mayores.
-
-Contiene:
-- 1 Orchestrator: recibe la consulta y enruta al especialista correcto.
-- 2 Agentes especialistas reales: Medication, Recipe.
-- 2 Agentes stub: Family, Emergency.
-
-Versiones de ruteo implementadas:
-- B  (Fase 4): el LLM del Orchestrator decide a quién delegar.
-- A1 (Fase 5): el clasificador decide la intención; Python despacha directo.
-- A2 (Fase 5): el clasificador es una herramienta del Orchestrator-LLM.
-"""
+# Sistema multi-agente de accesibilidad para adultos mayores.
+# Orchestrator + 2 especialistas reales (medicación, recetas) + 2 stubs (familia, emergencia).
+# Versiones de ruteo: B (el LLM decide), A1 (clasificador + dispatch en Python),
+# A2 (clasificador como herramienta del Orchestrator-LLM).
 
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 
-# Nota de autoria: la estructura base de los agentes con CrewAI se desarrollo
-# con ayuda de Claude. Prompt de referencia que se le dio:
-#   "Como armo en CrewAI un Orchestrator que delegue la consulta a agentes
-#    especialistas segun la intencion, y como expongo mi clasificador de
-#    scikit-learn como una herramienta del agente?"
-
-# ============================================================
-# Configuración del LLM
-# ============================================================
-# Usamos Ollama local con qwen2.5:7b. El prefijo "ollama/" le indica a
-# LiteLLM (usado por CrewAI) que enrute a Ollama en localhost.
-
+# Ollama local con qwen2.5:7b. El prefijo "ollama/" le dice a LiteLLM que enrute a Ollama.
 llm = LLM(
     model="ollama/qwen2.5:7b",
     base_url="http://localhost:11434",
     temperature=0.3,  # bajo para que el ruteo sea consistente
 )
 
-# ============================================================
-# Definición de los agentes
-# ============================================================
 
+# Agente coordinador: identifica el tipo de consulta y delega al especialista correcto.
 def crear_orchestrator():
-    """
-    Agente coordinador. Recibe la consulta del usuario, identifica de qué tipo es,
-    y delega al especialista correcto.
-    """
     return Agent(
         role="Coordinador de Asistencia para Adulto Mayor",
         goal=(
@@ -61,8 +35,8 @@ def crear_orchestrator():
     )
 
 
+# Especialista en consultas de medicación y salud básica.
 def crear_agente_medicacion():
-    """Agente especialista en consultas de medicación y salud básica."""
     return Agent(
         role="Especialista en Medicación y Salud",
         goal=(
@@ -80,8 +54,8 @@ def crear_agente_medicacion():
     )
 
 
+# Especialista en lectura y adaptación de recetas.
 def crear_agente_recetas():
-    """Agente especialista en lectura y adaptación de recetas."""
     return Agent(
         role="Especialista en Recetas y Multimedia",
         goal=(
@@ -99,11 +73,8 @@ def crear_agente_recetas():
     )
 
 
+# Stub de comunicación con familia: no ejecuta acción real, solo confirma la recepción.
 def crear_agente_familia_stub():
-    """
-    Agente stub para comunicación con familia.
-    No implementa lógica real, solo confirma que recibió la consulta.
-    """
     return Agent(
         role="Puente de Comunicación Familiar (STUB)",
         goal=(
@@ -122,11 +93,8 @@ def crear_agente_familia_stub():
     )
 
 
+# Stub de emergencias: no ejecuta acción real, solo confirma la recepción.
 def crear_agente_emergencia_stub():
-    """
-    Agente stub para emergencias.
-    No implementa lógica real, solo confirma que recibió la consulta.
-    """
     return Agent(
         role="Centinela de Emergencias (STUB)",
         goal=(
@@ -143,15 +111,8 @@ def crear_agente_emergencia_stub():
     )
 
 
-# ============================================================
-# Ensamblado de la crew — versión B (Fase 4)
-# ============================================================
-
+# Ensambla la crew de la versión B (Fase 4): Orchestrator + los 4 especialistas.
 def crear_crew():
-    """
-    Crea la crew completa con el Orchestrator y los 4 agentes especialistas.
-    El Orchestrator puede delegar a cualquiera de los especialistas.
-    """
     orchestrator = crear_orchestrator()
     medicacion   = crear_agente_medicacion()
     recetas      = crear_agente_recetas()
@@ -186,22 +147,10 @@ def crear_crew():
     return crew
 
 
-# ============================================================
-# Herramienta de clasificación — versión A2 (Fase 5)
-# ============================================================
-
+# Herramienta de clasificación de la versión A2 (Fase 5).
 @tool("Clasificador de Intencion")
 def herramienta_clasificador(consulta: str) -> str:
-    """
-    Clasifica la intención de una consulta del usuario. Devuelve la intención
-    detectada y la confianza del modelo.
-
-    Args:
-        consulta: La frase del usuario a clasificar.
-
-    Returns:
-        Texto con la intención detectada y la confianza.
-    """
+    """Clasifica la intención de la consulta y devuelve la intención detectada y su confianza."""
     from clasificador import predecir
     resultado = predecir(consulta)
     return (
@@ -210,8 +159,8 @@ def herramienta_clasificador(consulta: str) -> str:
     )
 
 
+# Orchestrator con acceso a la herramienta de clasificación (versión A2).
 def crear_orchestrator_con_herramienta():
-    """Orchestrator que tiene acceso a la herramienta de clasificación (versión A2)."""
     return Agent(
         role="Coordinador de Asistencia para Adulto Mayor",
         goal=(
@@ -229,16 +178,9 @@ def crear_orchestrator_con_herramienta():
     )
 
 
-# ============================================================
-# Helper interno — versión A1 (Fase 5)
-# ============================================================
-
+# Ejecuta un solo especialista sin Orchestrator (helper de A1).
+# Solo funciona desde scripts, no desde Jupyter (asyncio.run no se anida en un event loop activo).
 def _ejecutar_agente_individual(agente, consulta):
-    """
-    Ejecuta UN agente especialista con la consulta dada (sin Orchestrator).
-    Helper interno para A1. Solo funciona desde scripts, no desde Jupyter
-    (asyncio.run no puede anidarse dentro de un event loop ya activo).
-    """
     import asyncio
     tarea = Task(
         description=f"Responde a esta consulta del usuario: '{consulta}'",
@@ -254,25 +196,15 @@ def _ejecutar_agente_individual(agente, consulta):
     return asyncio.run(crew.kickoff_async())
 
 
-# ============================================================
-# Funciones públicas
-# ============================================================
-
+# Versión B async para usar desde Jupyter (requiere kickoff_async con event loop activo).
 async def procesar_consulta_async(consulta: str) -> str:
-    """
-    Versión async para usar desde Jupyter (Fase 4, versión B).
-    CrewAI moderno requiere kickoff_async() cuando ya hay un event loop activo.
-    """
     crew = crear_crew()
     resultado = await crew.kickoff_async(inputs={"consulta": consulta})
     return str(resultado)
 
 
+# Versión B: el LLM del Orchestrator decide a quién delegar. Para scripts (evaluacion.py).
 def procesar_consulta_v_b(consulta: str) -> dict:
-    """
-    Versión B: el LLM del Orchestrator decide a quién delegar.
-    Para usar desde scripts (evaluacion.py), no desde Jupyter.
-    """
     import asyncio
     import time
 
@@ -290,11 +222,8 @@ def procesar_consulta_v_b(consulta: str) -> dict:
     }
 
 
+# Versión A1: el clasificador decide la intención y Python despacha directo al especialista.
 def procesar_consulta_v_a1(consulta: str) -> dict:
-    """
-    Versión A1: el clasificador decide la intención y un dispatcher Python
-    plano llama directamente al agente especialista correspondiente.
-    """
     import time
     from clasificador import predecir
 
@@ -327,11 +256,8 @@ def procesar_consulta_v_a1(consulta: str) -> dict:
     }
 
 
+# Versión A2: el clasificador es una herramienta que el Orchestrator-LLM consulta antes de delegar.
 def procesar_consulta_v_a2(consulta: str) -> dict:
-    """
-    Versión A2: el clasificador es una herramienta del Orchestrator-LLM.
-    El Orchestrator llama a la herramienta y con ese resultado decide a quién delegar.
-    """
     import asyncio
     import time
 

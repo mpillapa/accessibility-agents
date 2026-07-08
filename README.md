@@ -87,9 +87,6 @@ accessibility-agents/
 ```
 
 El entregable principal es `proyecto_final.ipynb`, que reúne todo en un solo documento. Los notebooks de la carpeta `notebooks/` son el desarrollo por fases.
-
-Como apoyo hay dos documentos de lectura. `TUTORIAL_proyecto_final.pdf` recorre el notebook celda por celda, explicando el código y mostrando cada resultado. `GUIA_DEFENSA.md` es una guía de estudio que resume el código, los números clave y la diferencia entre las tres estrategias de ruteo A1, B y A2.
-
 ---
 
 ## Cómo ejecutar el proyecto
