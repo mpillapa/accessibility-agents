@@ -1,0 +1,416 @@
+﻿intent,text
+MEDICATION_HEALTH,Oye mijito ¿ya me toca tomar la pastillita del corazón?
+MEDICATION_HEALTH,¿A qué hora me corresponde el jarabe que me recetó el doctor Salazar?
+MEDICATION_HEALTH,Tengo un dolorcito en la rodilla desde ayer ¿será que me tomo el ibuprofeno?
+FAMILY_COMMUNICATION,Quiero mandarle un mensajito a mi hijo Carlos que está en Quito
+FAMILY_COMMUNICATION,¿Puedes avisarle a mi hija María que ya tomé las pastillas del mediodía?
+FAMILY_COMMUNICATION,Dile a mi nieto Sebastián que lo extraño mucho y que venga a visitarme
+EMERGENCY,Me caí en el baño y no me puedo levantar ayúdame por favor
+EMERGENCY,Siento que me falta el aire y me está doliendo el pecho muy fuerte
+EMERGENCY,Hay un humo raro saliendo de la cocina y no sé qué está pasando
+SMALL_TALK,Buenos días mijito ¿cómo amaneciste hoy?
+SMALL_TALK,¿Sabes que ayer vino a visitarme mi nieto? Qué alegría tan grande
+SMALL_TALK,Hace un frío horrible ahorita ¿no te parece?
+MEDICATION_HEALTH,Verá que no recuerdo si la pastilla de la presión es a las siete o a las ocho
+MEDICATION_HEALTH,¿El medicamento del estómago es antes o después del almuerzo?
+MEDICATION_HEALTH,¿Cuándo me corresponde tomar la siguiente dosis del antibiótico?
+MEDICATION_HEALTH,A ver dime ¿cada cuánto debo tomarme estas cápsulas que me dio el doctor?
+MEDICATION_HEALTH,No sé si el jarabe es de mañana o de noche ¿cuándo es?
+MEDICATION_HEALTH,¿Las pastillas del colesterol van con el desayuno o sin él?
+MEDICATION_HEALTH,Dime a qué hora es mi próxima medicación por favor
+MEDICATION_HEALTH,¿El omeprazol se toma antes de comer o después? siempre me olvido
+MEDICATION_HEALTH,¿Cuántas horas debo esperar entre una pastilla y la siguiente?
+MEDICATION_HEALTH,¿Cuál es el horario exacto del segundo medicamento del día?
+MEDICATION_HEALTH,Ya tomé las pastillas del desayuno ¿anota eso por favor?
+MEDICATION_HEALTH,Me tomé el medicamento ahorita mismo ¿quedó registrado?
+MEDICATION_HEALTH,Ya bebí el jarabe de las doce ¿está bien así?
+MEDICATION_HEALTH,Listo ya me tomé todo lo que me tocaba esta mañana
+MEDICATION_HEALTH,Registra que ya tomé las tres pastillas del almuerzo por favor
+MEDICATION_HEALTH,Me acabo de tomar la insulina ¿lo anotas?
+MEDICATION_HEALTH,Ya cumplí con todas las medicinas de la tarde
+MEDICATION_HEALTH,Terminé de tomarme lo que me dejó el doctor para el mediodía
+MEDICATION_HEALTH,Ya tomé el diurético de la mañana ¿queda guardado?
+MEDICATION_HEALTH,Listo ya me tomé el calmante ¿lo registras?
+MEDICATION_HEALTH,¿Una pastilla entera o solo la mitad de la blanca?
+MEDICATION_HEALTH,El doctor dijo dos pero yo creo que antes tomaba tres ¿cuántas son?
+MEDICATION_HEALTH,No sé si son dos comprimidos o uno solo ¿puedes revisar?
+MEDICATION_HEALTH,¿Cuántos mililitros del jarabe me toca a mí?
+MEDICATION_HEALTH,Verá que las pastillas son tan chiquitas ¿de verdad son dos a la vez?
+MEDICATION_HEALTH,¿Me doblo la dosis si ayer se me olvidó tomar?
+MEDICATION_HEALTH,¿Cuántas gotitas del suero son para una persona de mi edad?
+MEDICATION_HEALTH,Siempre me confundo ¿son dos comprimidos blancos o uno blanco y uno amarillo?
+MEDICATION_HEALTH,El prospecto dice una cosa y el doctor dijo otra ¿qué hago?
+MEDICATION_HEALTH,¿La dosis es igual en la mañana que en la noche o cambia?
+MEDICATION_HEALTH,Tengo un dolor de cabeza desde el mediodía ¿qué me puedo tomar?
+MEDICATION_HEALTH,Me anda doliendo la espalda baja ¿habrá alguna crema o pastilla?
+MEDICATION_HEALTH,Siento la garganta rasposa desde ayer ¿será que me tomo algo?
+MEDICATION_HEALTH,Tengo los pies hinchados desde ayer ¿es normal eso?
+MEDICATION_HEALTH,Me duele la muela de atrás ¿qué me ayuda para el dolor?
+MEDICATION_HEALTH,Tengo un cansancio horrible hoy ¿me puedo tomar alguna vitamina?
+MEDICATION_HEALTH,Verá que tengo el estómago revuelto desde el desayuno ¿qué hago?
+MEDICATION_HEALTH,Me anda picando la piel en el brazo ¿será alergia a algo?
+MEDICATION_HEALTH,Siento el pecho como apretado pero no muy fuerte ¿me preocupo?
+MEDICATION_HEALTH,Tengo una tos seca que no me deja en paz ¿qué me tomo?
+MEDICATION_HEALTH,No me acuerdo si ya me tomé la pastilla de la noche ¿me la tomo o no?
+MEDICATION_HEALTH,Creo que me tomé el medicamento pero no estoy seguro ¿puedes confirmar?
+MEDICATION_HEALTH,Ay dios mío ¿ya tomé el coumadin hoy o todavía no?
+MEDICATION_HEALTH,Estaba viendo la tele y perdí la cuenta ¿ya fueron mis pastillas de las tres?
+MEDICATION_HEALTH,Me parece que sí tomé pero me da duda ¿cómo sé con seguridad?
+MEDICATION_HEALTH,No recuerdo si desayuné con o sin pastillas esta mañana
+MEDICATION_HEALTH,Creo que se me pasó el medicamento de las diez ¿qué hago ahora?
+MEDICATION_HEALTH,Hay días que no sé si ya tomé o si me falta ¿tienes registro de hoy?
+MEDICATION_HEALTH,A veces me quedo dormido y cuando despierto no sé si ya tomé
+MEDICATION_HEALTH,Ayer tomé dos veces sin querer ¿eso es peligroso?
+MEDICATION_HEALTH,¿Puedo tomar el diclofenac si ya me tomé la aspirina esta mañana?
+MEDICATION_HEALTH,¿Con el antibiótico puedo comer queso o es verdad que no se puede?
+MEDICATION_HEALTH,Desde que me cambiaron el medicamento me da mucho sueño ¿es normal?
+MEDICATION_HEALTH,¿El jarabe para la tos me puede dar mareos? porque ayer me sentí raro
+MEDICATION_HEALTH,¿Puedo tomar ibuprofeno y paracetamol juntos o es peligroso?
+MEDICATION_HEALTH,Me duele el estómago después de las pastillas ¿las tomo con comida?
+MEDICATION_HEALTH,¿El medicamento de la presión se puede mezclar con el del corazón?
+MEDICATION_HEALTH,Verá que el médico me recetó algo nuevo y tengo miedo de los efectos
+MEDICATION_HEALTH,¿Con la metformina puedo tomar una copita de vino en la fiesta?
+MEDICATION_HEALTH,Desde el nuevo medicamento me siento muy débil ¿es efecto secundario?
+MEDICATION_HEALTH,Recuérdame a las ocho de la noche que me toca el medicamento
+MEDICATION_HEALTH,Ponme una alarma para las pastillas del mediodía por favor
+MEDICATION_HEALTH,Que no se me olvide el jarabe mañana en la mañana ¿me avisas?
+MEDICATION_HEALTH,Avísame media hora antes de que me toque la siguiente dosis
+MEDICATION_HEALTH,Necesito que me recuerdes las pastillas cuando me levante mañana
+MEDICATION_HEALTH,Pon un recordatorio para las pastillas de las seis de la tarde
+MEDICATION_HEALTH,Acuérdame que debo sacar los medicamentos de la funda antes del almuerzo
+MEDICATION_HEALTH,Mañana tengo cita con el médico ¿me recuerdas a las nueve?
+MEDICATION_HEALTH,¿Me puedes avisar cada día a las mismas horas para no olvidarme?
+MEDICATION_HEALTH,Ponme recordatorio para el antibiótico cada ocho horas que el doctor dijo eso
+MEDICATION_HEALTH,¿Cuántas pastillas me quedan del frasco grande?
+MEDICATION_HEALTH,Se me están acabando las pastillas de la presión ¿ya tengo que comprar?
+MEDICATION_HEALTH,Creo que ya casi no tengo ibuprofeno ¿cuánto me falta?
+MEDICATION_HEALTH,¿Me alcanza el medicamento hasta la próxima cita o debo pedir más?
+MEDICATION_HEALTH,Verá que ya se me acabó el jarabe ¿qué hago ahora?
+MEDICATION_HEALTH,Cuéntame cuántas cápsulas me quedan porque ya no veo bien los frascos
+MEDICATION_HEALTH,¿Tengo medicinas suficientes para el feriado o me faltan?
+MEDICATION_HEALTH,El doctor me recetó para un mes pero creo que ya se acabó antes ¿es así?
+MEDICATION_HEALTH,¿Me quedan pastillas para esta semana o ya debo ir a la farmacia?
+MEDICATION_HEALTH,Anota que el frasco del diurético está casi vacío por favor
+FAMILY_COMMUNICATION,Avísale a mi hija que ya tomé las pastillas de la mañana
+FAMILY_COMMUNICATION,Manda un mensajito a mi hijo diciéndole que ya estoy bien
+FAMILY_COMMUNICATION,Dile a mi nuera que no vengan hoy que no me siento muy bien
+FAMILY_COMMUNICATION,Por favor avísale a Carlos que ya comí para que no se preocupe
+FAMILY_COMMUNICATION,Mándame un mensaje a mi nieta diciéndole que la espero mañana
+FAMILY_COMMUNICATION,Avísale a mi hermana que llego el jueves no el miércoles
+FAMILY_COMMUNICATION,Dile a mi hijo mayor que necesito que me traiga el medicamento
+FAMILY_COMMUNICATION,Manda razón a la familia que ya me hice los exámenes
+FAMILY_COMMUNICATION,Avísale a mi yerno que las llaves están en la maceta de la entrada
+FAMILY_COMMUNICATION,Dile a mi hija Lucía que el doctor dijo que estoy bien
+FAMILY_COMMUNICATION,¿Alguien me ha mandado algún mensaje hoy?
+FAMILY_COMMUNICATION,¿Mi hijo me escribió algo mientras yo dormía?
+FAMILY_COMMUNICATION,¿Hay algún recado de mi hija María?
+FAMILY_COMMUNICATION,Verá ¿llegó algún mensaje de mi nieto Sebastián?
+FAMILY_COMMUNICATION,¿Me dejó dicho algo mi familia mientras yo estaba en el médico?
+FAMILY_COMMUNICATION,¿Tengo mensajes sin leer de alguien?
+FAMILY_COMMUNICATION,¿Mi hija me avisó a qué hora llega?
+FAMILY_COMMUNICATION,¿Llegó respuesta de mi hijo sobre lo que le pregunté ayer?
+FAMILY_COMMUNICATION,¿Alguien me escribió en la tarde? estaba durmiendo la siesta
+FAMILY_COMMUNICATION,¿Hay algún aviso de la familia que deba saber?
+FAMILY_COMMUNICATION,Llama a mi hija por favor que necesito hablar con ella
+FAMILY_COMMUNICATION,¿Puedes contactar a mi hijo Carlos? es urgente
+FAMILY_COMMUNICATION,Comunícame con mi nieto que hace días no sé de él
+FAMILY_COMMUNICATION,Llama a mi hermana que quiero saber cómo está
+FAMILY_COMMUNICATION,¿Puedes marcar a mi hija? que le tengo que decir algo importante
+FAMILY_COMMUNICATION,Llámale a mi hijo el de Guayaquil que ahorita necesito hablarle
+FAMILY_COMMUNICATION,Comunícame con mi nuera para coordinar lo del fin de semana
+FAMILY_COMMUNICATION,Marca a mi sobrina que hace meses no hablo con ella
+FAMILY_COMMUNICATION,Necesito que llames a mi hija mayor ahorita mismo
+FAMILY_COMMUNICATION,¿Puedes llamar a mi hijo? dile que necesito que venga
+FAMILY_COMMUNICATION,Dile a mi hija que me cayó muy bien el nuevo médico
+FAMILY_COMMUNICATION,Mándale a saber a mi hijo que ya arreglé lo del pago del agua
+FAMILY_COMMUNICATION,Dile a mi nieto que su cuarto está listo para cuando venga
+FAMILY_COMMUNICATION,Cuéntale a mi hija que ayer me visitó la vecina Rosa
+FAMILY_COMMUNICATION,Dile a mi familia que el médico me subió la dosis de la presión
+FAMILY_COMMUNICATION,Avísale a mi hijo que encontré las fotos que estaba buscando
+FAMILY_COMMUNICATION,Dile a mi nieta que ya no tengo fiebre que se quede tranquila
+FAMILY_COMMUNICATION,Mándale razón a mi hija que el plomero vino y arregló la llave
+FAMILY_COMMUNICATION,Dile a mi hijo que me fue bien en el trayecto del médico
+FAMILY_COMMUNICATION,Cuéntale a mi familia que hoy me sentí mejor que ayer
+FAMILY_COMMUNICATION,¿Me dijiste que mi hijo venía el sábado o el domingo?
+FAMILY_COMMUNICATION,¿A qué hora llega mi nieta mañana?
+FAMILY_COMMUNICATION,¿Mi hija confirmó si viene esta semana o no?
+FAMILY_COMMUNICATION,¿Cuándo es que dijo mi hijo que iba a traer a los nietos?
+FAMILY_COMMUNICATION,No me acuerdo ¿este fin de semana viene alguien de la familia?
+FAMILY_COMMUNICATION,¿Mi sobrino Andrés avisó para qué día viene?
+FAMILY_COMMUNICATION,Verá que no recuerdo si mi hija viene hoy o mañana ¿puedes revisar?
+FAMILY_COMMUNICATION,¿Se acordó mi nieto de que prometió venir esta semana?
+FAMILY_COMMUNICATION,¿Cuándo es la próxima vez que viene alguien a visitarme?
+FAMILY_COMMUNICATION,¿Mi familia tiene planeado algo para este fin de semana?
+FAMILY_COMMUNICATION,Mándale una fotito de mí a mi hija para que vea que estoy bien
+FAMILY_COMMUNICATION,¿Puedes enviarle un mensajito de voz a mi nieto de mi parte?
+FAMILY_COMMUNICATION,Manda la foto del jardín a mi hija que ella lo plantó
+FAMILY_COMMUNICATION,¿Puedes grabar lo que voy a decir y mandárselo a mi hijo?
+FAMILY_COMMUNICATION,Envíale una nota a mi familia diciendo que estoy pensando en ellos
+FAMILY_COMMUNICATION,Manda la foto del almuerzo a mi hija que ella quería ver cómo quedó
+FAMILY_COMMUNICATION,¿Puedes mandarle un audio cortito a mi nieta diciéndole que la quiero?
+FAMILY_COMMUNICATION,Envíale una foto del gato a mi nieto que él lo extraña mucho
+FAMILY_COMMUNICATION,Mándale la foto de la torta que hice a toda la familia
+FAMILY_COMMUNICATION,¿Puedes registrar un mensaje mío para mandárselo a mi hija cuando despierte?
+FAMILY_COMMUNICATION,¿Cuándo es el cumpleaños de mi nieto? no me quiero olvidar
+FAMILY_COMMUNICATION,¿Qué actividades tiene la familia programadas esta semana?
+FAMILY_COMMUNICATION,¿El cumpleaños de mi hija ya pasó o es el otro mes?
+FAMILY_COMMUNICATION,¿Para cuándo quedó la reunión familiar que planearon?
+FAMILY_COMMUNICATION,Verá que no recuerdo la fecha del matrimonio de mi sobrino ¿cuándo es?
+FAMILY_COMMUNICATION,¿Qué días viene mi hijo a visitarme este mes?
+FAMILY_COMMUNICATION,¿Cuándo es la primera comunión de mi nieta que me avisaron?
+FAMILY_COMMUNICATION,¿Hay algo especial en la familia para las fiestas de diciembre?
+FAMILY_COMMUNICATION,¿Mi hija tiene libre el feriado o trabaja?
+FAMILY_COMMUNICATION,¿Cuándo es el próximo evento familiar que tengo que recordar?
+FAMILY_COMMUNICATION,Cambia la visita de mi hijo del viernes al sábado por favor
+FAMILY_COMMUNICATION,Cancela lo del médico del jueves que ya reagendé
+FAMILY_COMMUNICATION,Mueve el recordatorio del cumpleaños de mi nieta al día anterior
+FAMILY_COMMUNICATION,Actualiza en la agenda que mi hija llega el lunes no el martes
+FAMILY_COMMUNICATION,Borra la cita del miércoles que quedó en la agenda del mes pasado
+FAMILY_COMMUNICATION,Pon en el calendario que el sábado viene toda la familia a almorzar
+FAMILY_COMMUNICATION,Cambia la hora de la visita de mi nieto de las tres a las cinco
+FAMILY_COMMUNICATION,Anota que el domingo hay misa familiar a las nueve de la mañana
+FAMILY_COMMUNICATION,Modifica lo de la cita médica que me cambiaron para la próxima semana
+FAMILY_COMMUNICATION,Agrega a la agenda que el martes traen los medicamentos a domicilio
+RECIPE_MULTIMEDIA,¿Me lees la receta del locro de papas pasito a pasito?
+RECIPE_MULTIMEDIA,Quiero hacer caldo de pata hoy ¿me dices cómo se prepara?
+RECIPE_MULTIMEDIA,Explícame cómo se hace el hornado que mi hija me pidió
+RECIPE_MULTIMEDIA,¿Tienes la receta del seco de carne para el almuerzo de hoy?
+RECIPE_MULTIMEDIA,Dime cómo se prepara la fanesca que ya viene semana santa
+RECIPE_MULTIMEDIA,A ver ¿cómo se hace el ceviche de camarón sin que quede aguado?
+RECIPE_MULTIMEDIA,¿Me puedes leer la receta del encebollado desde el principio?
+RECIPE_MULTIMEDIA,Necesito saber cómo se hace el morocho de leche bien espesito
+RECIPE_MULTIMEDIA,¿Cómo es la receta del guatita? que hace años no la preparo
+RECIPE_MULTIMEDIA,Dime los pasos para hacer el champús que le gusta a mi nieto
+RECIPE_MULTIMEDIA,¿Cuántas papas necesito para hacer caldo para cuatro personas?
+RECIPE_MULTIMEDIA,¿El ají para el seco va molido o en pedacitos?
+RECIPE_MULTIMEDIA,¿Cuánta sal le echo al arroz para que no quede soso?
+RECIPE_MULTIMEDIA,¿El tomate para el refrito va con cáscara o pelado?
+RECIPE_MULTIMEDIA,Verá que no tengo cilantro ¿lo puedo reemplazar con perejil?
+RECIPE_MULTIMEDIA,¿Cuántas cebollas paiteñas son para la ensalada de la receta?
+RECIPE_MULTIMEDIA,¿La leche del morocho es de la de tarro o de la normal?
+RECIPE_MULTIMEDIA,¿Cuánto maní lleva el seco o eso es opcional?
+RECIPE_MULTIMEDIA,¿El achiote va al principio del refrito o después?
+RECIPE_MULTIMEDIA,No tengo comino ¿con qué lo reemplazo para que quede sabroso?
+RECIPE_MULTIMEDIA,La receta dice doscientos gramos de harina ¿eso cuántas tazas son?
+RECIPE_MULTIMEDIA,¿Medio litro de leche cuántos vasos normales son?
+RECIPE_MULTIMEDIA,Dice una libra de carne ¿eso cuánto es en gramos más o menos?
+RECIPE_MULTIMEDIA,¿Cien mililitros de aceite cuántas cucharadas son?
+RECIPE_MULTIMEDIA,La receta pide tres onzas de mantequilla ¿eso cuánto es?
+RECIPE_MULTIMEDIA,¿Una taza de azúcar cuánto pesa en gramos?
+RECIPE_MULTIMEDIA,Dice dos cucharadas soperas ¿eso cuántas cucharitas normales son?
+RECIPE_MULTIMEDIA,¿Un cuarto de libra de queso cuánto es más o menos?
+RECIPE_MULTIMEDIA,La receta es para ocho personas pero solo somos dos ¿cómo le bajo?
+RECIPE_MULTIMEDIA,¿Dos tazas de arroz cuántos gramos son? porque tengo balanza
+RECIPE_MULTIMEDIA,Espera espera ¿me repites lo del refrito que no entendí?
+RECIPE_MULTIMEDIA,¿Cuánto tiempo dijiste que hierve la carne? se me fue
+RECIPE_MULTIMEDIA,Repíteme el paso del sofrito por favor que estaba distraída
+RECIPE_MULTIMEDIA,No escuché bien ¿cuándo se le echa el tomate a la olla?
+RECIPE_MULTIMEDIA,Vuelve a decirme ¿el pollo va entero o en pedazos desde el principio?
+RECIPE_MULTIMEDIA,¿Me dijiste que el fuego tiene que estar bajo o medio? no caché bien
+RECIPE_MULTIMEDIA,¿Cuál era el siguiente paso después de sofreír la cebolla?
+RECIPE_MULTIMEDIA,Perdona ¿cuánto tiempo más le falta al arroz? se me olvidó
+RECIPE_MULTIMEDIA,Repite desde donde se agrega el ajo por favor
+RECIPE_MULTIMEDIA,¿El azúcar va antes o después de la leche? dímelo otra vez
+RECIPE_MULTIMEDIA,¿Cuánto tiempo necesito para que el fréjol quede bien cocinado?
+RECIPE_MULTIMEDIA,¿Cuántos minutos hierve el caldo de pollo antes de echarle las papas?
+RECIPE_MULTIMEDIA,¿Cuánto tarda en hacerse el hornado en el horno de casa?
+RECIPE_MULTIMEDIA,¿A qué hora debo poner las lentejas para que estén listas al mediodía?
+RECIPE_MULTIMEDIA,¿El arroz de leche cuánto tiempo se cocina para que quede espeso?
+RECIPE_MULTIMEDIA,¿En cuánto tiempo está lista la sopa de quinua?
+RECIPE_MULTIMEDIA,Verá que mi horno es lento ¿cuánto más le pongo al bizcocho?
+RECIPE_MULTIMEDIA,¿Cuánto tiempo se sofríe el ajo antes de echarse el tomate?
+RECIPE_MULTIMEDIA,¿Las papas para el locro van desde el agua fría o cuando ya hierve?
+RECIPE_MULTIMEDIA,¿El pollo para el seco cuánto tiempo necesita en la olla a presión?
+RECIPE_MULTIMEDIA,¿Me puedes mostrar cómo debe quedar el locro cuando está listo?
+RECIPE_MULTIMEDIA,¿Hay alguna foto de cómo se ve el encebollado bien hecho?
+RECIPE_MULTIMEDIA,Quiero ver cómo queda el hornado para saber si el mío está bien
+RECIPE_MULTIMEDIA,¿Me muestras una imagen del seco de pollo terminado?
+RECIPE_MULTIMEDIA,¿Cómo se ve el morocho cuando ya está listo para servir?
+RECIPE_MULTIMEDIA,Muéstrame cómo debe quedar el caldo de pata antes de servirlo
+RECIPE_MULTIMEDIA,¿Hay foto de la fanesca para ver si la mía quedó parecida?
+RECIPE_MULTIMEDIA,Quiero ver una imagen del caldo para comparar el color
+RECIPE_MULTIMEDIA,¿Me enseñas cómo se ve el refrito cuando ya está doradito?
+RECIPE_MULTIMEDIA,¿Tienes video de cómo se amasa la tortilla de maíz paso a paso?
+RECIPE_MULTIMEDIA,¿Qué puedo hacer de almuerzo con pollo cebolla y tomate nada más?
+RECIPE_MULTIMEDIA,Necesito algo fácil de cocinar que no me tome mucho tiempo
+RECIPE_MULTIMEDIA,¿Qué receta me recomiendas para alguien que no cocina mucho?
+RECIPE_MULTIMEDIA,Tengo papas zanahorias y un poco de carne ¿qué hago?
+RECIPE_MULTIMEDIA,Quiero hacer algo dulce pero sencillo que no lleve muchos ingredientes
+RECIPE_MULTIMEDIA,¿Qué se puede preparar rico con lo que hay en una despensa normal?
+RECIPE_MULTIMEDIA,Dame una receta de sopa calientita para este frío de hoy
+RECIPE_MULTIMEDIA,Quiero sorprender a mi hija con algo rico ¿qué me recomiendas hacer?
+RECIPE_MULTIMEDIA,¿Qué se puede hacer de desayuno que sea nutritivo y rápido?
+RECIPE_MULTIMEDIA,Tengo arroz fréjol y huevos ¿alcanza para un almuerzo completo?
+RECIPE_MULTIMEDIA,¿Me lees la rutina de ejercicios que me dejó el fisioterapeuta?
+RECIPE_MULTIMEDIA,Guíame pasito a pasito en los estiramientos de la mañana
+RECIPE_MULTIMEDIA,¿Puedes poner el video de ejercicios de equilibrio que me recomendó el doctor?
+RECIPE_MULTIMEDIA,Léeme los ejercicios del folleto que me dieron en el hospital
+RECIPE_MULTIMEDIA,¿Me guías en la rutina de la silla que el médico me recetó?
+RECIPE_MULTIMEDIA,Sigue guiándome con los ejercicios que nos quedamos a mitad
+RECIPE_MULTIMEDIA,¿Me repites el tercer ejercicio de la rutina? no lo hice bien
+RECIPE_MULTIMEDIA,¿Cuánto dura la rutina de fisioterapia de hoy?
+RECIPE_MULTIMEDIA,Muéstrame los ejercicios para las manos que no recuerdo bien
+RECIPE_MULTIMEDIA,Pon la guía de caminata que tengo guardada para los martes
+RECIPE_MULTIMEDIA,¿Me puedes decir cómo se hace el seco de pollo no más?
+RECIPE_MULTIMEDIA,Explícame pasito a paso cómo cocinar las lentejas que siempre se me queman
+RECIPE_MULTIMEDIA,¿Cómo se prepara el arroz con leche como hacía mi mamacita?
+EMERGENCY,Me caí en la cocina y me golpié la cabeza ayúdame
+EMERGENCY,Tropecé con la alfombra y no me puedo levantar
+EMERGENCY,Me resbalé en el baño y creo que me lastimé el brazo
+EMERGENCY,Me caí de la cama y no puedo moverme del dolor
+EMERGENCY,Oye me di un golpe fuerte en la rodilla y no puedo caminar
+EMERGENCY,Me caí en las escaleras y me duele mucho el tobillo
+EMERGENCY,Tropecé y me caí de frente me sangra la mano
+EMERGENCY,Me golpié la cabeza contra la puerta y me siento mareada
+EMERGENCY,Caí al suelo de repente y no sé cómo levantarme
+EMERGENCY,Me resbalé al salir de la ducha y creo que me torcí el pie
+EMERGENCY,Me duele el pecho muy fuerte y se me va la respiración
+EMERGENCY,Tengo un mareo terrible y siento que me voy a caer
+EMERGENCY,No puedo respirar bien desde hace un rato y me asusta mucho
+EMERGENCY,Siento el brazo izquierdo dormido y el pecho muy apretado
+EMERGENCY,Me está dando un dolor de cabeza horrible que nunca había sentido
+EMERGENCY,Veo todo borroso de repente y tengo náuseas muy fuertes
+EMERGENCY,Siento la lengua pesada y no puedo hablar bien
+EMERGENCY,Me está dando taquicardia y no puedo controlarla
+EMERGENCY,Tengo un zumbido en los oídos y siento que me desmayo
+EMERGENCY,Me siento muy mal el corazón late rápido y me falta el aire
+EMERGENCY,Ayúdame por favor necesito ayuda ya
+EMERGENCY,Auxilio no me siento bien llama a alguien rápido
+EMERGENCY,Llama a alguien rápido que me estoy sintiendo muy mal
+EMERGENCY,Necesito ayuda urgente por favor no me dejes sola
+EMERGENCY,Ayuda ayuda no puedo solo
+EMERGENCY,Socorro que me pasó algo grave
+EMERGENCY,Por favor que alguien venga ahorita mismo
+EMERGENCY,Necesito que vengan ya me está pasando algo
+EMERGENCY,Ayúdame rápido que no aguanto más
+EMERGENCY,Que venga alguien por favor me siento muy mal
+EMERGENCY,No sé dónde estoy me siento muy confundida
+EMERGENCY,No reconozco el cuarto en que estoy ¿dónde estoy?
+EMERGENCY,Me desperté y no recuerdo nada de lo que pasó
+EMERGENCY,Estoy muy confundida no sé qué día es ni dónde me encuentro
+EMERGENCY,No puedo pensar bien siento que mi cabeza no funciona
+EMERGENCY,Verá que de pronto no supe quién era ni dónde estaba
+EMERGENCY,Empecé a hablar pero las palabras no me salían bien
+EMERGENCY,No entiendo lo que está pasando me siento muy perdida
+EMERGENCY,De repente no reconocí a mi hija que estaba aquí conmigo
+EMERGENCY,Siento que algo está muy mal en mi cabeza no pienso bien
+EMERGENCY,Tengo mucho miedo algo me está pasando no sé qué es
+EMERGENCY,Me entró un pánico horrible y no sé por qué
+EMERGENCY,Estoy aterrada algo va muy mal ayúdame
+EMERGENCY,Siento que me voy a morir de verdad llama a alguien
+EMERGENCY,Me está dando un ataque de pánico no puedo respirar
+EMERGENCY,Estoy temblando y no puedo parar tengo mucho miedo
+EMERGENCY,Algo horrible está pasando en mi cuerpo ayúdame por favor
+EMERGENCY,Tengo un miedo terrible siento que me voy a desmayar
+EMERGENCY,Estoy muy asustada nunca me había sentido así
+EMERGENCY,Me da miedo quedarme sola así llama a mi hija pronto
+EMERGENCY,Hay alguien en la casa y yo no llamé a nadie
+EMERGENCY,Escucho ruidos raros afuera como que alguien está intentando entrar
+EMERGENCY,Hay un extraño en el jardín que no conozco
+EMERGENCY,Creo que entraron a robar llama a la policía
+EMERGENCY,Oigo pasos en el cuarto de al lado y estoy sola
+EMERGENCY,Alguien está tocando la puerta muy fuerte y me da miedo abrir
+EMERGENCY,Vi a alguien mirando por la ventana que me asustó mucho
+EMERGENCY,Hay un olor a gas muy fuerte en la cocina
+EMERGENCY,Hay humo saliendo del cuarto del fondo
+EMERGENCY,El timbre no para de sonar y hay alguien que no conozco afuera
+EMERGENCY,Estoy en el suelo y no puedo levantarme necesito ayuda
+EMERGENCY,Me quedé trabado en la bañera y no puedo salir
+EMERGENCY,Caí y no puedo moverme del dolor en la cadera
+EMERGENCY,Estoy atrapada entre la cama y la pared y no puedo moverme
+EMERGENCY,No tengo fuerzas para ponerme de pie llama a alguien
+EMERGENCY,Me quedé sentado en el piso y no puedo levantarme solo
+EMERGENCY,Estoy tirado en el baño desde hace rato y nadie viene
+EMERGENCY,No me puedo mover del brazo creo que me lo rompí
+EMERGENCY,Caí y me quedé paralizado del susto y del dolor
+EMERGENCY,Estoy aquí en el suelo y no tengo fuerzas para nada
+EMERGENCY,Llama a la ambulancia ya que me siento muy mal
+EMERGENCY,Marca el 911 ahorita mismo por favor
+EMERGENCY,Llama a mi hija urgente que necesito ayuda ya
+EMERGENCY,Necesito que llames a los paramédicos ya
+EMERGENCY,Llama al médico de emergencias por favor es urgente
+EMERGENCY,Marca a mi hijo ahora mismo que me estoy sintiendo muy mal
+EMERGENCY,Llama a alguien que me lleve al hospital ya
+EMERGENCY,Necesito una ambulancia ahorita que no puedo esperar
+EMERGENCY,Llama al número de emergencias por favor que es grave
+EMERGENCY,Avisa a mi familia ya que algo muy malo me está pasando
+SMALL_TALK,Buenas ¿me escuchas bien hoy?
+SMALL_TALK,Buenas tardes mijito ¿todo bien por allá?
+SMALL_TALK,Hola ¿estás ahí?
+SMALL_TALK,Buenas noches ya me voy a dormir
+SMALL_TALK,Hasta luego ya me voy a descansar un ratito
+SMALL_TALK,Chao chao que ya es tarde
+SMALL_TALK,Buen provecho me voy a almorzar
+SMALL_TALK,Hasta mañana que ya me venció el sueño
+SMALL_TALK,Hola hola ¿sigues ahí?
+SMALL_TALK,Buenas me alegra encontrarte hoy
+SMALL_TALK,Qué frío tan bravo está haciendo ahorita ¿no te parece?
+SMALL_TALK,Qué calor tan bravo hace hoy en la tarde
+SMALL_TALK,Está lloviendo muy fuerte y no puedo salir
+SMALL_TALK,Hoy amaneció nublado y me da flojera
+SMALL_TALK,Verá que el sol está duro hoy ni ganas de salir
+SMALL_TALK,Qué frío tan horrible ha hecho toda esta semana
+SMALL_TALK,Está lloviendo a cántaros y me duelen los huesos
+SMALL_TALK,Hoy el clima está raro ni frío ni calor
+SMALL_TALK,Qué día tan gris tan feo que me pone triste
+SMALL_TALK,Oye hace tanto viento que la ventana no para de sonar
+SMALL_TALK,¿Cómo te llamas tú?
+SMALL_TALK,¿Qué eres tú exactamente?
+SMALL_TALK,¿Eres una persona real o una máquina?
+SMALL_TALK,¿Tú también tienes familia?
+SMALL_TALK,¿Cuántos años tienes tú?
+SMALL_TALK,¿De dónde eres tú?
+SMALL_TALK,¿Tú sientes algo o solo obedeces?
+SMALL_TALK,¿Puedes hacer cualquier cosa o tienes límites?
+SMALL_TALK,¿Tú duermes o estás despierto siempre?
+SMALL_TALK,¿Cómo sabes tanto si eres una máquina?
+SMALL_TALK,Qué aburrido está el día hoy
+SMALL_TALK,No tengo nada qué hacer y me aburro mucho
+SMALL_TALK,Qué lento pasa el tiempo cuando uno está solo
+SMALL_TALK,Este día se me ha hecho eterno
+SMALL_TALK,Nada que hacer y nada que ver qué aburrimiento
+SMALL_TALK,Qué días tan largos los de ahora
+SMALL_TALK,Me siento muy solo hoy y no sé por qué
+SMALL_TALK,Nada me anima hoy todo está feo
+SMALL_TALK,Qué pesado se siente el día cuando no llueve ni hace sol
+SMALL_TALK,Estoy aburrido sin nada qué hacer
+SMALL_TALK,Antes la vida era más tranquila no tan complicada
+SMALL_TALK,En mis tiempos las cosas eran distintas y más bonitas
+SMALL_TALK,Qué tiempos aquellos cuando los hijos vivían cerca
+SMALL_TALK,Antes se visitaba más a los vecinos ahora nadie sale
+SMALL_TALK,Cuando era joven todo era diferente más sencillo
+SMALL_TALK,Extraño cuando mi esposo estaba aquí conmigo
+SMALL_TALK,Antes la comida tenía otro sabor no sé por qué
+SMALL_TALK,Los jóvenes de ahora no son como los de mi época
+SMALL_TALK,Me acuerdo cuando mi barrio era pura tierra y éramos muy felices
+SMALL_TALK,Antes los domingos eran sagrados toda la familia unida
+SMALL_TALK,¿Qué día es hoy?
+SMALL_TALK,¿Qué hora es ahorita?
+SMALL_TALK,¿Cuántos días faltan para el feriado?
+SMALL_TALK,¿Cómo se llama el presidente ahorita?
+SMALL_TALK,¿Cuánto está el dólar hoy?
+SMALL_TALK,¿Qué año estamos?
+SMALL_TALK,¿Cuántos días tiene este mes?
+SMALL_TALK,¿Mañana es feriado o no?
+SMALL_TALK,¿A qué hora amanece en invierno?
+SMALL_TALK,¿Cuánto falta para navidad?
+SMALL_TALK,Muchas gracias mijito por tu ayuda
+SMALL_TALK,Qué bueno tenerte aquí para conversar un rato
+SMALL_TALK,Gracias por escucharme siempre
+SMALL_TALK,Qué amable eres de verdad
+SMALL_TALK,Muchas gracias no sé qué haría sin ti
+SMALL_TALK,Muy amable de tu parte gracias
+SMALL_TALK,Oye gracias por todo lo que haces por mí
+SMALL_TALK,De verdad te lo agradezco con todo el corazón
+SMALL_TALK,Qué cosa tan buena que existas para ayudarme
+SMALL_TALK,Gracias gracias eres muy bueno conmigo
+SMALL_TALK,Estaba viendo las noticias y todo está muy feo
+SMALL_TALK,La novela de las ocho está muy buena últimamente
+SMALL_TALK,Mi vecina Rosa vino a visitarme ayer qué alegría
+SMALL_TALK,El vecino de arriba pone música muy fuerte que no me deja dormir
+SMALL_TALK,Ayer pasaron una película muy bonita en la tele
+SMALL_TALK,Los vecinos nuevos no saludan nada antipáticos
+SMALL_TALK,El perro del vecino ladró toda la noche y no dormí
+SMALL_TALK,Vi un programa sobre historia que me gustó mucho
+SMALL_TALK,Mi vecina está enferma y nadie la visita qué tristeza
+SMALL_TALK,Pusieron a construir algo cerca y el ruido es horrible

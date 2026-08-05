@@ -1,12 +1,15 @@
-# Demo en vivo de la estrategia A2: el Orchestrator usa el clasificador como
-# herramienta (@tool). Con verbose=True se ve en pantalla cómo el agente llama
-# a la herramienta, obtiene la intención y luego delega al especialista.
+# Demo en vivo: el Orchestrator identifica la intención y delega al
+# especialista (allow_delegation=True, sin clasificador). Con verbose=True se
+# ve en pantalla cómo el agente razona y a quién delega.
 #
 # Uso:
-#   python src/demo_a2.py                 -> corre las frases de ejemplo
-#   python src/demo_a2.py "tu frase aquí" -> corre una frase que tú escribes
+#   python crewai/demo.py                 -> corre las frases de ejemplo
+#   python crewai/demo.py "tu frase aquí" -> corre una frase que tú escribes
 #
-# Requiere Ollama corriendo con qwen2.5:7b.
+# El LLM corre en el servidor vLLM remoto de la universidad (ver agentes.py:
+# VLLM_CHAT_BASE_URL / VLLM_CHAT_MODEL), no local. La demo comprueba ese
+# endpoint (OpenAI-compatible: GET /models) y mide el round-trip real contra
+# el servidor para dejar visible que sí se conecta.
 
 import sys
 import time
@@ -17,7 +20,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 import requests
 from crewai import Task, Crew, Process
 from agentes import (
-    crear_orchestrator_con_herramienta,
+    VLLM_CHAT_BASE_URL,
+    VLLM_CHAT_MODEL,
+    VLLM_API_KEY,
+    crear_orchestrator,
     crear_agente_medicacion,
     crear_agente_recetas,
     crear_agente_familia_stub,
@@ -32,24 +38,37 @@ CONSULTAS_DEMO = [
 ]
 
 
-# Comprueba que Ollama responde antes de arrancar la demo.
-def verificar_ollama():
+# Comprueba que el servidor vLLM remoto responde antes de arrancar la demo.
+# Imprime host, modelo y latencia del round-trip para dejar visible ante los
+# tutores que la demo sí está hablando con el servidor de la universidad.
+def verificar_vllm():
+    print(f"Servidor vLLM: {VLLM_CHAT_BASE_URL}")
+    print(f"Modelo:        {VLLM_CHAT_MODEL}\n")
     try:
-        r = requests.get("http://localhost:11434/api/tags", timeout=5)
-        modelos = [m["name"] for m in r.json().get("models", [])]
-        if not any("qwen2.5" in m for m in modelos):
-            print("AVISO: qwen2.5:7b no aparece. Ejecuta: ollama pull qwen2.5:7b")
+        inicio = time.time()
+        r = requests.get(
+            f"{VLLM_CHAT_BASE_URL}/models",
+            headers={"Authorization": f"Bearer {VLLM_API_KEY}"},
+            timeout=10,
+        )
+        latencia = time.time() - inicio
+
+        modelos = [m["id"] for m in r.json().get("data", [])]
+        if VLLM_CHAT_MODEL not in modelos:
+            print(f"AVISO: {VLLM_CHAT_MODEL} no aparece en el servidor. Modelos disponibles: {modelos}")
             return False
-        print(f"Ollama OK. Modelos: {modelos}\n")
+
+        print(f"Conexión OK ({latencia*1000:.0f} ms de round-trip a {VLLM_CHAT_BASE_URL})")
+        print(f"Modelos en el servidor: {modelos}\n")
         return True
     except requests.exceptions.ConnectionError:
-        print("ERROR: Ollama no responde en localhost:11434. Arráncalo antes de la demo.")
+        print(f"ERROR: {VLLM_CHAT_BASE_URL} no responde. Verifica la VPN institucional (GlobalProtect).")
         return False
 
 
-# Ensambla la crew de A2 con verbose=True para que la llamada al tool sea visible.
+# Ensambla la crew con verbose=True para que la delegación sea visible.
 def construir_crew(consulta):
-    orchestrator = crear_orchestrator_con_herramienta()
+    orchestrator = crear_orchestrator()
     especialistas = [
         crear_agente_medicacion(),
         crear_agente_recetas(),
@@ -59,9 +78,10 @@ def construir_crew(consulta):
 
     tarea = Task(
         description=(
-            f"El usuario dijo: '{consulta}'. "
-            f"Usa la herramienta de clasificación para identificar la intención, "
-            f"luego delega al especialista correcto."
+            f"El usuario adulto mayor dijo: '{consulta}'. "
+            f"Identifica de qué tipo de consulta se trata y delega al especialista "
+            f"correspondiente. Si es conversación trivial (saludo, comentario), "
+            f"responde tú directamente de forma amable y breve."
         ),
         expected_output="Respuesta en español del especialista correspondiente.",
         agent=orchestrator,
@@ -71,7 +91,7 @@ def construir_crew(consulta):
         agents=[orchestrator] + especialistas,
         tasks=[tarea],
         process=Process.sequential,
-        verbose=True,   # <- clave de la demo: muestra el razonamiento y el tool call
+        verbose=True,   # <- clave de la demo: muestra el razonamiento y la delegación
     )
 
 
@@ -92,7 +112,7 @@ def correr(consulta):
 
 
 def main():
-    if not verificar_ollama():
+    if not verificar_vllm():
         return
 
     # Si pasas una frase por línea de comandos, corre solo esa.

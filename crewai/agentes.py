@@ -1,17 +1,51 @@
-# Sistema multi-agente de accesibilidad para adultos mayores.
-# Orchestrator + 2 especialistas reales (medicación, recetas) + 2 stubs (familia, emergencia).
-# Versiones de ruteo: B (el LLM decide), A1 (clasificador + dispatch en Python),
-# A2 (clasificador como herramienta del Orchestrator-LLM).
+import os
+import re
+import sys
+from pathlib import Path
 
+from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 
-# Ollama local con qwen2.5:7b. El prefijo "ollama/" le dice a LiteLLM que enrute a Ollama.
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from rag.buscar import buscar_receta
+
+# override=True: el .env del proyecto manda sobre variables ya presentes en el
+# entorno (p. ej. las que VSCode inyecta desde un .env del workspace padre).
+load_dotenv(Path(__file__).parent.parent / ".env", override=True)
+
+VLLM_CHAT_BASE_URL = os.getenv("VLLM_CHAT_BASE_URL", "http://172.28.230.10:12559/v1")
+VLLM_CHAT_MODEL = os.getenv("VLLM_CHAT_MODEL", "google/gemma-4-12B-it")
+VLLM_API_KEY = os.getenv("VLLM_API_KEY", "local")
+
+# Las 5 intenciones que rutea el sistema. Idénticas a langgraph/agentes.py
+INTENCIONES = [
+    "MEDICATION_HEALTH",
+    "RECIPE_MULTIMEDIA",
+    "FAMILY_COMMUNICATION",
+    "EMERGENCY",
+    "SMALL_TALK",
+]
+
 llm = LLM(
-    model="ollama/qwen2.5:7b",
-    base_url="http://localhost:11434",
+    model=f"openai/{VLLM_CHAT_MODEL}",
+    base_url=VLLM_CHAT_BASE_URL,
+    api_key=VLLM_API_KEY,
     temperature=0.3,  # bajo para que el ruteo sea consistente
 )
+
+
+@tool("Buscar en recetario")
+def buscar_en_recetario(consulta: str) -> str:
+    """Busca fragmentos relevantes del recetario (PDFs/imágenes ya procesados
+    con OCR y embeddings) para responder una consulta sobre una receta."""
+    fragmentos = buscar_receta(consulta, k=3)
+    if not fragmentos:
+        return (
+            "El recetario no tiene resultados para esta consulta (o todavía no "
+            "se ha ingerido — correr 'python rag/ingesta.py')."
+        )
+    return "\n---\n".join(fragmentos)
 
 
 # Agente coordinador: identifica el tipo de consulta y delega al especialista correcto.
@@ -59,15 +93,20 @@ def crear_agente_recetas():
     return Agent(
         role="Especialista en Recetas y Multimedia",
         goal=(
-            "Leer recetas, adaptar medidas a objetos cotidianos (ej: 300ml = un "
-            "vaso grande), y guiar paso a paso al usuario."
+            "Buscar la receta en el recetario (tool 'Buscar en recetario') antes "
+            "de responder, y adaptar medidas a objetos cotidianos (ej: 300ml = un "
+            "vaso grande), guiando paso a paso al usuario."
         ),
         backstory=(
             "Eres un asistente culinario que ayuda a personas mayores a preparar "
-            "comidas. Adaptas medidas técnicas a referencias cotidianas para que "
-            "sean comprensibles sin instrumentos de medición."
+            "comidas. Siempre consultas primero el recetario real (RAG sobre PDFs "
+            "e imágenes de recetas, incluidas fotos de recetas manuscritas vía "
+            "OCR) antes de responder; no inventas ingredientes ni pasos que no "
+            "estén en lo que encontraste. Adaptas medidas técnicas a referencias "
+            "cotidianas para que sean comprensibles sin instrumentos de medición."
         ),
         llm=llm,
+        tools=[buscar_en_recetario],
         allow_delegation=False,
         verbose=False,
     )
@@ -111,7 +150,7 @@ def crear_agente_emergencia_stub():
     )
 
 
-# Ensambla la crew de la versión B (Fase 4): Orchestrator + los 4 especialistas.
+# Ensambla la crew: Orchestrator + los 4 especialistas.
 def crear_crew():
     orchestrator = crear_orchestrator()
     medicacion   = crear_agente_medicacion()
@@ -147,64 +186,26 @@ def crear_crew():
     return crew
 
 
-# Herramienta de clasificación de la versión A2 (Fase 5).
-@tool("Clasificador de Intencion")
-def herramienta_clasificador(consulta: str) -> str:
-    """Clasifica la intención de la consulta y devuelve la intención detectada y su confianza."""
-    from clasificador import predecir
-    resultado = predecir(consulta)
-    return (
-        f"Intención detectada: {resultado['intencion']} "
-        f"(confianza: {resultado['confianza']:.2f})"
-    )
+# Versión async: CrewAI exige kickoff_async cuando ya hay un event loop
+# corriendo (Jupyter). Devuelve el mismo dict que procesar_consulta(). En una
+# celda de notebook: `res = await procesar_consulta_async("...")`.
+async def procesar_consulta_async(consulta: str) -> dict:
+    import time
 
-
-# Orchestrator con acceso a la herramienta de clasificación (versión A2).
-def crear_orchestrator_con_herramienta():
-    return Agent(
-        role="Coordinador de Asistencia para Adulto Mayor",
-        goal=(
-            "Usar la herramienta de clasificación para identificar la intención "
-            "del usuario y delegar al especialista correcto."
-        ),
-        backstory=(
-            "Eres el coordinador. SIEMPRE usa la herramienta de clasificación "
-            "antes de delegar, para tomar decisiones basadas en el clasificador."
-        ),
-        llm=llm,
-        tools=[herramienta_clasificador],
-        allow_delegation=True,
-        verbose=False,
-    )
-
-
-# Ejecuta un solo especialista sin Orchestrator (helper de A1).
-# Solo funciona desde scripts, no desde Jupyter (asyncio.run no se anida en un event loop activo).
-def _ejecutar_agente_individual(agente, consulta):
-    import asyncio
-    tarea = Task(
-        description=f"Responde a esta consulta del usuario: '{consulta}'",
-        expected_output="Respuesta en español, clara y empática.",
-        agent=agente,
-    )
-    crew = Crew(
-        agents=[agente],
-        tasks=[tarea],
-        process=Process.sequential,
-        verbose=False,
-    )
-    return asyncio.run(crew.kickoff_async())
-
-
-# Versión B async para usar desde Jupyter (requiere kickoff_async con event loop activo).
-async def procesar_consulta_async(consulta: str) -> str:
+    inicio = time.time()
     crew = crear_crew()
     resultado = await crew.kickoff_async(inputs={"consulta": consulta})
-    return str(resultado)
+    latencia = time.time() - inicio
+    return {
+        "consulta": consulta,
+        "intencion": None,  # el Orchestrator no expone la intención de forma estructurada
+        "respuesta": str(resultado),
+        "latencia_segundos": round(latencia, 2),
+    }
 
 
-# Versión B: el LLM del Orchestrator decide a quién delegar. Para scripts (evaluacion.py).
-def procesar_consulta_v_b(consulta: str) -> dict:
+# El Orchestrator decide a quién delegar. Para scripts/demos.
+def procesar_consulta(consulta: str) -> dict:
     import asyncio
     import time
 
@@ -214,85 +215,61 @@ def procesar_consulta_v_b(consulta: str) -> dict:
     latencia  = time.time() - inicio
 
     return {
-        "version":            "B",
         "consulta":           consulta,
-        "intencion":          None,  # B no expone la intención de forma estructurada
+        "intencion":          None,  # el Orchestrator no expone la intención de forma estructurada
         "respuesta":          str(resultado),
         "latencia_segundos":  round(latencia, 2),
     }
 
 
-# Versión A1: el clasificador decide la intención y Python despacha directo al especialista.
-def procesar_consulta_v_a1(consulta: str) -> dict:
-    import time
-    from clasificador import predecir
-
-    inicio    = time.time()
-    prediccion = predecir(consulta)
-    intencion  = prediccion["intencion"]
-
-    if intencion == "MEDICATION_HEALTH":
-        respuesta = _ejecutar_agente_individual(crear_agente_medicacion(), consulta)
-    elif intencion == "RECIPE_MULTIMEDIA":
-        respuesta = _ejecutar_agente_individual(crear_agente_recetas(), consulta)
-    elif intencion == "FAMILY_COMMUNICATION":
-        respuesta = _ejecutar_agente_individual(crear_agente_familia_stub(), consulta)
-    elif intencion == "EMERGENCY":
-        respuesta = _ejecutar_agente_individual(crear_agente_emergencia_stub(), consulta)
-    elif intencion == "SMALL_TALK":
-        # Para small talk no llamamos ningún agente; ahorra tokens y latencia
-        respuesta = "¡Hola! ¿En qué puedo ayudarte hoy?"
-    else:
-        respuesta = "No entendí bien tu consulta, ¿puedes repetirla?"
-
-    latencia = time.time() - inicio
-
-    return {
-        "version":            "A1",
-        "consulta":           consulta,
-        "intencion":          intencion,
-        "respuesta":          str(respuesta),
-        "latencia_segundos":  round(latencia, 2),
-    }
+# --- Solo para la comparación de accuracy de ruteo (notebooks/comparativa.ipynb) ---
+#
+# clasificar_consulta() mide ÚNICAMENTE la decisión de clasificación del
+# Orchestrator, no la delegación completa + respuesta del especialista. Se
+# implementa con el mismo estilo de prompt que el nodo orchestrator de
+# LangGraph (texto libre terminando en "CATEGORIA: <intención>"), para que la
+# comparación entre frameworks mida la misma tarea con el mismo LLM.
+#
+# Nota metodológica: como ambos frameworks delegan la decisión al mismo modelo
+# (google/gemma-4-12B-it), se espera una accuracy parecida; lo que difiere
+# entre CrewAI y LangGraph es el MECANISMO de ruteo (delegación vs edge
+# condicional), la latencia y qué tan explícito queda el flujo de datos — no
+# la calidad de la clasificación en sí. Verificado el 2026-07-23 en el notebook
+# (notebooks/comparativa.ipynb): ambos 100% en muestra de 50, latencias
+# similares.
+def _extraer_categoria(texto: str) -> str:
+    match = re.search(r"CATEGORIA:\s*([A-Z_]+)", texto)
+    candidata = match.group(1) if match else None
+    if candidata in INTENCIONES:
+        return candidata
+    return next((o for o in INTENCIONES if o in texto), "SMALL_TALK")
 
 
-# Versión A2: el clasificador es una herramienta que el Orchestrator-LLM consulta antes de delegar.
-def procesar_consulta_v_a2(consulta: str) -> dict:
-    import asyncio
-    import time
-
-    inicio = time.time()
-
-    orchestrator = crear_orchestrator_con_herramienta()
-    medicacion   = crear_agente_medicacion()
-    recetas      = crear_agente_recetas()
-    familia      = crear_agente_familia_stub()
-    emergencia   = crear_agente_emergencia_stub()
-
+def _crew_clasificacion(consulta: str) -> Crew:
+    orchestrator = crear_orchestrator()
     tarea = Task(
         description=(
-            f"El usuario dijo: '{consulta}'. "
-            f"Usa la herramienta de clasificación para identificar la intención, "
-            f"luego delega al especialista correcto."
+            f"El usuario adulto mayor dijo: '{consulta}'. Clasifica su intención "
+            f"en UNA de estas categorías: {', '.join(INTENCIONES)}. Razona en "
+            "1-2 líneas y termina con una última línea con el formato exacto: "
+            "CATEGORIA: <una de esas categorías>"
         ),
-        expected_output="Respuesta en español del especialista correspondiente.",
+        expected_output="Un razonamiento breve y una última línea 'CATEGORIA: <intención>'.",
         agent=orchestrator,
     )
+    return Crew(agents=[orchestrator], tasks=[tarea], process=Process.sequential, verbose=False)
 
-    crew = Crew(
-        agents=[orchestrator, medicacion, recetas, familia, emergencia],
-        tasks=[tarea],
-        process=Process.sequential,
-        verbose=False,
-    )
 
-    resultado = asyncio.run(crew.kickoff_async())
-    latencia  = time.time() - inicio
+def clasificar_consulta(consulta: str) -> str:
+    """Devuelve la intención (una de INTENCIONES) que el Orchestrator asigna a
+    la consulta. Una sola llamada al LLM, comparable con
+    langgraph.grafo.clasificar_consulta(). Versión síncrona (scripts/demos)."""
+    resultado = str(_crew_clasificacion(consulta).kickoff(inputs={"consulta": consulta}))
+    return _extraer_categoria(resultado)
 
-    return {
-        "version":            "A2",
-        "consulta":           consulta,
-        "intencion":          None,  # A2 no expone la intención de forma estructurada
-        "respuesta":          str(resultado),
-        "latencia_segundos":  round(latencia, 2),
-    }
+
+async def clasificar_consulta_async(consulta: str) -> str:
+    """Igual que clasificar_consulta pero con kickoff_async, para Jupyter
+    (donde CrewAI exige kickoff_async por el event loop activo)."""
+    resultado = str(await _crew_clasificacion(consulta).kickoff_async(inputs={"consulta": consulta}))
+    return _extraer_categoria(resultado)

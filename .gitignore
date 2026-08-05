@@ -14,6 +14,9 @@ __pycache__/
 # Checkpoints de Jupyter
 .ipynb_checkpoints/
 
+# Base vectorial local del RAG de recetas (se regenera con rag/ingesta.py)
+rag/chroma_db/
+
 # Sistema operativo
 Thumbs.db
 .DS_Store
