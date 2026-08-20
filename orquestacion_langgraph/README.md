@@ -1,6 +1,6 @@
 # Réplica en LangGraph
 
-Misma arquitectura de agentes que `../crewai/`, reimplementada en LangGraph para
+Misma arquitectura de agentes que `../orquestacion_crewai/`, reimplementada en LangGraph para
 la comparación de frameworks que pidieron los tutores (correo del 2026-07-21).
 La diferencia central: en CrewAI el Orchestrator **delega** a otro agente
 (tool calling interno del framework); aquí el Orchestrator escribe la intención
@@ -13,7 +13,7 @@ agentes de la tesis:
 
 - Orchestrator
 - Especialista en Medicación y Salud (real)
-- Especialista en Recetas y Multimedia (real, con RAG — ver `../rag/`)
+- Especialista en Recetas y Multimedia (real, con **RAG agéntico** — ver `rag_agentico/`)
 - Family Bridge (stub)
 - Emergency Sentinel (stub)
 
@@ -29,8 +29,13 @@ START -> orchestrator -> (edge condicional según "intencion") -> especialista -
 1. Entra la `consulta` del usuario al estado compartido.
 2. El nodo `orchestrator` la analiza y escribe `intencion` + `razonamiento` en ese estado.
 3. Un edge condicional lee `intencion` y decide a qué nodo especialista saltar.
-4. El especialista lee `consulta` (y, en recetas, el resultado del RAG) y escribe `respuesta`.
+4. El especialista lee `consulta` y escribe `respuesta`.
 5. El grafo termina (`END`) y devuelve el estado final completo.
+
+El nodo `recetas` es un caso aparte: no responde él mismo, invoca el **subgrafo de
+RAG agéntico** (`rag_agentico/`), que tiene su propio estado y su propio ciclo
+interno. Devuelve la respuesta más una `traza_rag` que se propaga al estado
+principal solo para poder inspeccionarla — ningún nodo la lee para decidir nada.
 
 **El punto clave para la tesis**: los agentes no se pasan mensajes directos.
 Comparten un único objeto de estado (`EstadoConversacion`, en `estado.py`) que
@@ -43,16 +48,18 @@ entre los agentes" (ver `../notebooks/comparativa.ipynb`).
 
 ## Estructura
 
-- `estado.py` — el `State` (`TypedDict`) que viaja entre nodos: `consulta` (entrada, no cambia), `intencion` y `razonamiento` (los escribe el orchestrator), `respuesta` (la escribe el especialista). Cada nodo devuelve un `dict` parcial y LangGraph lo mergea sobre el estado acumulado.
-- `agentes.py` — LLM compartido y las funciones de cada nodo. Incluye `clasificar_consulta()` (solo la decisión del orchestrator, para medir accuracy de ruteo).
+- `estado.py` — el `State` (`TypedDict`) que viaja entre nodos: `consulta` (entrada, no cambia), `intencion` y `razonamiento` (los escribe el orchestrator), `respuesta` (la escribe el especialista) y `traza_rag` (solo si pasó por recetas). Cada nodo devuelve un `dict` parcial y LangGraph lo mergea sobre el estado acumulado.
+- `llm.py` — cliente `ChatOpenAI` compartido y la config de endpoints. Está separado de `agentes.py` porque el subgrafo de RAG también lo necesita, y `agentes.py` importa el subgrafo: dejarlo ahí sería un import circular.
+- `agentes.py` — las funciones de cada nodo. Incluye `clasificar_consulta()` (solo la decisión del orchestrator, para medir accuracy de ruteo). Re-exporta la config de `llm.py` por compatibilidad con la demo y el notebook.
 - `grafo.py` — construye el `StateGraph` (`add_node`, `add_edge`, `add_conditional_edges`, `compile`) y expone `procesar_consulta()`, `procesar_consulta_verbose()`, `traza_por_nodo()` y `clasificar_consulta()`.
-- `demo.py` — demo en vivo (mismo formato que `../crewai/demo.py`): intención detectada, razonamiento y respuesta, con traza nodo por nodo.
-- `visualizar.py` — dibuja el grafo (`draw_ascii` local vía `grandalf`, `draw_mermaid`, o PNG vía `mermaid.ink` en `grafo.png`).
+- `rag_agentico/` — el subgrafo del especialista en recetas: decide si buscar, evalúa relevancia, reformula y reintenta, o admite que no encontró. Tiene su propio README con las reglas del ciclo.
+- `demo.py` — demo en vivo (mismo formato que `../orquestacion_crewai/demo.py`): intención detectada, razonamiento y respuesta, con traza nodo por nodo. En consultas de receta imprime además el ciclo interno del RAG.
+- `visualizar.py` — dibuja el grafo principal (`grafo.png`) y el subgrafo de RAG (`grafo_rag.png`): `draw_ascii` local vía `grandalf`, `draw_mermaid`, o PNG vía `mermaid.ink`.
 
-Uso:
+Uso (desde la raíz del repo):
 ```bash
-python langgraph/demo.py                 # corre las 3 frases de ejemplo
-python langgraph/demo.py "tu frase aquí" # corre una frase propia
+python -m orquestacion_langgraph.demo                 # corre las 3 frases de ejemplo
+python -m orquestacion_langgraph.demo "tu frase aquí" # corre una frase propia
 ```
 
 ## Hallazgo: salida estructurada de Pydantic no fue confiable aquí
@@ -80,11 +87,13 @@ pequeños servidos localmente.
 ## Decisiones y supuestos (para la tesis)
 
 - **Mismo LLM que CrewAI**: `google/gemma-4-12B-it` vía vLLM (OpenAI-compatible) en el servidor de la universidad, para que la comparación no mezcle la variable "modelo". Antes del 2026-07-23 era `llama3.1:8b` vía Ollama (ver `../README.md`, "Reglas y supuestos de esta migración").
-- **Mismos roles/prompts** que los agentes de `../crewai/agentes.py`, adaptados a un solo prompt por nodo, para que la comparación sea justa.
+- **Mismos roles/prompts** que los agentes de `../orquestacion_crewai/agentes.py`, adaptados a un solo prompt por nodo, para que la comparación sea justa.
 - **Family y Emergency son stubs**: respuestas fijas, sin LLM y sin integración real.
 - **Small talk** responde fijo, sin llamar al LLM (mismo atajo que CrewAI).
 
 ## Pendiente
 
-- Comparar formalmente contra `../crewai/` — ya arrancado en `../notebooks/comparativa.ipynb` (accuracy de ruteo con `../dataset.csv`); falta cerrar latencia, líneas de código y legibilidad del flujo de datos.
+- **Replicar el subgrafo de RAG agéntico en CrewAI.** Es la prueba de fuego de la comparación: el ciclo `reformular -> recuperar` y el reducer de estado acumulado (`Annotated[list, operator.add]`) son justo lo que los tutores señalaron como limitación de CrewAI. Si no se puede replicar, la limitación queda demostrada en vez de citada.
+- Comparar formalmente contra `../orquestacion_crewai/` — ya arrancado en `../notebooks/comparativa.ipynb` (accuracy de ruteo con `../dataset.csv`); falta cerrar latencia, líneas de código y legibilidad del flujo de datos.
+- Medir con el LLM real cuántas veces el evaluador de relevancia acierta y cuántas la reformulación rescata una búsqueda fallida (celdas ya escritas en el notebook, sin ejecutar por falta de VPN).
 - **Repetir el hallazgo de salida estructurada con el modelo actual.** El hallazgo de arriba se probó con `llama3.1:8b`/`qwen3.6` en Ollama, no con `google/gemma-4-12B-it` en vLLM. La solución actual (texto libre + regex + validación posterior) se dejó igual como precaución y el ruteo funciona al 100% en la muestra evaluada (`../notebooks/comparativa.ipynb`), pero falta confirmar si `with_structured_output` (JSON forzado) seguiría fallando con este modelo/servidor.

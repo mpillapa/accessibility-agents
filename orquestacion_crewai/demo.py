@@ -2,9 +2,9 @@
 # especialista (allow_delegation=True, sin clasificador). Con verbose=True se
 # ve en pantalla cómo el agente razona y a quién delega.
 #
-# Uso:
-#   python crewai/demo.py                 -> corre las frases de ejemplo
-#   python crewai/demo.py "tu frase aquí" -> corre una frase que tú escribes
+# Uso (desde la raíz del repo):
+#   python -m orquestacion_crewai.demo                 -> corre las frases de ejemplo
+#   python -m orquestacion_crewai.demo "tu frase aquí" -> corre una frase que tú escribes
 #
 # El LLM corre en el servidor vLLM remoto de la universidad (ver agentes.py:
 # VLLM_CHAT_BASE_URL / VLLM_CHAT_MODEL), no local. La demo comprueba ese
@@ -13,13 +13,10 @@
 
 import sys
 import time
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
 
 import requests
 from crewai import Task, Crew, Process
-from agentes import (
+from orquestacion_crewai.agentes import (
     VLLM_CHAT_BASE_URL,
     VLLM_CHAT_MODEL,
     VLLM_API_KEY,

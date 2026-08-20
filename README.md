@@ -40,10 +40,12 @@ Mismo alcance de agentes implementado en ambos frameworks, para que la comparaci
 
 Mismo LLM en los dos: `google/gemma-4-12B-it`, servido por vLLM (OpenAI-compatible) en el servidor H200 de la universidad (requiere VPN institucional). Antes del 2026-07-23 se usaba `llama3.1:8b` vía Ollama; se migró porque el equipo de tutores pidió estandarizar todo el acceso a LLMs sobre el protocolo OpenAI-compatible (ver `Acceso a los Endpoints de LLMs.pdf`, correo del 2026-07-23). El cambio de proveedor implica también cambio de modelo — la comparación de frameworks previa a esa fecha corrió sobre `llama3.1:8b`, no sobre `gemma-4-12B-it`. El model id debe escribirse EXACTO al que devuelve `GET /v1/models` del servidor; el nombre del PDF (`gemma-4-31B`) no coincide con el modelo realmente desplegado.
 
-- **CrewAI** (`crewai/`): el Orchestrator es un `Agent` con `allow_delegation=True` — decide y delega a otro agente mediante tool calling interno del framework.
-- **LangGraph** (`langgraph/`): el Orchestrator es un nodo que escribe la intención en un estado compartido (`EstadoConversacion`), y un edge condicional rutea explícitamente al nodo especialista correspondiente.
+- **CrewAI** (`orquestacion_crewai/`): el Orchestrator es un `Agent` con `allow_delegation=True` — decide y delega a otro agente mediante tool calling interno del framework.
+- **LangGraph** (`orquestacion_langgraph/`): el Orchestrator es un nodo que escribe la intención en un estado compartido (`EstadoConversacion`), y un edge condicional rutea explícitamente al nodo especialista correspondiente.
 
-Ver `langgraph/README.md` para el detalle de la implementación, el flujo de datos entre nodos y un hallazgo relevante sobre salida estructurada con Pydantic que no fue confiable con los modelos disponibles (documentado con `llama3.1:8b`/Ollama — pendiente repetir la prueba con `gemma-4-12B-it`/vLLM).
+> Las carpetas se llaman `orquestacion_crewai/` y `orquestacion_langgraph/`, y no `crewai/` / `langgraph/`, a propósito: con el nombre del paquete pip Python resolvía un *namespace package* que mezclaba la carpeta del repo con la librería instalada. Funcionaba por casualidad y obligaba a manipular `sys.path` en cada módulo y en el notebook. Ver "Reglas y supuestos" al final.
+
+Ver `orquestacion_langgraph/README.md` para el detalle de la implementación, el flujo de datos entre nodos y un hallazgo relevante sobre salida estructurada con Pydantic que no fue confiable con los modelos disponibles (documentado con `llama3.1:8b`/Ollama — pendiente repetir la prueba con `gemma-4-12B-it`/vLLM).
 
 **Verificado en VPN institucional (2026-07-23)**: la migración completa (incluido el RAG de recetas) se ejecutó end-to-end contra los servidores de la universidad. Confirmado: `gemma-4-12B-it` soporta tool calling (por tanto `allow_delegation=True` de CrewAI funciona y el agente de recetas invoca la tool de RAG), los embeddings de `bge-m3` responden (1024-dim) y `GLM-OCR` transcribe imágenes con el formato `image_url` base64. El notebook `notebooks/comparativa.ipynb` está ejecutado con salidas reales.
 
@@ -53,15 +55,36 @@ El especialista en recetas dejó de ser un rol sin datos: ahora consulta un rece
 
 - **Embeddings**: `BGE-M3`, servido por vLLM (OpenAI-compatible, puerto 12556).
 - **OCR/visión**: `glm-ocr` (OpenAI-compatible, puerto 12560), para fotos de recetas manuscritas.
-- **Vector store**: ChromaDB local, persistida en `rag/chroma_db/` (no versionada — se regenera con `rag/ingesta.py`).
+- **Vector store**: ChromaDB local, persistida en `rag/chroma_db/` (no versionada — se regenera con `python -m rag.ingesta`).
 - **Datos**: `rag/recetas_data/` — 2 recetas en texto plano y 1 imagen **sintética** (texto tipeado renderizado como imagen con `rag/recetas_data/generar_imagen_mock.py`, NO una foto real de una receta manuscrita) para poder probar la ruta imagen → OCR → embeddings → ChromaDB de punta a punta. Cuando exista una foto real, reemplaza esa imagen y vuelve a correr la ingesta.
 
 Uso:
 ```bash
-python rag/ingesta.py   # (re)genera rag/chroma_db/ a partir de rag/recetas_data/
+python -m rag.ingesta   # (re)genera rag/chroma_db/ a partir de rag/recetas_data/
 ```
 
-En CrewAI el RAG se expone como tool (`buscar_en_recetario`) que el propio agente decide invocar. En LangGraph el nodo `nodo_recetas` hace la recuperación explícitamente antes de llamar al LLM, siguiendo el mismo estilo de flujo de datos explícito del resto del grafo.
+En CrewAI el RAG se expone como tool (`buscar_en_recetario`) que el propio agente decide invocar. En LangGraph el nodo `nodo_recetas` delega en un subgrafo de RAG agéntico — ver abajo.
+
+## 3.2 RAG agéntico (2026-08-19)
+
+Pedido de los tutores en la reunión del 2026-08-19: que el RAG deje de ser un componente aislado y se integre al sistema multiagente. Al revisarlo, la integración ya existía (`nodo_recetas` llamaba a `buscar_receta()`); lo que faltaba era que la recuperación fuera una **decisión** y no un paso fijo.
+
+`orquestacion_langgraph/rag_agentico/` es un subgrafo que:
+
+1. decide si hace falta consultar el recetario (un agradecimiento no lo necesita),
+2. recupera de ChromaDB,
+3. juzga fragmento por fragmento si lo recuperado responde la consulta,
+4. si no responde, **reformula la consulta y reintenta** (hasta `MAX_INTENTOS_RECUPERACION`),
+5. si sigue sin encontrar, lo admite explícitamente en vez de improvisar una receta.
+
+El caso que lo motiva es propio de esta población: un adulto mayor dice *"eso dulce del arrocito que hacía mi mamá"* y el recetario está indexado como *"arroz con leche"*. La búsqueda falla por vocabulario, no porque falte la receta — un pipeline lineal responde mal, este vuelve sobre sus pasos.
+
+Detalle del flujo, reglas de negocio, costo en llamadas al LLM y qué de esto es material para el paper: `orquestacion_langgraph/rag_agentico/README.md`.
+
+Pruebas del ciclo, sin VPN ni servidor (usan dobles en lugar del LLM):
+```bash
+python -m pruebas.prueba_ciclo_rag
+```
 
 ---
 
@@ -69,25 +92,33 @@ En CrewAI el RAG se expone como tool (`buscar_en_recetario`) que el propio agent
 
 ```
 accessibility-agents/
-├── crewai/
+├── orquestacion_crewai/
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
 │   └── demo.py                   Demo en vivo (verbose=True: muestra razonamiento y delegación)
-├── langgraph/
-│   ├── estado.py                 State del grafo
-│   ├── agentes.py                Nodos del grafo (mismos roles/prompts que crewai/agentes.py)
+├── orquestacion_langgraph/
+│   ├── estado.py                 State del grafo principal
+│   ├── llm.py                    Cliente LLM compartido (aparte, para evitar imports circulares)
+│   ├── agentes.py                Nodos del grafo (mismos roles/prompts que orquestacion_crewai/agentes.py)
 │   ├── grafo.py                  StateGraph + edges condicionales; traza_por_nodo() y clasificar_consulta()
+│   ├── rag_agentico/             SUBGRAFO de recuperación del especialista en recetas
+│   │   ├── estado.py             EstadoRAG + reglas de negocio del ciclo (constantes con nombre)
+│   │   ├── nodos.py              decidir / recuperar / evaluar / reformular / generar / sin_resultado
+│   │   ├── subgrafo.py           StateGraph del ciclo + consultar_recetario()
+│   │   └── README.md             Flujo, reglas, costo en llamadas al LLM y aportes al paper
 │   ├── demo.py                   Demo en vivo (traza nodo por nodo vía stream())
-│   ├── visualizar.py             Genera el diagrama del grafo (grafo.png)
+│   ├── visualizar.py             Diagramas del grafo principal y del subgrafo de RAG
 │   └── README.md                 Alcance, flujo/cruce de información y hallazgos técnicos
-├── rag/
+├── rag/                           CAPA DE ACCESO A DATOS (no decide nada, solo consulta)
 │   ├── config.py                 Endpoints/modelos vLLM para embeddings y OCR (desde .env)
 │   ├── embeddings.py              Llama a BGE-M3 (OpenAI-compatible)
 │   ├── ocr.py                    Llama a glm-ocr para imágenes (OpenAI-compatible, formato "vision")
 │   ├── ingesta.py                 Lee rag/recetas_data/, OCR+embeddings, guarda en ChromaDB
-│   ├── buscar.py                  Búsqueda semántica sobre el recetario ya ingerido
+│   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
 │   └── recetas_data/              2 recetas en texto + 1 imagen sintética (ver generar_imagen_mock.py)
+├── pruebas/
+│   └── prueba_ciclo_rag.py       Los 4 caminos del subgrafo de RAG, con dobles (no requiere VPN)
 ├── notebooks/
-│   └── comparativa.ipynb         Cruce de información entre agentes (CrewAI vs LangGraph) + accuracy de ruteo
+│   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
 ├── requirements.txt              Dependencias
 ├── .env.example                   Config de endpoints vLLM (chat, embeddings, OCR)
@@ -121,29 +152,38 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # 5. Ingerir el recetario (OCR + embeddings -> ChromaDB local), una sola vez
-python rag/ingesta.py
+python -m rag.ingesta
 ```
+
+> Todos los comandos se corren **desde la raíz del repo** y con `python -m`, porque
+> el proyecto está organizado como paquetes de Python. Correr los archivos
+> directamente (`python orquestacion_langgraph/demo.py`) falla con `ModuleNotFoundError`.
 
 Demo de CrewAI:
 ```bash
-python crewai/demo.py                 # frases de ejemplo
-python crewai/demo.py "tu frase aquí" # una frase propia
+python -m orquestacion_crewai.demo                 # frases de ejemplo
+python -m orquestacion_crewai.demo "tu frase aquí" # una frase propia
 ```
 
 Demo de LangGraph (con traza nodo por nodo):
 ```bash
-python langgraph/demo.py
-python langgraph/demo.py "tu frase aquí"
+python -m orquestacion_langgraph.demo
+python -m orquestacion_langgraph.demo "tu frase aquí"
 ```
 
 Ver el diagrama del grafo de LangGraph:
 ```bash
-python langgraph/visualizar.py
+python -m orquestacion_langgraph.visualizar
 ```
 
-Comparativa (cruce de información entre agentes + accuracy de ruteo):
+Comparativa (cruce de información entre agentes + ciclo del RAG + accuracy de ruteo):
 ```bash
 jupyter notebook notebooks/comparativa.ipynb
+```
+
+Pruebas del ciclo de RAG agéntico (**no** requieren VPN: usan dobles en lugar del LLM):
+```bash
+python -m pruebas.prueba_ciclo_rag
 ```
 
 ---
@@ -156,6 +196,15 @@ jupyter notebook notebooks/comparativa.ipynb
 - RAG de recetas: `BAAI/bge-m3` (embeddings) + `zai-org/GLM-OCR` (OCR/visión para recetas manuscritas) vía vLLM, ChromaDB local
 - Visualización del grafo: Mermaid (vía LangGraph) y `grandalf` (ASCII local)
 
+## Reestructuración del repo (2026-08-19)
+
+Trabajo de base previo a incorporar los pendientes de la reunión con los tutores (RAG agéntico, Whisper, pruebas de OCR degradado). No cambia ningún comportamiento del sistema: mismos agentes, mismos prompts, mismo modelo.
+
+- **Colisión de nombres resuelta**: las carpetas `crewai/` y `langgraph/` se llamaban igual que los paquetes de PyPI. Python resolvía un *namespace package* que fusionaba ambas rutas — funcionaba por casualidad y se habría roto al agregar un `__init__.py` o un módulo con nombre coincidente. Renombradas a `orquestacion_crewai/` y `orquestacion_langgraph/`.
+- **Imports absolutos**: al ser paquetes reales, se eliminaron los `sys.path.insert(...)` que había en 8 módulos y el bloque de ~30 líneas de `importlib` en `notebooks/comparativa.ipynb` (que existía solo para sortear la colisión). El notebook ahora importa con `import orquestacion_langgraph.grafo as lg`.
+- **Forma de ejecutar**: ahora es `python -m paquete.modulo` desde la raíz del repo, no `python carpeta/archivo.py`.
+- **`.env.example` creado**: el README lo documentaba como paso obligatorio pero el archivo no existía ni estaba versionado, así que un clon del repo no era ejecutable. Contiene los mismos endpoints que ya estaban como valores por defecto en el código y una `VLLM_API_KEY` ficticia.
+
 ## Reglas y supuestos de esta migración (2026-07-23)
 
 - **Regla de negocio**: los tutores pidieron estandarizar el acceso a LLMs sobre el protocolo OpenAI-compatible (vLLM), en vez de Ollama. Fuente: PDF "Acceso a los Endpoints de LLMs" + correo del 2026-07-23. No hay otra regla de negocio detrás del cambio de proveedor.
@@ -164,4 +213,4 @@ jupyter notebook notebooks/comparativa.ipynb
 - **Dato simulado**: `rag/recetas_data/` tiene 2 recetas en texto y 1 imagen sintética generada con Pillow (texto tipeado renderizado como imagen), no una foto real de una receta manuscrita. Sirve para probar el pipeline completo (imagen → OCR → embeddings → ChromaDB), no como contenido real del recetario. `dataset.csv` (415 frases) también es una base simulada.
 - **Entorno**: el `.venv` estaba creado para Python 3.11 (intérprete ya inexistente en el host, ahora 3.12); se reconstruyó con 3.12 y se reinstaló `requirements.txt`. Si se clona en otra máquina, recrear el venv con la versión de Python disponible.
 - **Seguridad**: el endpoint vLLM no requiere autenticación real (según el PDF); `VLLM_API_KEY` es un valor cualquiera, no un secreto. El acceso depende del aislamiento de la VPN institucional, no de esta clave.
-- **Pendiente**: repetir con `gemma-4-12B-it` el hallazgo de salida estructurada con Pydantic documentado en `langgraph/README.md` (se probó con `llama3.1:8b`/`qwen3.6`, no con este modelo); ampliar la muestra de accuracy de 50 al dataset completo si se quiere el número definitivo.
+- **Pendiente**: repetir con `gemma-4-12B-it` el hallazgo de salida estructurada con Pydantic documentado en `orquestacion_langgraph/README.md` (se probó con `llama3.1:8b`/`qwen3.6`, no con este modelo); ampliar la muestra de accuracy de 50 al dataset completo si se quiere el número definitivo.

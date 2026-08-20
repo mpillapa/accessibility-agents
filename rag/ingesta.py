@@ -2,13 +2,10 @@
 # imágenes por OCR (glm-ocr), trocea el texto resultante, lo embebe (BGE-M3)
 # y lo guarda en una colección local de ChromaDB persistida en rag/chroma_db/.
 #
-# Uso:
-#   python rag/ingesta.py
+# Uso (desde la raíz del repo):
+#   python -m rag.ingesta
 
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import chromadb
 

@@ -4,8 +4,8 @@
 
 from langgraph.graph import StateGraph, START, END
 
-from estado import EstadoConversacion
-from agentes import (
+from orquestacion_langgraph.estado import EstadoConversacion
+from orquestacion_langgraph.agentes import (
     nodo_orchestrator,
     ruta_siguiente_nodo,
     nodo_medicacion,
@@ -17,7 +17,13 @@ from agentes import (
 
 
 def _estado_inicial(consulta: str) -> dict:
-    return {"consulta": consulta, "intencion": None, "razonamiento": None, "respuesta": None}
+    return {
+        "consulta": consulta,
+        "intencion": None,
+        "razonamiento": None,
+        "respuesta": None,
+        "traza_rag": None,
+    }
 
 
 def construir_grafo():
@@ -60,6 +66,7 @@ def procesar_consulta(consulta: str) -> dict:
         "intencion": resultado["intencion"],
         "razonamiento": resultado.get("razonamiento"),
         "respuesta": resultado["respuesta"],
+        "traza_rag": resultado.get("traza_rag"),
         "latencia_segundos": round(latencia, 2),
     }
 
@@ -92,6 +99,7 @@ def procesar_consulta_verbose(consulta: str) -> dict:
         "intencion": estado_acumulado["intencion"],
         "razonamiento": estado_acumulado.get("razonamiento"),
         "respuesta": estado_acumulado["respuesta"],
+        "traza_rag": estado_acumulado.get("traza_rag"),
         "latencia_segundos": round(latencia, 2),
     }
 

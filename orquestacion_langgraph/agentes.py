@@ -1,31 +1,18 @@
-import os
 import re
-import sys
-from pathlib import Path
 from typing import Literal
 
-from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from estado import EstadoConversacion
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from rag.buscar import buscar_receta
-
-
-load_dotenv(Path(__file__).parent.parent / ".env", override=True)
-
-VLLM_CHAT_BASE_URL = os.getenv("VLLM_CHAT_BASE_URL", "http://172.28.230.10:12559/v1")
-VLLM_CHAT_MODEL = os.getenv("VLLM_CHAT_MODEL", "google/gemma-4-12B-it")
-VLLM_API_KEY = os.getenv("VLLM_API_KEY", "local")
-
-llm = ChatOpenAI(
-    model=VLLM_CHAT_MODEL,
-    base_url=VLLM_CHAT_BASE_URL,
-    api_key=VLLM_API_KEY,
-    temperature=0.3,  # bajo para que el ruteo sea consistente
+from orquestacion_langgraph.estado import EstadoConversacion
+# La config del LLM vive en llm.py para que el subgrafo de RAG pueda usarla
+# sin importar este módulo (que a su vez importa el subgrafo).
+from orquestacion_langgraph.llm import (
+    VLLM_API_KEY,
+    VLLM_CHAT_BASE_URL,
+    VLLM_CHAT_MODEL,
+    llm,
 )
+from orquestacion_langgraph.rag_agentico.subgrafo import consultar_recetario
 
 INTENCIONES = [
     "MEDICATION_HEALTH",
@@ -94,27 +81,22 @@ def nodo_medicacion(estado: EstadoConversacion) -> dict:
 
 
 
-# Especialista en recetas y multimedia culinaria (mismo rol que CrewAI), hace la recuperación de información antes de llamar al LLM.
+# Especialista en recetas: delega en el subgrafo de RAG agéntico.
+#
+# Antes este nodo hacía la recuperación él mismo (una llamada a buscar_receta()
+# con k fijo) y le pasaba al LLM lo que saliera, relevante o no. Ahora invoca
+# un subgrafo que decide si buscar, evalúa lo recuperado, reformula la consulta
+# si hace falta y admite cuando no encontró nada. Ver rag_agentico/README.md.
+#
+# El subgrafo tiene su propio estado (EstadoRAG): el grafo principal no necesita
+# conocer los intentos ni los fragmentos descartados, solo la respuesta y la
+# traza. Ese límite es lo que permite reemplazar el RAG sin tocar el grafo.
 def nodo_recetas(estado: EstadoConversacion) -> dict:
-    fragmentos = buscar_receta(estado["consulta"], k=3)
-    if fragmentos:
-        contexto = "\n---\n".join(fragmentos)
-    else:
-        contexto = (
-            "(El recetario no tiene resultados para esta consulta, o todavía "
-            "no se ha ingerido — correr 'python rag/ingesta.py'.)"
-        )
-
-    respuesta = llm.invoke(
-        "Eres un asistente culinario que ayuda a personas mayores a preparar "
-        "comidas. Adaptas medidas técnicas a referencias cotidianas (ej: 300ml "
-        "= un vaso grande) para que sean comprensibles sin instrumentos de "
-        "medición. Guías paso a paso y respondes en español. No inventes "
-        "ingredientes ni pasos que no estén en el recetario de abajo.\n\n"
-        f"Recetario (resultado de la búsqueda):\n{contexto}\n\n"
-        f"Consulta del usuario: '{estado['consulta']}'"
-    )
-    return {"respuesta": respuesta.content}
+    resultado = consultar_recetario(estado["consulta"])
+    return {
+        "respuesta": resultado["respuesta"],
+        "traza_rag": resultado["traza"],
+    }
 
 
 # Stub de comunicación con familia: no ejecuta acción real, solo confirma.

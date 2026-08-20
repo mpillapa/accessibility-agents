@@ -1,13 +1,11 @@
 import os
 import re
-import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from rag.buscar import buscar_receta
 
 # override=True: el .env del proyecto manda sobre variables ya presentes en el

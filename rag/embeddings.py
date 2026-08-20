@@ -1,10 +1,5 @@
 # Embeddings vía BGE-M3, servido como endpoint OpenAI-compatible por vLLM.
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from openai import OpenAI
 
 from rag.config import VLLM_API_KEY, VLLM_EMBEDDINGS_BASE_URL, VLLM_EMBEDDINGS_MODEL
