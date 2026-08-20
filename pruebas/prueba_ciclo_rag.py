@@ -74,12 +74,37 @@ class BusquedaFalsa:
         return self.fragmentos_por_llamada[i]
 
 
-FRAGMENTO = [{"texto": "Arroz con leche: hervir el arroz...", "fuente": "arroz.txt", "distancia": 0.2}]
+class FuenteFalsa:
+    """Doble de rag.buscar.fragmentos_de_fuente: devuelve la receta completa de
+    un archivo. Sirve para verificar la expansión de contexto."""
+
+    def __init__(self, por_fuente):
+        self.por_fuente = por_fuente
+        self.consultadas = []
+
+    def __call__(self, fuente):
+        self.consultadas.append(fuente)
+        return self.por_fuente.get(fuente, [])
 
 
-def preparar(llm_falso, busqueda_falsa):
+FRAGMENTO = [{"texto": "Arroz con leche: hervir el arroz...", "fuente": "arroz.txt",
+              "distancia": 0.2, "orden": 1}]
+
+# La misma receta completa, como la devolvería fragmentos_de_fuente().
+RECETA_COMPLETA = {
+    "arroz.txt": [
+        {"texto": "Arroz con leche", "fuente": "arroz.txt", "orden": 0},
+        {"texto": "Arroz con leche: hervir el arroz...", "fuente": "arroz.txt", "orden": 1},
+        {"texto": "Agregar la canela y la leche condensada.", "fuente": "arroz.txt", "orden": 2},
+        {"texto": "Servir frío, espolvoreado con canela.", "fuente": "arroz.txt", "orden": 3},
+    ]
+}
+
+
+def preparar(llm_falso, busqueda_falsa, fuente_falsa=None):
     nodos.llm = llm_falso
     nodos.buscar_receta_detallado = busqueda_falsa
+    nodos.fragmentos_de_fuente = fuente_falsa or FuenteFalsa(RECETA_COMPLETA)
 
 
 # --- Casos -----------------------------------------------------------------
@@ -96,9 +121,38 @@ def caso_camino_directo():
     assert r["intentos"] == 1, f"debió buscar una sola vez, buscó {r['intentos']}"
     assert "reformular" not in llm.llamadas, "no debía reformular si encontró algo útil"
     assert [p["nodo"] for p in r["traza"]] == [
-        "decidir_busqueda", "recuperar", "evaluar_relevancia", "generar",
+        "decidir_busqueda", "recuperar", "evaluar_relevancia",
+        "expandir_contexto", "generar",
     ], f"camino inesperado: {[p['nodo'] for p in r['traza']]}"
     return "camino directo (encuentra en el primer intento)"
+
+
+def caso_expande_a_la_receta_completa():
+    """El filtro de relevancia aprueba fragmentos sueltos: de una receta
+    troceada en cuatro párrafos puede aprobar uno. Sin expansión, la respuesta
+    sale con un paso aislado en lugar de la receta.
+
+    Medido con el LLM real el 2026-08-19: ante "como hago el llapingacho" el
+    sistema recuperaba la receta correcta y respondía "fríelos en la manteca".
+    """
+    llm = LLMFalso(veredictos=["SI"])
+    busqueda = BusquedaFalsa([FRAGMENTO])
+    fuente = FuenteFalsa(RECETA_COMPLETA)
+    preparar(llm, busqueda, fuente)
+
+    r = consultar_recetario("receta del arroz con leche")
+
+    paso_expansion = next(p for p in r["traza"] if p["nodo"] == "expandir_contexto")
+    assert paso_expansion["fragmentos_aprobados"] == 1, "el filtro debía aprobar 1 fragmento"
+    assert paso_expansion["fragmentos_en_contexto"] == 4, (
+        f"debió expandir a los 4 fragmentos de la receta, expandió a "
+        f"{paso_expansion['fragmentos_en_contexto']}"
+    )
+    assert fuente.consultadas == ["arroz.txt"], f"consultó {fuente.consultadas}"
+
+    paso_generar = next(p for p in r["traza"] if p["nodo"] == "generar")
+    assert paso_generar["fragmentos_usados"] == 4, "el generador debía recibir la receta completa"
+    return "expande de 1 fragmento aprobado a la receta completa (4)"
 
 
 def caso_reformula_y_acierta():
@@ -157,6 +211,7 @@ def caso_no_consulta_recetario():
 
 CASOS = [
     caso_camino_directo,
+    caso_expande_a_la_receta_completa,
     caso_reformula_y_acierta,
     caso_se_rinde_sin_inventar,
     caso_no_consulta_recetario,

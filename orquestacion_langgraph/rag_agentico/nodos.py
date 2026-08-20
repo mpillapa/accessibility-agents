@@ -19,11 +19,13 @@ from pydantic import BaseModel
 from orquestacion_langgraph.llm import llm
 from orquestacion_langgraph.rag_agentico.estado import (
     EVALUAR_FRAGMENTO_POR_FRAGMENTO,
+    EXPANDIR_A_RECETA_COMPLETA,
     FRAGMENTOS_POR_BUSQUEDA,
     MAX_INTENTOS_RECUPERACION,
+    MAXIMO_CARACTERES_CONTEXTO,
     EstadoRAG,
 )
-from rag.buscar import buscar_receta_detallado
+from rag.buscar import buscar_receta_detallado, fragmentos_de_fuente
 
 
 # --- Validación de los juicios del LLM -------------------------------------
@@ -117,17 +119,50 @@ def nodo_recuperar(estado: EstadoRAG) -> dict:
 
 # --- Nodo 3: ¿lo recuperado sirve? -----------------------------------------
 
+def _nombre_legible_fuente(fuente: str) -> str:
+    """Convierte el nombre de archivo en algo que el LLM pueda leer como plato:
+    'arroz_con_leche.txt' -> 'arroz con leche'.
+
+    Algunos archivos del recetario se llaman 'receta1.jpeg' y no dicen de qué
+    plato son. En esos casos el nombre no aporta, pero tampoco estorba: el
+    evaluador sigue juzgando por el contenido del fragmento.
+    """
+    sin_extension = fuente.rsplit(".", 1)[0]
+    return sin_extension.replace("_", " ").replace("-", " ").strip()
+
+
 def _juzgar_fragmento(consulta: str, fragmento: dict) -> VeredictoRelevancia:
+    # Tres decisiones de este prompt, cada una por un fallo medido:
+    #
+    # 1. El criterio es "pertenece a la receta pedida", no "es útil". Con
+    #    "¿ayuda a responder?" el modelo aceptaba fragmentos de otro plato que
+    #    compartía un ingrediente.
+    #
+    # 2. Se le dice de qué receta viene el fragmento. Sin eso, ante "quiero
+    #    preparar sushi" el fragmento "Paso 1: cocinar el arroz en 500ml de
+    #    agua" recibía SI en las tres corridas — y con razón, porque el
+    #    fragmento no dice de qué receta es y cocinar arroz sí es parte de
+    #    hacer sushi. Agregando la fuente ("receta: arroz con leche") pasó a NO
+    #    en las tres, sin volverse más estricto con las consultas legítimas.
+    #    Ningún prompt lo resolvió sin este dato: el problema era falta de
+    #    información, no redacción.
+    #
+    # 3. El ejemplo del final usa la papa a propósito, y no el caso que se
+    #    estaba tratando de corregir (sushi / arroz con leche): con ese ejemplo
+    #    dentro del prompt, evaluar una consulta real de sushi daba veredictos
+    #    peores — el modelo mezclaba el ejemplo con el caso a juzgar.
     respuesta = llm.invoke(
-        "Eres un evaluador estricto. Decide si el fragmento de recetario de "
-        "abajo contiene información que ayude a responder la consulta del "
-        "usuario.\n\n"
-        "Responde SI solo si el fragmento habla de lo que el usuario está "
-        "preguntando. Que ambos hablen de cocina no lo hace útil: si el "
-        "usuario pregunta por una sopa y el fragmento es de un postre, la "
-        "respuesta es NO.\n\n"
-        f"Consulta del usuario: '{consulta}'\n\n"
-        f"Fragmento del recetario:\n{fragmento['texto']}\n\n"
+        "Eres un evaluador estricto de un buscador de recetas.\n\n"
+        f"El usuario pidió: '{consulta}'\n\n"
+        f"Fragmento del recetario (receta: \"{_nombre_legible_fuente(fragmento['fuente'])}\"):\n"
+        f"{fragmento['texto']}\n\n"
+        "Pregunta: ¿este fragmento pertenece a la receta que pidió el usuario?\n\n"
+        "SI = el fragmento es parte de ESA receta (su título, ingredientes, "
+        "pasos o forma de servirla).\n"
+        "NO = el fragmento es de una receta distinta, aunque comparta "
+        "ingredientes o técnica de cocción.\n\n"
+        "Compartir un ingrediente no basta: dos recetas que usan papa siguen "
+        "siendo recetas distintas.\n\n"
         "Razona en una línea y termina con una última línea exactamente así:\n"
         "VEREDICTO: SI   (o)   VEREDICTO: NO"
     ).content
@@ -246,11 +281,69 @@ def nodo_reformular(estado: EstadoRAG) -> dict:
     }
 
 
+# --- Nodo 5: recuperar la receta completa ----------------------------------
+
+def nodo_expandir_contexto(estado: EstadoRAG) -> dict:
+    """Trae el resto de los fragmentos de cada receta que pasó el filtro.
+
+    La búsqueda semántica devuelve fragmentos sueltos y el filtro de relevancia
+    es estricto, así que de una receta troceada en cinco párrafos puede quedar
+    aprobado uno solo. Redactar con ese único fragmento produce respuestas como
+    "para hacer llapingachos, fríelos en la manteca" — la receta correcta, pero
+    un paso aislado de ella.
+
+    Este nodo agrupa por archivo de origen y recupera la receta entera, en
+    orden. No vuelve a evaluar relevancia: si un fragmento de la receta pasó el
+    filtro, la receta es la que el usuario pidió.
+    """
+    utiles = estado["fragmentos_utiles"] or []
+
+    if not EXPANDIR_A_RECETA_COMPLETA:
+        return {
+            "fragmentos_contexto": utiles,
+            "traza": [{"nodo": "expandir_contexto", "expansion": "desactivada"}],
+        }
+
+    fuentes = list(dict.fromkeys(f["fuente"] for f in utiles))  # sin duplicar, en orden
+    contexto: list[dict] = []
+    for fuente in fuentes:
+        completos = fragmentos_de_fuente(fuente)
+        # Si la fuente no se puede reconstruir (colección vieja sin `orden`, o
+        # el archivo ya no está), se conserva lo que sí pasó el filtro.
+        contexto.extend(completos or [f for f in utiles if f["fuente"] == fuente])
+
+    # Recorte por presupuesto: primero los fragmentos que pasaron el filtro,
+    # porque son los que con seguridad responden la consulta.
+    textos_utiles = {f["texto"] for f in utiles}
+    if sum(len(f["texto"]) for f in contexto) > MAXIMO_CARACTERES_CONTEXTO:
+        priorizados = sorted(contexto, key=lambda f: f["texto"] not in textos_utiles)
+        recortado, acumulado = [], 0
+        for fragmento in priorizados:
+            if acumulado + len(fragmento["texto"]) > MAXIMO_CARACTERES_CONTEXTO:
+                continue
+            recortado.append(fragmento)
+            acumulado += len(fragmento["texto"])
+        # Se reordena para que la receta llegue al generador en su orden real.
+        contexto = sorted(recortado, key=lambda f: (f["fuente"], f.get("orden", 0)))
+
+    return {
+        "fragmentos_contexto": contexto,
+        "traza": [{
+            "nodo": "expandir_contexto",
+            "fuentes": fuentes,
+            "fragmentos_aprobados": len(utiles),
+            "fragmentos_en_contexto": len(contexto),
+            "caracteres": sum(len(f["texto"]) for f in contexto),
+        }],
+    }
+
+
 # --- Nodos terminales ------------------------------------------------------
 
 def nodo_generar(estado: EstadoRAG) -> dict:
-    """Redacta la respuesta final usando SOLO los fragmentos aceptados."""
-    contexto = "\n---\n".join(f["texto"] for f in estado["fragmentos_utiles"])
+    """Redacta la respuesta final usando SOLO el contexto recuperado."""
+    fragmentos = estado.get("fragmentos_contexto") or estado["fragmentos_utiles"]
+    contexto = "\n---\n".join(f["texto"] for f in fragmentos)
 
     respuesta = llm.invoke(
         "Eres un asistente culinario que ayuda a personas mayores a preparar "
@@ -270,8 +363,8 @@ def nodo_generar(estado: EstadoRAG) -> dict:
         "hubo_resultado": True,
         "traza": [{
             "nodo": "generar",
-            "fragmentos_usados": len(estado["fragmentos_utiles"]),
-            "fuentes": [f["fuente"] for f in estado["fragmentos_utiles"]],
+            "fragmentos_usados": len(fragmentos),
+            "fuentes": list(dict.fromkeys(f["fuente"] for f in fragmentos)),
         }],
     }
 

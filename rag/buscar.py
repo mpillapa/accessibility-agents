@@ -59,6 +59,40 @@ def buscar_receta_detallado(consulta: str, k: int = 3) -> list[dict]:
     ]
 
 
+def fragmentos_de_fuente(fuente: str) -> list[dict]:
+    """Devuelve todos los fragmentos de un archivo, en el orden en que estaban.
+
+    Sirve para reconstruir una receta completa a partir de uno de sus
+    fragmentos. La búsqueda semántica recupera fragmentos sueltos, y una receta
+    troceada por párrafos queda repartida en varios: sin esto, responder con el
+    fragmento recuperado da un paso aislado en vez de la receta.
+
+    Lista vacía si la colección no existe todavía.
+    """
+    cliente = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    try:
+        coleccion = cliente.get_collection(CHROMA_COLLECTION)
+    except Exception:
+        return []
+
+    resultado = coleccion.get(
+        where={"fuente": fuente},
+        include=["documents", "metadatas"],
+    )
+
+    fragmentos = [
+        {
+            "texto": texto,
+            "fuente": (metadatos or {}).get("fuente", fuente),
+            # `orden` puede faltar si la colección se generó con una versión
+            # anterior de rag/ingesta.py, que no lo guardaba.
+            "orden": (metadatos or {}).get("orden", 0),
+        }
+        for texto, metadatos in zip(resultado["documents"], resultado["metadatas"])
+    ]
+    return sorted(fragmentos, key=lambda f: f["orden"])
+
+
 def buscar_receta(consulta: str, k: int = 3) -> list[str]:
     """Devuelve hasta k fragmentos de receta relevantes para la consulta, solo
     como texto. Lo usa la tool de CrewAI, donde el framework espera un string.

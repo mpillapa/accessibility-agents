@@ -14,14 +14,21 @@
 #         (hay útiles)          (sin útiles,            (sin útiles,
 #              |                 quedan intentos)        sin intentos)
 #              v                        |                        |
-#           generar                 reformular              sin_resultado
+#      expandir_contexto            reformular              sin_resultado
 #              |                        |                        |
 #              v                        `--> recuperar           v
-#             END                            (ciclo)            END
+#           generar                          (ciclo)            END
+#              |
+#              v
+#             END
 #
 # El ciclo reformular -> recuperar es lo que distingue esto de un RAG lineal:
 # el grafo puede volver sobre sus pasos. En un pipeline fijo, una búsqueda que
 # falla por vocabulario termina en una respuesta mala o inventada.
+#
+# expandir_contexto está entre el filtro y el generador porque el filtro deja
+# pasar fragmentos sueltos: de una receta troceada en cinco párrafos puede
+# aprobar uno, y redactar con ese solo da un paso aislado en vez de la receta.
 
 from langgraph.graph import StateGraph, START, END
 
@@ -29,6 +36,7 @@ from orquestacion_langgraph.rag_agentico.estado import EstadoRAG
 from orquestacion_langgraph.rag_agentico.nodos import (
     nodo_decidir_busqueda,
     nodo_evaluar_relevancia,
+    nodo_expandir_contexto,
     nodo_generar,
     nodo_recuperar,
     nodo_reformular,
@@ -46,6 +54,7 @@ def construir_subgrafo_rag():
     grafo.add_node("recuperar", nodo_recuperar)
     grafo.add_node("evaluar_relevancia", nodo_evaluar_relevancia)
     grafo.add_node("reformular", nodo_reformular)
+    grafo.add_node("expandir_contexto", nodo_expandir_contexto)
     grafo.add_node("generar", nodo_generar)
     grafo.add_node("sin_resultado", nodo_sin_resultado)
     grafo.add_node("responder_sin_recetario", nodo_responder_sin_recetario)
@@ -58,7 +67,7 @@ def construir_subgrafo_rag():
 
     grafo.add_edge("recuperar", "evaluar_relevancia")
     grafo.add_conditional_edges("evaluar_relevancia", ruta_tras_evaluar, {
-        "generar": "generar",
+        "generar": "expandir_contexto",
         "reformular": "reformular",
         "sin_resultado": "sin_resultado",
     })
@@ -66,6 +75,7 @@ def construir_subgrafo_rag():
     # El arco que cierra el ciclo.
     grafo.add_edge("reformular", "recuperar")
 
+    grafo.add_edge("expandir_contexto", "generar")
     grafo.add_edge("generar", END)
     grafo.add_edge("sin_resultado", END)
     grafo.add_edge("responder_sin_recetario", END)
@@ -81,6 +91,7 @@ def _estado_inicial(consulta: str) -> dict:
         "intentos": 0,
         "fragmentos": None,
         "fragmentos_utiles": None,
+        "fragmentos_contexto": None,
         "respuesta": None,
         "hubo_resultado": None,
         "traza": [],

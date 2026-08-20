@@ -39,10 +39,13 @@ START -> decidir_busqueda
       (hay útiles)            (sin útiles,               (sin útiles,
            |                   quedan intentos)           sin intentos)
            v                          |                          |
-        generar                   reformular                sin_resultado
+   expandir_contexto              reformular                sin_resultado
            |                          |                          |
            v                          `--> recuperar (ciclo)     v
-          END                                                   END
+        generar                                                 END
+           |
+           v
+          END
 ```
 
 ## Reglas de negocio
@@ -55,6 +58,8 @@ que se puedan revisar y discutir sin leer el código de los nodos.
 | `MAX_INTENTOS_RECUPERACION` | 2 | El usuario espera a lo sumo dos rondas. Subirlo mejora el recall a costa de latencia, que aquí no es cosmética: un adulto mayor esperando frente a un dispositivo asume que se dañó. |
 | `FRAGMENTOS_POR_BUSQUEDA` | 3 | Se mantiene el `k=3` del RAG anterior para que la comparación no mezcle variables. |
 | `EVALUAR_FRAGMENTO_POR_FRAGMENTO` | `True` | Permite descartar un fragmento malo y conservar los buenos (patrón tipo CRAG). Cuesta una llamada al LLM por fragmento; ponerlo en `False` juzga el conjunto en una sola llamada, más rápido pero todo-o-nada. |
+| `EXPANDIR_A_RECETA_COMPLETA` | `True` | Cuando un fragmento pasa el filtro, se traen los demás fragmentos de su archivo, en orden. Sin esto la respuesta sale con un paso aislado de la receta (ver "Hallazgos medidos"). No cuesta llamadas al LLM, solo una consulta a ChromaDB por fuente. |
+| `MAXIMO_CARACTERES_CONTEXTO` | 6000 | Tope del contexto tras expandir. Un archivo con varias recetas puede tener docenas de fragmentos; al recortar se conservan primero los que pasaron el filtro. |
 
 Decisiones de diseño que no son constantes pero sí son reglas:
 
@@ -71,6 +76,43 @@ Decisiones de diseño que no son constantes pero sí son reglas:
   decide si un fragmento sirve es el evaluador. Un umbral numérico habría que
   calibrarlo contra consultas etiquetadas, y ese trabajo no está hecho —
   poner un número a dedo sería inventar una regla.
+- **La expansión no vuelve a evaluar relevancia.** Si un fragmento de la receta
+  pasó el filtro, se asume que la receta entera es la que el usuario pidió. La
+  contrapartida es que un falso positivo del evaluador arrastra una receta
+  completa al contexto, no un fragmento: la expansión amplifica los errores del
+  filtro en las dos direcciones.
+
+## Hallazgos medidos (2026-08-19)
+
+Medidos con `pruebas/evaluar_rag_real.py`, contra el LLM y el recetario reales.
+Vale registrarlos porque ninguno se veía sin ejecutar el sistema completo.
+
+**1. El filtrado estricto produce respuestas incompletas.** Ante *"como hago el
+llapingacho"*, el sistema recuperaba la receta correcta, el filtro aprobaba 1 de
+3 fragmentos y la respuesta era *"para preparar los llapingachos, fríalos en la
+manteca de chancho"* — la receta correcta, un paso aislado de ella. El troceado
+por párrafos reparte una receta en varios fragmentos y el filtro, al ser
+estricto, descarta parte. Con `expandir_contexto`, la misma consulta pasó de 341
+a 2.225 caracteres, y el generador incluso detectó que el recetario tiene dos
+versiones del plato y explicó ambas.
+
+Es el trade-off central del RAG agéntico: **el filtro de relevancia mejora la
+precisión de lo que entra al contexto, pero fragmenta la respuesta.** Recuperar
+el documento padre lo corrige sin renunciar al filtro.
+
+**2. Los encabezados sueltos contaminan la búsqueda.** El troceado dejaba
+`"PREPARACIÓN"`, `"Ingredientes:"` y los títulos como fragmentos propios. Al no
+tener contenido, su embedding no representa ninguna receta y quedan cerca de
+cualquier consulta: buscar *"sushi"* devolvía tres fragmentos `"PREPARACIÓN"` de
+tres recetas distintas. Se corrigió fusionándolos con la sección que encabezan
+(`MINIMO_CARACTERES_FRAGMENTO` en `rag/ingesta.py`), en lugar de descartarlos.
+
+**3. Un ejemplo dentro del prompt puede contaminar el caso homólogo.** Al
+endurecer el evaluador se le agregó como ejemplo *"que el sushi lleve arroz no
+convierte una receta de arroz con leche en una receta de sushi"*. Con ese texto
+en el prompt, evaluar una consulta real de sushi dio **peores** veredictos que
+antes: el modelo mezclaba el ejemplo con el caso a juzgar. El ejemplo actual usa
+la papa, que no aparece en los casos de prueba.
 
 ## Costo en llamadas al LLM
 
@@ -105,15 +147,28 @@ Dos cosas de este subgrafo son material directo para el paper:
 
 ## Pruebas
 
+**Lógica del grafo, sin VPN** (dobles en lugar del LLM y de ChromaDB):
+
 ```bash
 python -m pruebas.prueba_ciclo_rag
 ```
 
-Cubren los cuatro caminos del grafo (acierto directo, reformulación exitosa,
-rendirse en el tope de intentos, no consultar el recetario) con dobles de
-prueba en lugar del LLM y la base vectorial. **No requieren VPN**: verifican la
-lógica del grafo, no la calidad de los juicios del modelo. Eso último se mide
-en `../../notebooks/comparativa.ipynb`, que sí requiere VPN.
+Cubre los caminos del grafo: acierto directo, expansión a la receta completa,
+reformulación exitosa, rendirse en el tope de intentos y no consultar el
+recetario. Verifica la lógica, no la calidad de los juicios del modelo.
+
+**Comportamiento real, con VPN** (LLM y recetario de verdad):
+
+```bash
+python -m pruebas.evaluar_rag_real
+python -m pruebas.evaluar_rag_real --json resultados.json
+```
+
+Mide lo que no se puede afirmar con aserciones fijas, porque la salida de un LLM
+varía entre corridas: si el evaluador acierta, si la respuesta llega completa,
+si el sistema admite lo que no sabe. Está pensado para comparar el antes y el
+después de un cambio en los prompts o en la estrategia de recuperación —
+guardar el `--json` antes de tocar algo y volver a correrlo después.
 
 ## Pendientes
 

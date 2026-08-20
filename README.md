@@ -63,6 +63,46 @@ Uso:
 python -m rag.ingesta   # (re)genera rag/chroma_db/ a partir de rag/recetas_data/
 ```
 
+La ingesta **recrea la colección** en cada corrida. Antes usaba `upsert`, lo que
+dejaba fragmentos huérfanos: si un archivo se renombraba o se borraba, o si
+cambiaba el troceado, los ids viejos seguían en el índice y el RAG los seguía
+recuperando aunque ya no correspondieran a ningún archivo del disco.
+
+### Control de calidad del OCR (2026-08-19)
+
+`rag/calidad.py` valida el texto del OCR **antes** de indexarlo, y la ingesta
+reporta al final qué archivos rechazó y por qué.
+
+Existe por un caso concreto: al procesar `2 recetas mas.jpg` — una doble página
+de un libro de cocina, foto nítida y bien iluminada — GLM-OCR leyó bien las dos
+primeras líneas y después entró en un bucle, repitiendo *"Sive el mantequilla
+que se dore por ambio."* 888 veces hasta degenerar en texto sin sentido con
+caracteres chinos. Resultado: 60.648 caracteres inventados que llegaron al
+índice vectorial y pasaron a ser el **66% de todo el recetario**.
+
+Lo relevante para la tesis: **no falló por calidad de imagen sino por
+complejidad de layout** (doble página, varias columnas, tipografía pequeña).
+Otra doble página del mismo recetario, `2 recetas en 1.png`, se procesó sin
+problema. Eso implica que evaluar OCR variando solo iluminación y ruido —el
+enfoque intuitivo— deja fuera la variable que realmente lo rompió.
+
+El detector usa dos señales, calibradas contra los 223 fragmentos legítimos que
+había indexados:
+
+| Señal | Legítimos | Caso degenerado | Umbral |
+|---|---|---|---|
+| Frecuencia del 5-grama más repetido | máx. 2 | 888 | 8 |
+| Ratio de palabras únicas | mín. 0.32 | 0.04 | 0.20 |
+
+Cero falsos positivos sobre esos 223 fragmentos. La frecuencia de n-grama es la
+señal principal porque no depende de la longitud del texto; el ratio queda como
+respaldo y solo se aplica a textos de 40 palabras o más.
+
+Pruebas (no requieren VPN):
+```bash
+python -m pruebas.prueba_calidad_ingesta
+```
+
 En CrewAI el RAG se expone como tool (`buscar_en_recetario`) que el propio agente decide invocar. En LangGraph el nodo `nodo_recetas` delega en un subgrafo de RAG agéntico — ver abajo.
 
 ## 3.2 RAG agéntico (2026-08-19)
@@ -75,7 +115,8 @@ Pedido de los tutores en la reunión del 2026-08-19: que el RAG deje de ser un c
 2. recupera de ChromaDB,
 3. juzga fragmento por fragmento si lo recuperado responde la consulta,
 4. si no responde, **reformula la consulta y reintenta** (hasta `MAX_INTENTOS_RECUPERACION`),
-5. si sigue sin encontrar, lo admite explícitamente en vez de improvisar una receta.
+5. si sigue sin encontrar, lo admite explícitamente en vez de improvisar una receta,
+6. si sí encontró, **expande a la receta completa** antes de redactar: el filtro aprueba fragmentos sueltos, y una receta troceada por párrafos quedaría respondida con un paso aislado.
 
 El caso que lo motiva es propio de esta población: un adulto mayor dice *"eso dulce del arrocito que hacía mi mamá"* y el recetario está indexado como *"arroz con leche"*. La búsqueda falla por vocabulario, no porque falte la receta — un pipeline lineal responde mal, este vuelve sobre sus pasos.
 
@@ -110,13 +151,15 @@ accessibility-agents/
 │   └── README.md                 Alcance, flujo/cruce de información y hallazgos técnicos
 ├── rag/                           CAPA DE ACCESO A DATOS (no decide nada, solo consulta)
 │   ├── config.py                 Endpoints/modelos vLLM para embeddings y OCR (desde .env)
-│   ├── embeddings.py              Llama a BGE-M3 (OpenAI-compatible)
+│   ├── embeddings.py              Llama a BGE-M3 en lotes que quepan en su ventana de contexto
 │   ├── ocr.py                    Llama a glm-ocr para imágenes (OpenAI-compatible, formato "vision")
-│   ├── ingesta.py                 Lee rag/recetas_data/, OCR+embeddings, guarda en ChromaDB
+│   ├── calidad.py                 Detecta texto degenerado del OCR antes de indexarlo
+│   ├── ingesta.py                 Lee rag/recetas_data/, OCR+calidad+troceado+embeddings, ChromaDB
 │   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
-│   └── recetas_data/              2 recetas en texto + 1 imagen sintética (ver generar_imagen_mock.py)
+│   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
-│   └── prueba_ciclo_rag.py       Los 4 caminos del subgrafo de RAG, con dobles (no requiere VPN)
+│   ├── prueba_ciclo_rag.py       Los 4 caminos del subgrafo de RAG, con dobles (no requiere VPN)
+│   └── prueba_calidad_ingesta.py Detección de OCR degenerado y troceado (no requiere VPN)
 ├── notebooks/
 │   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
@@ -181,9 +224,17 @@ Comparativa (cruce de información entre agentes + ciclo del RAG + accuracy de r
 jupyter notebook notebooks/comparativa.ipynb
 ```
 
-Pruebas del ciclo de RAG agéntico (**no** requieren VPN: usan dobles en lugar del LLM):
+Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras):
 ```bash
-python -m pruebas.prueba_ciclo_rag
+python -m pruebas.prueba_ciclo_rag         # los caminos del subgrafo de RAG
+python -m pruebas.prueba_calidad_ingesta   # deteccion de OCR degenerado y troceado
+```
+
+Evaluación del comportamiento real (**sí** requiere VPN y el recetario ingerido).
+Guardar el `--json` antes de cambiar prompts o estrategia de recuperación, y
+volver a correrlo después, permite comparar el antes y el después:
+```bash
+python -m pruebas.evaluar_rag_real --json antes.json
 ```
 
 ---

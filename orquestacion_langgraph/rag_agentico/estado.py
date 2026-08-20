@@ -29,6 +29,24 @@ FRAGMENTOS_POR_BUSQUEDA = 3
 # rápido, pero no puede descartar un fragmento malo y quedarse con los otros.
 EVALUAR_FRAGMENTO_POR_FRAGMENTO = True
 
+# Cuando un fragmento pasa el filtro de relevancia, se traen también los demás
+# fragmentos de su mismo archivo, en orden, antes de redactar la respuesta
+# (patrón conocido como recuperación del documento padre).
+#
+# Motivo medido el 2026-08-19: ante "como hago el llapingacho" el sistema
+# recuperaba la receta correcta, el filtro aceptaba 1 de 3 fragmentos, y la
+# respuesta salía con un paso suelto ("fríelos en la manteca") en lugar de la
+# receta. El troceado por párrafos reparte una receta en varios fragmentos y el
+# filtro, al ser estricto, descarta parte de ella.
+EXPANDIR_A_RECETA_COMPLETA = True
+
+# Tope de caracteres del contexto que se le pasa al generador tras expandir. Un
+# archivo con muchas recetas (una página doble, por ejemplo) puede tener docenas
+# de fragmentos, y traerlos todos llenaría el prompt de recetas que el usuario
+# no pidió. Al recortar se conservan primero los fragmentos que pasaron el
+# filtro.
+MAXIMO_CARACTERES_CONTEXTO = 6000
+
 
 class EstadoRAG(TypedDict):
     """Estado interno del subgrafo de recetas."""
@@ -42,6 +60,7 @@ class EstadoRAG(TypedDict):
     intentos: int                              # búsquedas hechas hasta ahora
     fragmentos: Optional[list[dict]]           # lo último recuperado (texto, fuente, distancia)
     fragmentos_utiles: Optional[list[dict]]    # los que el evaluador aceptó
+    fragmentos_contexto: Optional[list[dict]]  # los útiles + el resto de su receta
 
     # Salida
     respuesta: Optional[str]
