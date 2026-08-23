@@ -20,3 +20,8 @@ rag/chroma_db/
 # Sistema operativo
 Thumbs.db
 .DS_Store
+
+# Corpus de audio grabado y sus variantes con ruido (cientos de MB).
+# Se regenera grabando con demo_voz/, el indice.csv se puede versionar aparte
+# si hace falta trazabilidad.
+corpus_audio/

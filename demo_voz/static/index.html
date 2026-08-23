@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corpus de voz — Asistente para adultos mayores</title>
+<style>
+  :root {
+    --fondo: #14161a; --panel: #1d2026; --borde: #2c3038;
+    --texto: #e8eaed; --tenue: #9aa0a8; --acento: #5b9dd9;
+    --ok: #4caf7d; --alerta: #d99a5b; --error: #d96b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 2rem 1rem; background: var(--fondo); color: var(--texto);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 780px; margin: 0 auto; }
+  h1 { font-size: 1.25rem; margin: 0 0 .25rem; font-weight: 600; }
+  .sub { color: var(--tenue); font-size: .875rem; margin-bottom: 1.5rem; }
+
+  .tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+  .tab {
+    padding: .5rem 1rem; border: 1px solid var(--borde); background: transparent;
+    color: var(--tenue); border-radius: 6px; cursor: pointer; font-size: .9rem;
+  }
+  .tab[aria-selected="true"] { background: var(--panel); color: var(--texto); border-color: var(--acento); }
+
+  .panel { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 1.5rem; }
+  .oculto { display: none; }
+
+  .frase {
+    font-size: 1.4rem; line-height: 1.45; margin: .5rem 0 1rem; padding: 1.25rem;
+    background: #23272e; border-left: 3px solid var(--acento); border-radius: 6px;
+  }
+  .etiqueta { font-size: .7rem; letter-spacing: .08em; color: var(--tenue); text-transform: uppercase; }
+
+  .controles { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
+  button {
+    padding: .7rem 1.4rem; border-radius: 6px; border: 1px solid var(--borde);
+    background: #2a2e36; color: var(--texto); font-size: .95rem; cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--acento); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.principal { background: var(--acento); border-color: var(--acento); color: #0e1116; font-weight: 600; }
+  button.grabando { background: var(--error); border-color: var(--error); color: #fff; }
+
+  .medidor { height: 6px; background: #2a2e36; border-radius: 3px; overflow: hidden; flex: 1; min-width: 120px; }
+  .medidor > div { height: 100%; width: 0%; background: var(--ok); transition: width .08s linear; }
+
+  .barra { height: 6px; background: #2a2e36; border-radius: 3px; overflow: hidden; margin: .4rem 0 1rem; }
+  .barra > div { height: 100%; background: var(--acento); transition: width .3s; }
+
+  .estado { margin-top: 1rem; padding: .85rem 1rem; border-radius: 6px; font-size: .9rem; background: #23272e; }
+  .estado.ok { border-left: 3px solid var(--ok); }
+  .estado.alerta { border-left: 3px solid var(--alerta); }
+  .estado.error { border-left: 3px solid var(--error); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: .5rem; }
+  td { padding: .3rem 0; color: var(--tenue); }
+  td.n { text-align: right; color: var(--texto); font-variant-numeric: tabular-nums; }
+
+  .nota { font-size: .82rem; color: var(--tenue); margin-top: 1.25rem; line-height: 1.5; }
+  kbd { background: #2a2e36; border: 1px solid var(--borde); border-radius: 4px; padding: .1rem .4rem; font-size: .8rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Corpus de voz</h1>
+  <div class="sub">Sistema multiagente de accesibilidad para adultos mayores</div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-modo="corpus">Grabar corpus</button>
+    <button class="tab" role="tab" aria-selected="false" data-modo="demo">Demo en vivo</button>
+  </div>
+
+  <!-- MODO CORPUS -->
+  <section class="panel" id="panel-corpus">
+    <div class="etiqueta" id="progreso-texto">cargando…</div>
+    <div class="barra"><div id="barra-total"></div></div>
+    <table id="tabla-progreso"></table>
+
+    <div class="etiqueta" style="margin-top:1.5rem" id="intencion-actual"></div>
+    <div class="frase" id="frase">…</div>
+
+    <div class="controles">
+      <button class="principal" id="btn-grabar">Grabar</button>
+      <button id="btn-saltar">Saltar</button>
+      <div class="medidor"><div id="nivel"></div></div>
+    </div>
+
+    <div class="estado" id="estado-corpus">
+      Leé la frase en voz alta y natural. Grabá en el lugar más silencioso que
+      tengas: el ruido se agrega después de forma controlada.
+    </div>
+
+    <div class="nota">
+      <kbd>Espacio</kbd> empieza y termina la grabación.
+      El progreso se guarda solo — podés cerrar y seguir después.
+    </div>
+  </section>
+
+  <!-- MODO DEMO -->
+  <section class="panel oculto" id="panel-demo">
+    <p style="margin-top:0">Hablá y el sistema transcribe lo que dijiste.</p>
+    <div class="controles">
+      <button class="principal" id="btn-demo">Grabar</button>
+      <div class="medidor"><div id="nivel-demo"></div></div>
+    </div>
+    <div class="estado" id="estado-demo">Listo para grabar.</div>
+    <div class="nota">
+      Whisper <code>large-v3</code> corriendo local en la GPU del servidor.
+      Todavía no está conectado al sistema de agentes: solo transcribe.
+    </div>
+  </section>
+</main>
+
+<script>
+// El micrófono solo está disponible en localhost o HTTPS. Por el port
+// forwarding de VSCode Remote esto entra como localhost, así que funciona.
+let grabadora = null, trozos = [], grabando = false, frase = null;
+let contextoAudio = null, analizador = null, animacion = null;
+
+const $ = (id) => document.getElementById(id);
+
+function estado(elemento, texto, clase = "") {
+  elemento.className = "estado " + clase;
+  elemento.innerHTML = texto;
+}
+
+// --- medidor de nivel: sirve para saber que el micrófono está captando algo
+// antes de grabar 400 frases mudas por tener el micrófono equivocado ---
+function iniciarMedidor(flujo, barra) {
+  contextoAudio = new AudioContext();
+  const fuente = contextoAudio.createMediaStreamSource(flujo);
+  analizador = contextoAudio.createAnalyser();
+  analizador.fftSize = 512;
+  fuente.connect(analizador);
+  const datos = new Uint8Array(analizador.frequencyBinCount);
+
+  (function medir() {
+    analizador.getByteTimeDomainData(datos);
+    let pico = 0;
+    for (const v of datos) pico = Math.max(pico, Math.abs(v - 128));
+    barra.style.width = Math.min(100, (pico / 128) * 220) + "%";
+    animacion = requestAnimationFrame(medir);
+  })();
+}
+
+function detenerMedidor(barra) {
+  if (animacion) cancelAnimationFrame(animacion);
+  if (contextoAudio) contextoAudio.close();
+  contextoAudio = null; animacion = null;
+  barra.style.width = "0%";
+}
+
+async function comenzarGrabacion(barra) {
+  const flujo = await navigator.mediaDevices.getUserMedia({
+    audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false,
+             autoGainControl: false }
+  });
+  // Se desactivan las mejoras del navegador a propósito: cancelación de eco y
+  // supresión de ruido alterarían la señal y el corpus dejaría de ser una
+  // línea base limpia para la matriz de ruido.
+  iniciarMedidor(flujo, barra);
+  trozos = [];
+  grabadora = new MediaRecorder(flujo);
+  grabadora.ondataavailable = (e) => trozos.push(e.data);
+  grabadora.start();
+  grabando = true;
+}
+
+function detenerGrabacion(barra) {
+  return new Promise((resolver) => {
+    grabadora.onstop = () => {
+      grabadora.stream.getTracks().forEach((t) => t.stop());
+      detenerMedidor(barra);
+      grabando = false;
+      resolver(new Blob(trozos, { type: "audio/webm" }));
+    };
+    grabadora.stop();
+  });
+}
+
+// --- modo corpus ---
+
+async function refrescarProgreso(p) {
+  $("progreso-texto").textContent = `${p.grabadas} de ${p.total} frases grabadas`;
+  $("barra-total").style.width = (p.grabadas / p.total * 100) + "%";
+  $("tabla-progreso").innerHTML = Object.entries(p.por_intencion)
+    .sort()
+    .map(([k, v]) => `<tr><td>${k}</td><td class="n">${v.grabadas}/${v.total}</td></tr>`)
+    .join("");
+}
+
+async function cargarSiguiente() {
+  const r = await fetch("/api/siguiente").then((r) => r.json());
+  if (r.fin) {
+    frase = null;
+    $("frase").textContent = "Corpus completo.";
+    $("intencion-actual").textContent = "";
+    $("btn-grabar").disabled = true;
+    $("btn-saltar").disabled = true;
+    return;
+  }
+  frase = r;
+  $("frase").textContent = r.texto;
+  $("intencion-actual").textContent = r.intencion;
+}
+
+async function alternarGrabacionCorpus() {
+  if (!frase) return;
+  const boton = $("btn-grabar");
+
+  if (!grabando) {
+    try {
+      await comenzarGrabacion($("nivel"));
+      boton.textContent = "Detener";
+      boton.classList.add("grabando");
+      estado($("estado-corpus"), "Grabando… leé la frase y presioná Detener.", "alerta");
+    } catch (e) {
+      estado($("estado-corpus"),
+        "No se pudo acceder al micrófono. Verificá que la página esté abierta " +
+        "por <code>localhost</code> y que el navegador tenga permiso.<br><small>" + e + "</small>",
+        "error");
+    }
+    return;
+  }
+
+  const audio = await detenerGrabacion($("nivel"));
+  boton.textContent = "Grabar";
+  boton.classList.remove("grabando");
+  boton.disabled = true;
+  estado($("estado-corpus"), "Procesando…");
+
+  try {
+    const r = await fetch(`/api/grabar?id=${frase.id_frase}&hablante=manuel`, {
+      method: "POST", body: audio
+    }).then((r) => r.json());
+
+    if (r.error) { estado($("estado-corpus"), "Error: " + r.error, "error"); }
+    else if (r.sin_voz) {
+      estado($("estado-corpus"),
+        "<b>No se detectó voz en la grabación.</b> Quedó guardada, pero conviene " +
+        "regrabarla: revisá el micrófono y el nivel de la barra.", "error");
+    } else {
+      estado($("estado-corpus"),
+        `Guardada (${r.duracion_s}s). Whisper entendió:<br><b>${r.texto_transcrito}</b>`,
+        "ok");
+      await refrescarProgreso(r.progreso);
+      await cargarSiguiente();
+    }
+  } catch (e) {
+    estado($("estado-corpus"), "Error de red: " + e, "error");
+  }
+  boton.disabled = false;
+}
+
+// --- modo demo ---
+
+async function alternarGrabacionDemo() {
+  const boton = $("btn-demo");
+
+  if (!grabando) {
+    try {
+      await comenzarGrabacion($("nivel-demo"));
+      boton.textContent = "Detener";
+      boton.classList.add("grabando");
+      estado($("estado-demo"), "Escuchando…", "alerta");
+    } catch (e) {
+      estado($("estado-demo"), "No se pudo acceder al micrófono: " + e, "error");
+    }
+    return;
+  }
+
+  const audio = await detenerGrabacion($("nivel-demo"));
+  boton.textContent = "Grabar";
+  boton.classList.remove("grabando");
+  boton.disabled = true;
+  estado($("estado-demo"), "Transcribiendo…");
+
+  try {
+    const r = await fetch("/api/transcribir", { method: "POST", body: audio })
+      .then((r) => r.json());
+    if (r.error) estado($("estado-demo"), "Error: " + r.error, "error");
+    else if (r.sin_voz) estado($("estado-demo"), "No se detectó voz.", "alerta");
+    else estado($("estado-demo"),
+      `<b style="font-size:1.15rem">${r.texto}</b><br>` +
+      `<small>${r.duracion_s}s de audio, transcrito en ${r.tiempo_transcripcion_s}s</small>`,
+      "ok");
+  } catch (e) {
+    estado($("estado-demo"), "Error de red: " + e, "error");
+  }
+  boton.disabled = false;
+}
+
+// --- arranque ---
+
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.onclick = () => {
+    document.querySelectorAll(".tab").forEach((t) =>
+      t.setAttribute("aria-selected", String(t === tab)));
+    const esCorpus = tab.dataset.modo === "corpus";
+    $("panel-corpus").classList.toggle("oculto", !esCorpus);
+    $("panel-demo").classList.toggle("oculto", esCorpus);
+  };
+});
+
+$("btn-grabar").onclick = alternarGrabacionCorpus;
+$("btn-demo").onclick = alternarGrabacionDemo;
+$("btn-saltar").onclick = cargarSiguiente;
+
+document.addEventListener("keydown", (e) => {
+  if (e.code !== "Space" || e.target.tagName === "BUTTON") return;
+  e.preventDefault();
+  const enCorpus = !$("panel-corpus").classList.contains("oculto");
+  (enCorpus ? alternarGrabacionCorpus : alternarGrabacionDemo)();
+});
+
+fetch("/api/progreso").then((r) => r.json()).then(refrescarProgreso);
+cargarSiguiente();
+</script>
+</body>
+</html>
