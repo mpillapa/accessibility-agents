@@ -1,0 +1,416 @@
+id_frase,archivo,intencion,texto,hablante,duracion_s
+f0000,f0000.wav,MEDICATION_HEALTH,Oye mijito ¿ya me toca tomar la pastillita del corazón?,manuel,5.82
+f0001,f0001.wav,MEDICATION_HEALTH,¿A qué hora me corresponde el jarabe que me recetó el doctor Salazar?,manuel,4.38
+f0002,f0002.wav,MEDICATION_HEALTH,Tengo un dolorcito en la rodilla desde ayer ¿será que me tomo el ibuprofeno?,manuel,4.2
+f0003,f0003.wav,FAMILY_COMMUNICATION,Quiero mandarle un mensajito a mi hijo Carlos que está en Quito,manuel,3.9
+f0004,f0004.wav,FAMILY_COMMUNICATION,¿Puedes avisarle a mi hija María que ya tomé las pastillas del mediodía?,manuel,4.08
+f0005,f0005.wav,FAMILY_COMMUNICATION,Dile a mi nieto Sebastián que lo extraño mucho y que venga a visitarme,manuel,4.5
+f0006,f0006.wav,EMERGENCY,Me caí en el baño y no me puedo levantar ayúdame por favor,manuel,4.38
+f0007,f0007.wav,EMERGENCY,Siento que me falta el aire y me está doliendo el pecho muy fuerte,manuel,3.48
+f0008,f0008.wav,EMERGENCY,Hay un humo raro saliendo de la cocina y no sé qué está pasando,manuel,4.32
+f0009,f0009.wav,SMALL_TALK,Buenos días mijito ¿cómo amaneciste hoy?,manuel,2.88
+f0010,f0010.wav,SMALL_TALK,¿Sabes que ayer vino a visitarme mi nieto? Qué alegría tan grande,manuel,3.96
+f0011,f0011.wav,SMALL_TALK,Hace un frío horrible ahorita ¿no te parece?,manuel,2.76
+f0012,f0012.wav,MEDICATION_HEALTH,Verá que no recuerdo si la pastilla de la presión es a las siete o a las ocho,manuel,5.1
+f0013,f0013.wav,MEDICATION_HEALTH,¿El medicamento del estómago es antes o después del almuerzo?,manuel,3.36
+f0014,f0014.wav,MEDICATION_HEALTH,¿Cuándo me corresponde tomar la siguiente dosis del antibiótico?,manuel,4.26
+f0015,f0015.wav,MEDICATION_HEALTH,A ver dime ¿cada cuánto debo tomarme estas cápsulas que me dio el doctor?,manuel,4.32
+f0016,f0016.wav,MEDICATION_HEALTH,No sé si el jarabe es de mañana o de noche ¿cuándo es?,manuel,4.02
+f0017,f0017.wav,MEDICATION_HEALTH,¿Las pastillas del colesterol van con el desayuno o sin él?,manuel,3.78
+f0018,f0018.wav,MEDICATION_HEALTH,Dime a qué hora es mi próxima medicación por favor,manuel,2.7
+f0019,f0019.wav,MEDICATION_HEALTH,¿El omeprazol se toma antes de comer o después? siempre me olvido,manuel,3.66
+f0020,f0020.wav,MEDICATION_HEALTH,¿Cuántas horas debo esperar entre una pastilla y la siguiente?,manuel,3.6
+f0021,f0021.wav,MEDICATION_HEALTH,¿Cuál es el horario exacto del segundo medicamento del día?,manuel,3.36
+f0022,f0022.wav,MEDICATION_HEALTH,Ya tomé las pastillas del desayuno ¿anota eso por favor?,manuel,3.66
+f0023,f0023.wav,MEDICATION_HEALTH,Me tomé el medicamento ahorita mismo ¿quedó registrado?,manuel,3.3
+f0024,f0024.wav,MEDICATION_HEALTH,Ya bebí el jarabe de las doce ¿está bien así?,manuel,3.18
+f0025,f0025.wav,MEDICATION_HEALTH,Listo ya me tomé todo lo que me tocaba esta mañana,manuel,3.3
+f0026,f0026.wav,MEDICATION_HEALTH,Registra que ya tomé las tres pastillas del almuerzo por favor,manuel,3.18
+f0027,f0027.wav,MEDICATION_HEALTH,Me acabo de tomar la insulina ¿lo anotas?,manuel,3.84
+f0028,f0028.wav,MEDICATION_HEALTH,Ya cumplí con todas las medicinas de la tarde,manuel,3.0
+f0029,f0029.wav,MEDICATION_HEALTH,Terminé de tomarme lo que me dejó el doctor para el mediodía,manuel,3.9
+f0030,f0030.wav,MEDICATION_HEALTH,Ya tomé el diurético de la mañana ¿queda guardado?,manuel,4.44
+f0031,f0031.wav,MEDICATION_HEALTH,Listo ya me tomé el calmante ¿lo registras?,manuel,3.0
+f0032,f0032.wav,MEDICATION_HEALTH,¿Una pastilla entera o solo la mitad de la blanca?,manuel,3.18
+f0033,f0033.wav,MEDICATION_HEALTH,El doctor dijo dos pero yo creo que antes tomaba tres ¿cuántas son?,manuel,4.32
+f0034,f0034.wav,MEDICATION_HEALTH,No sé si son dos comprimidos o uno solo ¿puedes revisar?,manuel,3.66
+f0035,f0035.wav,MEDICATION_HEALTH,¿Cuántos mililitros del jarabe me toca a mí?,manuel,2.64
+f0036,f0036.wav,MEDICATION_HEALTH,Verá que las pastillas son tan chiquitas ¿de verdad son dos a la vez?,manuel,4.14
+f0037,f0037.wav,MEDICATION_HEALTH,¿Me doblo la dosis si ayer se me olvidó tomar?,manuel,3.0
+f0038,f0038.wav,MEDICATION_HEALTH,¿Cuántas gotitas del suero son para una persona de mi edad?,manuel,3.42
+f0039,f0039.wav,MEDICATION_HEALTH,Siempre me confundo ¿son dos comprimidos blancos o uno blanco y uno amarillo?,manuel,4.14
+f0040,f0040.wav,MEDICATION_HEALTH,El prospecto dice una cosa y el doctor dijo otra ¿qué hago?,manuel,4.14
+f0041,f0041.wav,MEDICATION_HEALTH,¿La dosis es igual en la mañana que en la noche o cambia?,manuel,3.06
+f0042,f0042.wav,MEDICATION_HEALTH,Tengo un dolor de cabeza desde el mediodía ¿qué me puedo tomar?,manuel,3.66
+f0043,f0043.wav,MEDICATION_HEALTH,Me anda doliendo la espalda baja ¿habrá alguna crema o pastilla?,manuel,3.84
+f0044,f0044.wav,MEDICATION_HEALTH,Siento la garganta rasposa desde ayer ¿será que me tomo algo?,manuel,3.36
+f0045,f0045.wav,MEDICATION_HEALTH,Tengo los pies hinchados desde ayer ¿es normal eso?,manuel,2.94
+f0046,f0046.wav,MEDICATION_HEALTH,Me duele la muela de atrás ¿qué me ayuda para el dolor?,manuel,3.54
+f0047,f0047.wav,MEDICATION_HEALTH,Tengo un cansancio horrible hoy ¿me puedo tomar alguna vitamina?,manuel,3.78
+f0048,f0048.wav,MEDICATION_HEALTH,Verá que tengo el estómago revuelto desde el desayuno ¿qué hago?,manuel,3.48
+f0049,f0049.wav,MEDICATION_HEALTH,Me anda picando la piel en el brazo ¿será alergia a algo?,manuel,3.66
+f0050,f0050.wav,MEDICATION_HEALTH,Siento el pecho como apretado pero no muy fuerte ¿me preocupo?,manuel,3.3
+f0051,f0051.wav,MEDICATION_HEALTH,Tengo una tos seca que no me deja en paz ¿qué me tomo?,manuel,2.82
+f0052,f0052.wav,MEDICATION_HEALTH,No me acuerdo si ya me tomé la pastilla de la noche ¿me la tomo o no?,manuel,3.72
+f0053,f0053.wav,MEDICATION_HEALTH,Creo que me tomé el medicamento pero no estoy seguro ¿puedes confirmar?,manuel,3.66
+f0054,f0054.wav,MEDICATION_HEALTH,Ay dios mío ¿ya tomé el coumadin hoy o todavía no?,manuel,5.16
+f0055,f0055.wav,MEDICATION_HEALTH,Estaba viendo la tele y perdí la cuenta ¿ya fueron mis pastillas de las tres?,manuel,4.62
+f0056,f0056.wav,MEDICATION_HEALTH,Me parece que sí tomé pero me da duda ¿cómo sé con seguridad?,manuel,4.14
+f0057,f0057.wav,MEDICATION_HEALTH,No recuerdo si desayuné con o sin pastillas esta mañana,manuel,3.54
+f0058,f0058.wav,MEDICATION_HEALTH,Creo que se me pasó el medicamento de las diez ¿qué hago ahora?,manuel,4.2
+f0059,f0059.wav,MEDICATION_HEALTH,Hay días que no sé si ya tomé o si me falta ¿tienes registro de hoy?,manuel,4.86
+f0060,f0060.wav,MEDICATION_HEALTH,A veces me quedo dormido y cuando despierto no sé si ya tomé,manuel,3.18
+f0061,f0061.wav,MEDICATION_HEALTH,Ayer tomé dos veces sin querer ¿eso es peligroso?,manuel,3.24
+f0062,f0062.wav,MEDICATION_HEALTH,¿Puedo tomar el diclofenac si ya me tomé la aspirina esta mañana?,manuel,4.26
+f0063,f0063.wav,MEDICATION_HEALTH,¿Con el antibiótico puedo comer queso o es verdad que no se puede?,manuel,4.2
+f0064,f0064.wav,MEDICATION_HEALTH,Desde que me cambiaron el medicamento me da mucho sueño ¿es normal?,manuel,3.96
+f0065,f0065.wav,MEDICATION_HEALTH,¿El jarabe para la tos me puede dar mareos? porque ayer me sentí raro,manuel,4.02
+f0066,f0066.wav,MEDICATION_HEALTH,¿Puedo tomar ibuprofeno y paracetamol juntos o es peligroso?,manuel,3.54
+f0067,f0067.wav,MEDICATION_HEALTH,Me duele el estómago después de las pastillas ¿las tomo con comida?,manuel,3.6
+f0068,f0068.wav,MEDICATION_HEALTH,¿El medicamento de la presión se puede mezclar con el del corazón?,manuel,3.18
+f0069,f0069.wav,MEDICATION_HEALTH,Verá que el médico me recetó algo nuevo y tengo miedo de los efectos,manuel,4.2
+f0070,f0070.wav,MEDICATION_HEALTH,¿Con la metformina puedo tomar una copita de vino en la fiesta?,manuel,4.2
+f0071,f0071.wav,MEDICATION_HEALTH,Desde el nuevo medicamento me siento muy débil ¿es efecto secundario?,manuel,4.68
+f0072,f0072.wav,MEDICATION_HEALTH,Recuérdame a las ocho de la noche que me toca el medicamento,manuel,2.94
+f0073,f0073.wav,MEDICATION_HEALTH,Ponme una alarma para las pastillas del mediodía por favor,manuel,3.42
+f0074,f0074.wav,MEDICATION_HEALTH,Que no se me olvide el jarabe mañana en la mañana ¿me avisas?,manuel,3.78
+f0075,f0075.wav,MEDICATION_HEALTH,Avísame media hora antes de que me toque la siguiente dosis,manuel,3.6
+f0076,f0076.wav,MEDICATION_HEALTH,Necesito que me recuerdes las pastillas cuando me levante mañana,manuel,4.56
+f0077,f0077.wav,MEDICATION_HEALTH,Pon un recordatorio para las pastillas de las seis de la tarde,manuel,3.06
+f0078,f0078.wav,MEDICATION_HEALTH,Acuérdame que debo sacar los medicamentos de la funda antes del almuerzo,manuel,3.24
+f0079,f0079.wav,MEDICATION_HEALTH,Mañana tengo cita con el médico ¿me recuerdas a las nueve?,manuel,3.3
+f0080,f0080.wav,MEDICATION_HEALTH,¿Me puedes avisar cada día a las mismas horas para no olvidarme?,manuel,3.3
+f0081,f0081.wav,MEDICATION_HEALTH,Ponme recordatorio para el antibiótico cada ocho horas que el doctor dijo eso,manuel,4.98
+f0082,f0082.wav,MEDICATION_HEALTH,¿Cuántas pastillas me quedan del frasco grande?,manuel,2.4
+f0083,f0083.wav,MEDICATION_HEALTH,Se me están acabando las pastillas de la presión ¿ya tengo que comprar?,manuel,4.02
+f0084,f0084.wav,MEDICATION_HEALTH,Creo que ya casi no tengo ibuprofeno ¿cuánto me falta?,manuel,2.88
+f0085,f0085.wav,MEDICATION_HEALTH,¿Me alcanza el medicamento hasta la próxima cita o debo pedir más?,manuel,3.6
+f0086,f0086.wav,MEDICATION_HEALTH,Verá que ya se me acabó el jarabe ¿qué hago ahora?,manuel,3.12
+f0087,f0087.wav,MEDICATION_HEALTH,Cuéntame cuántas cápsulas me quedan porque ya no veo bien los frascos,manuel,4.32
+f0088,f0088.wav,MEDICATION_HEALTH,¿Tengo medicinas suficientes para el feriado o me faltan?,manuel,2.76
+f0089,f0089.wav,MEDICATION_HEALTH,El doctor me recetó para un mes pero creo que ya se acabó antes ¿es así?,manuel,4.62
+f0090,f0090.wav,MEDICATION_HEALTH,¿Me quedan pastillas para esta semana o ya debo ir a la farmacia?,manuel,3.48
+f0091,f0091.wav,MEDICATION_HEALTH,Anota que el frasco del diurético está casi vacío por favor,manuel,3.48
+f0092,f0092.wav,FAMILY_COMMUNICATION,Avísale a mi hija que ya tomé las pastillas de la mañana,manuel,3.48
+f0093,f0093.wav,FAMILY_COMMUNICATION,Manda un mensajito a mi hijo diciéndole que ya estoy bien,manuel,4.44
+f0094,f0094.wav,FAMILY_COMMUNICATION,Dile a mi nuera que no vengan hoy que no me siento muy bien,manuel,3.84
+f0095,f0095.wav,FAMILY_COMMUNICATION,Por favor avísale a Carlos que ya comí para que no se preocupe,manuel,3.84
+f0096,f0096.wav,FAMILY_COMMUNICATION,Mándame un mensaje a mi nieta diciéndole que la espero mañana,manuel,4.32
+f0097,f0097.wav,FAMILY_COMMUNICATION,Avísale a mi hermana que llego el jueves no el miércoles,manuel,3.6
+f0098,f0098.wav,FAMILY_COMMUNICATION,Dile a mi hijo mayor que necesito que me traiga el medicamento,manuel,3.24
+f0099,f0099.wav,FAMILY_COMMUNICATION,Manda razón a la familia que ya me hice los exámenes,manuel,4.14
+f0100,f0100.wav,FAMILY_COMMUNICATION,Avísale a mi yerno que las llaves están en la maceta de la entrada,manuel,3.72
+f0101,f0101.wav,FAMILY_COMMUNICATION,Dile a mi hija Lucía que el doctor dijo que estoy bien,manuel,3.24
+f0102,f0102.wav,FAMILY_COMMUNICATION,¿Alguien me ha mandado algún mensaje hoy?,manuel,2.88
+f0103,f0103.wav,FAMILY_COMMUNICATION,¿Mi hijo me escribió algo mientras yo dormía?,manuel,2.7
+f0104,f0104.wav,FAMILY_COMMUNICATION,¿Hay algún recado de mi hija María?,manuel,2.52
+f0105,f0105.wav,FAMILY_COMMUNICATION,Verá ¿llegó algún mensaje de mi nieto Sebastián?,manuel,3.3
+f0106,f0106.wav,FAMILY_COMMUNICATION,¿Me dejó dicho algo mi familia mientras yo estaba en el médico?,manuel,3.24
+f0107,f0107.wav,FAMILY_COMMUNICATION,¿Tengo mensajes sin leer de alguien?,manuel,2.28
+f0108,f0108.wav,FAMILY_COMMUNICATION,¿Mi hija me avisó a qué hora llega?,manuel,2.76
+f0109,f0109.wav,FAMILY_COMMUNICATION,¿Llegó respuesta de mi hijo sobre lo que le pregunté ayer?,manuel,4.14
+f0110,f0110.wav,FAMILY_COMMUNICATION,¿Alguien me escribió en la tarde? estaba durmiendo la siesta,manuel,2.94
+f0111,f0111.wav,FAMILY_COMMUNICATION,¿Hay algún aviso de la familia que deba saber?,manuel,2.82
+f0112,f0112.wav,FAMILY_COMMUNICATION,Llama a mi hija por favor que necesito hablar con ella,manuel,2.82
+f0113,f0113.wav,FAMILY_COMMUNICATION,¿Puedes contactar a mi hijo Carlos? es urgente,manuel,3.06
+f0114,f0114.wav,FAMILY_COMMUNICATION,Comunícame con mi nieto que hace días no sé de él,manuel,3.3
+f0115,f0115.wav,FAMILY_COMMUNICATION,Llama a mi hermana que quiero saber cómo está,manuel,3.06
+f0116,f0116.wav,FAMILY_COMMUNICATION,¿Puedes marcar a mi hija? que le tengo que decir algo importante,manuel,3.84
+f0117,f0117.wav,FAMILY_COMMUNICATION,Llámale a mi hijo el de Guayaquil que ahorita necesito hablarle,manuel,3.36
+f0118,f0118.wav,FAMILY_COMMUNICATION,Comunícame con mi nuera para coordinar lo del fin de semana,manuel,3.24
+f0119,f0119.wav,FAMILY_COMMUNICATION,Marca a mi sobrina que hace meses no hablo con ella,manuel,3.48
+f0120,f0120.wav,FAMILY_COMMUNICATION,Necesito que llames a mi hija mayor ahorita mismo,manuel,2.88
+f0121,f0121.wav,FAMILY_COMMUNICATION,¿Puedes llamar a mi hijo? dile que necesito que venga,manuel,2.88
+f0122,f0122.wav,FAMILY_COMMUNICATION,Dile a mi hija que me cayó muy bien el nuevo médico,manuel,3.6
+f0123,f0123.wav,FAMILY_COMMUNICATION,Mándale a saber a mi hijo que ya arreglé lo del pago del agua,manuel,3.24
+f0124,f0124.wav,FAMILY_COMMUNICATION,Dile a mi nieto que su cuarto está listo para cuando venga,manuel,3.12
+f0125,f0125.wav,FAMILY_COMMUNICATION,Cuéntale a mi hija que ayer me visitó la vecina Rosa,manuel,3.12
+f0126,f0126.wav,FAMILY_COMMUNICATION,Dile a mi familia que el médico me subió la dosis de la presión,manuel,3.12
+f0127,f0127.wav,FAMILY_COMMUNICATION,Avísale a mi hijo que encontré las fotos que estaba buscando,manuel,3.0
+f0128,f0128.wav,FAMILY_COMMUNICATION,Dile a mi nieta que ya no tengo fiebre que se quede tranquila,manuel,3.96
+f0129,f0129.wav,FAMILY_COMMUNICATION,Mándale razón a mi hija que el plomero vino y arregló la llave,manuel,4.5
+f0130,f0130.wav,FAMILY_COMMUNICATION,Dile a mi hijo que me fue bien en el trayecto del médico,manuel,3.12
+f0131,f0131.wav,FAMILY_COMMUNICATION,Cuéntale a mi familia que hoy me sentí mejor que ayer,manuel,2.52
+f0132,f0132.wav,FAMILY_COMMUNICATION,¿Me dijiste que mi hijo venía el sábado o el domingo?,manuel,2.34
+f0133,f0133.wav,FAMILY_COMMUNICATION,¿A qué hora llega mi nieta mañana?,manuel,2.34
+f0134,f0134.wav,FAMILY_COMMUNICATION,¿Mi hija confirmó si viene esta semana o no?,manuel,2.34
+f0135,f0135.wav,FAMILY_COMMUNICATION,¿Cuándo es que dijo mi hijo que iba a traer a los nietos?,manuel,5.1
+f0136,f0136.wav,FAMILY_COMMUNICATION,No me acuerdo ¿este fin de semana viene alguien de la familia?,manuel,3.36
+f0137,f0137.wav,FAMILY_COMMUNICATION,¿Mi sobrino Andrés avisó para qué día viene?,manuel,3.36
+f0138,f0138.wav,FAMILY_COMMUNICATION,Verá que no recuerdo si mi hija viene hoy o mañana ¿puedes revisar?,manuel,5.16
+f0139,f0139.wav,FAMILY_COMMUNICATION,¿Se acordó mi nieto de que prometió venir esta semana?,manuel,3.06
+f0140,f0140.wav,FAMILY_COMMUNICATION,¿Cuándo es la próxima vez que viene alguien a visitarme?,manuel,4.08
+f0141,f0141.wav,FAMILY_COMMUNICATION,¿Mi familia tiene planeado algo para este fin de semana?,manuel,3.06
+f0142,f0142.wav,FAMILY_COMMUNICATION,Mándale una fotito de mí a mi hija para que vea que estoy bien,manuel,4.86
+f0143,f0143.wav,FAMILY_COMMUNICATION,¿Puedes enviarle un mensajito de voz a mi nieto de mi parte?,manuel,3.36
+f0144,f0144.wav,FAMILY_COMMUNICATION,Manda la foto del jardín a mi hija que ella lo plantó,manuel,3.36
+f0145,f0145.wav,FAMILY_COMMUNICATION,¿Puedes grabar lo que voy a decir y mandárselo a mi hijo?,manuel,2.82
+f0146,f0146.wav,FAMILY_COMMUNICATION,Envíale una nota a mi familia diciendo que estoy pensando en ellos,manuel,3.72
+f0147,f0147.wav,FAMILY_COMMUNICATION,Manda la foto del almuerzo a mi hija que ella quería ver cómo quedó,manuel,3.9
+f0148,f0148.wav,FAMILY_COMMUNICATION,¿Puedes mandarle un audio cortito a mi nieta diciéndole que la quiero?,manuel,3.3
+f0149,f0149.wav,FAMILY_COMMUNICATION,Envíale una foto del gato a mi nieto que él lo extraña mucho,manuel,3.0
+f0150,f0150.wav,FAMILY_COMMUNICATION,Mándale la foto de la torta que hice a toda la familia,manuel,2.88
+f0151,f0151.wav,FAMILY_COMMUNICATION,¿Puedes registrar un mensaje mío para mandárselo a mi hija cuando despierte?,manuel,3.84
+f0152,f0152.wav,FAMILY_COMMUNICATION,¿Cuándo es el cumpleaños de mi nieto? no me quiero olvidar,manuel,3.54
+f0153,f0153.wav,FAMILY_COMMUNICATION,¿Qué actividades tiene la familia programadas esta semana?,manuel,3.0
+f0154,f0154.wav,FAMILY_COMMUNICATION,¿El cumpleaños de mi hija ya pasó o es el otro mes?,manuel,2.7
+f0155,f0155.wav,FAMILY_COMMUNICATION,¿Para cuándo quedó la reunión familiar que planearon?,manuel,3.96
+f0156,f0156.wav,FAMILY_COMMUNICATION,Verá que no recuerdo la fecha del matrimonio de mi sobrino ¿cuándo es?,manuel,3.84
+f0157,f0157.wav,FAMILY_COMMUNICATION,¿Qué días viene mi hijo a visitarme este mes?,manuel,2.76
+f0158,f0158.wav,FAMILY_COMMUNICATION,¿Cuándo es la primera comunión de mi nieta que me avisaron?,manuel,3.06
+f0159,f0159.wav,FAMILY_COMMUNICATION,¿Hay algo especial en la familia para las fiestas de diciembre?,manuel,3.06
+f0160,f0160.wav,FAMILY_COMMUNICATION,¿Mi hija tiene libre el feriado o trabaja?,manuel,2.28
+f0161,f0161.wav,FAMILY_COMMUNICATION,¿Cuándo es el próximo evento familiar que tengo que recordar?,manuel,2.82
+f0162,f0162.wav,FAMILY_COMMUNICATION,Cambia la visita de mi hijo del viernes al sábado por favor,manuel,4.5
+f0163,f0163.wav,FAMILY_COMMUNICATION,Cancela lo del médico del jueves que ya reagendé,manuel,2.46
+f0164,f0164.wav,FAMILY_COMMUNICATION,Mueve el recordatorio del cumpleaños de mi nieta al día anterior,manuel,3.18
+f0165,f0165.wav,FAMILY_COMMUNICATION,Actualiza en la agenda que mi hija llega el lunes no el martes,manuel,3.0
+f0166,f0166.wav,FAMILY_COMMUNICATION,Borra la cita del miércoles que quedó en la agenda del mes pasado,manuel,3.48
+f0167,f0167.wav,FAMILY_COMMUNICATION,Pon en el calendario que el sábado viene toda la familia a almorzar,manuel,3.3
+f0168,f0168.wav,FAMILY_COMMUNICATION,Cambia la hora de la visita de mi nieto de las tres a las cinco,manuel,2.94
+f0169,f0169.wav,FAMILY_COMMUNICATION,Anota que el domingo hay misa familiar a las nueve de la mañana,manuel,3.0
+f0170,f0170.wav,FAMILY_COMMUNICATION,Modifica lo de la cita médica que me cambiaron para la próxima semana,manuel,3.96
+f0171,f0171.wav,FAMILY_COMMUNICATION,Agrega a la agenda que el martes traen los medicamentos a domicilio,manuel,2.94
+f0172,f0172.wav,RECIPE_MULTIMEDIA,¿Me lees la receta del locro de papas pasito a pasito?,manuel,4.2
+f0173,f0173.wav,RECIPE_MULTIMEDIA,Quiero hacer caldo de pata hoy ¿me dices cómo se prepara?,manuel,3.78
+f0174,f0174.wav,RECIPE_MULTIMEDIA,Explícame cómo se hace el hornado que mi hija me pidió,manuel,3.54
+f0175,f0175.wav,RECIPE_MULTIMEDIA,¿Tienes la receta del seco de carne para el almuerzo de hoy?,manuel,3.42
+f0176,f0176.wav,RECIPE_MULTIMEDIA,Dime cómo se prepara la fanesca que ya viene semana santa,manuel,4.32
+f0177,f0177.wav,RECIPE_MULTIMEDIA,A ver ¿cómo se hace el ceviche de camarón sin que quede aguado?,manuel,4.02
+f0178,f0178.wav,RECIPE_MULTIMEDIA,¿Me puedes leer la receta del encebollado desde el principio?,manuel,3.54
+f0179,f0179.wav,RECIPE_MULTIMEDIA,Necesito saber cómo se hace el morocho de leche bien espesito,manuel,4.26
+f0180,f0180.wav,RECIPE_MULTIMEDIA,¿Cómo es la receta del guatita? que hace años no la preparo,manuel,5.34
+f0181,f0181.wav,RECIPE_MULTIMEDIA,Dime los pasos para hacer el champús que le gusta a mi nieto,manuel,4.62
+f0182,f0182.wav,RECIPE_MULTIMEDIA,¿Cuántas papas necesito para hacer caldo para cuatro personas?,manuel,3.36
+f0183,f0183.wav,RECIPE_MULTIMEDIA,¿El ají para el seco va molido o en pedacitos?,manuel,3.24
+f0184,f0184.wav,RECIPE_MULTIMEDIA,¿Cuánta sal le echo al arroz para que no quede soso?,manuel,3.84
+f0185,f0185.wav,RECIPE_MULTIMEDIA,¿El tomate para el refrito va con cáscara o pelado?,manuel,3.24
+f0186,f0186.wav,RECIPE_MULTIMEDIA,Verá que no tengo cilantro ¿lo puedo reemplazar con perejil?,manuel,3.9
+f0187,f0187.wav,RECIPE_MULTIMEDIA,¿Cuántas cebollas paiteñas son para la ensalada de la receta?,manuel,3.96
+f0188,f0188.wav,RECIPE_MULTIMEDIA,¿La leche del morocho es de la de tarro o de la normal?,manuel,4.08
+f0189,f0189.wav,RECIPE_MULTIMEDIA,¿Cuánto maní lleva el seco o eso es opcional?,manuel,3.3
+f0190,f0190.wav,RECIPE_MULTIMEDIA,¿El achiote va al principio del refrito o después?,manuel,3.96
+f0191,f0191.wav,RECIPE_MULTIMEDIA,No tengo comino ¿con qué lo reemplazo para que quede sabroso?,manuel,3.54
+f0192,f0192.wav,RECIPE_MULTIMEDIA,La receta dice doscientos gramos de harina ¿eso cuántas tazas son?,manuel,4.86
+f0193,f0193.wav,RECIPE_MULTIMEDIA,¿Medio litro de leche cuántos vasos normales son?,manuel,3.24
+f0194,f0194.wav,RECIPE_MULTIMEDIA,Dice una libra de carne ¿eso cuánto es en gramos más o menos?,manuel,6.12
+f0195,f0195.wav,RECIPE_MULTIMEDIA,¿Cien mililitros de aceite cuántas cucharadas son?,manuel,3.24
+f0196,f0196.wav,RECIPE_MULTIMEDIA,La receta pide tres onzas de mantequilla ¿eso cuánto es?,manuel,3.84
+f0197,f0197.wav,RECIPE_MULTIMEDIA,¿Una taza de azúcar cuánto pesa en gramos?,manuel,2.76
+f0198,f0198.wav,RECIPE_MULTIMEDIA,Dice dos cucharadas soperas ¿eso cuántas cucharitas normales son?,manuel,4.26
+f0199,f0199.wav,RECIPE_MULTIMEDIA,¿Un cuarto de libra de queso cuánto es más o menos?,manuel,3.78
+f0200,f0200.wav,RECIPE_MULTIMEDIA,La receta es para ocho personas pero solo somos dos ¿cómo le bajo?,manuel,4.32
+f0201,f0201.wav,RECIPE_MULTIMEDIA,¿Dos tazas de arroz cuántos gramos son? porque tengo balanza,manuel,3.42
+f0202,f0202.wav,RECIPE_MULTIMEDIA,Espera espera ¿me repites lo del refrito que no entendí?,manuel,3.84
+f0203,f0203.wav,RECIPE_MULTIMEDIA,¿Cuánto tiempo dijiste que hierve la carne? se me fue,manuel,3.18
+f0204,f0204.wav,RECIPE_MULTIMEDIA,Repíteme el paso del sofrito por favor que estaba distraída,manuel,3.9
+f0205,f0205.wav,RECIPE_MULTIMEDIA,No escuché bien ¿cuándo se le echa el tomate a la olla?,manuel,5.28
+f0206,f0206.wav,RECIPE_MULTIMEDIA,Vuelve a decirme ¿el pollo va entero o en pedazos desde el principio?,manuel,4.8
+f0207,f0207.wav,RECIPE_MULTIMEDIA,¿Me dijiste que el fuego tiene que estar bajo o medio? no caché bien,manuel,4.32
+f0208,f0208.wav,RECIPE_MULTIMEDIA,¿Cuál era el siguiente paso después de sofreír la cebolla?,manuel,3.24
+f0209,f0209.wav,RECIPE_MULTIMEDIA,Perdona ¿cuánto tiempo más le falta al arroz? se me olvidó,manuel,3.54
+f0210,f0210.wav,RECIPE_MULTIMEDIA,Repite desde donde se agrega el ajo por favor,manuel,3.18
+f0211,f0211.wav,RECIPE_MULTIMEDIA,¿El azúcar va antes o después de la leche? dímelo otra vez,manuel,3.18
+f0212,f0212.wav,RECIPE_MULTIMEDIA,¿Cuánto tiempo necesito para que el fréjol quede bien cocinado?,manuel,3.24
+f0213,f0213.wav,RECIPE_MULTIMEDIA,¿Cuántos minutos hierve el caldo de pollo antes de echarle las papas?,manuel,3.6
+f0214,f0214.wav,RECIPE_MULTIMEDIA,¿Cuánto tarda en hacerse el hornado en el horno de casa?,manuel,3.96
+f0215,f0215.wav,RECIPE_MULTIMEDIA,¿A qué hora debo poner las lentejas para que estén listas al mediodía?,manuel,3.48
+f0216,f0216.wav,RECIPE_MULTIMEDIA,¿El arroz de leche cuánto tiempo se cocina para que quede espeso?,manuel,4.02
+f0217,f0217.wav,RECIPE_MULTIMEDIA,¿En cuánto tiempo está lista la sopa de quinua?,manuel,2.34
+f0218,f0218.wav,RECIPE_MULTIMEDIA,Verá que mi horno es lento ¿cuánto más le pongo al bizcocho?,manuel,3.72
+f0219,f0219.wav,RECIPE_MULTIMEDIA,¿Cuánto tiempo se sofríe el ajo antes de echarse el tomate?,manuel,3.72
+f0220,f0220.wav,RECIPE_MULTIMEDIA,¿Las papas para el locro van desde el agua fría o cuando ya hierve?,manuel,4.56
+f0221,f0221.wav,RECIPE_MULTIMEDIA,¿El pollo para el seco cuánto tiempo necesita en la olla a presión?,manuel,4.08
+f0222,f0222.wav,RECIPE_MULTIMEDIA,¿Me puedes mostrar cómo debe quedar el locro cuando está listo?,manuel,3.42
+f0223,f0223.wav,RECIPE_MULTIMEDIA,¿Hay alguna foto de cómo se ve el encebollado bien hecho?,manuel,3.18
+f0224,f0224.wav,RECIPE_MULTIMEDIA,Quiero ver cómo queda el hornado para saber si el mío está bien,manuel,3.78
+f0225,f0225.wav,RECIPE_MULTIMEDIA,¿Me muestras una imagen del seco de pollo terminado?,manuel,3.12
+f0226,f0226.wav,RECIPE_MULTIMEDIA,¿Cómo se ve el morocho cuando ya está listo para servir?,manuel,3.24
+f0227,f0227.wav,RECIPE_MULTIMEDIA,Muéstrame cómo debe quedar el caldo de pata antes de servirlo,manuel,3.84
+f0228,f0228.wav,RECIPE_MULTIMEDIA,¿Hay foto de la fanesca para ver si la mía quedó parecida?,manuel,3.6
+f0229,f0229.wav,RECIPE_MULTIMEDIA,Quiero ver una imagen del caldo para comparar el color,manuel,3.3
+f0230,f0230.wav,RECIPE_MULTIMEDIA,¿Me enseñas cómo se ve el refrito cuando ya está doradito?,manuel,3.24
+f0231,f0231.wav,RECIPE_MULTIMEDIA,¿Tienes video de cómo se amasa la tortilla de maíz paso a paso?,manuel,3.72
+f0232,f0232.wav,RECIPE_MULTIMEDIA,¿Qué puedo hacer de almuerzo con pollo cebolla y tomate nada más?,manuel,4.2
+f0233,f0233.wav,RECIPE_MULTIMEDIA,Necesito algo fácil de cocinar que no me tome mucho tiempo,manuel,3.06
+f0234,f0234.wav,RECIPE_MULTIMEDIA,¿Qué receta me recomiendas para alguien que no cocina mucho?,manuel,2.82
+f0235,f0235.wav,RECIPE_MULTIMEDIA,Tengo papas zanahorias y un poco de carne ¿qué hago?,manuel,3.48
+f0236,f0236.wav,RECIPE_MULTIMEDIA,Quiero hacer algo dulce pero sencillo que no lleve muchos ingredientes,manuel,3.72
+f0237,f0237.wav,RECIPE_MULTIMEDIA,¿Qué se puede preparar rico con lo que hay en una despensa normal?,manuel,3.96
+f0238,f0238.wav,RECIPE_MULTIMEDIA,Dame una receta de sopa calientita para este frío de hoy,manuel,4.02
+f0239,f0239.wav,RECIPE_MULTIMEDIA,Quiero sorprender a mi hija con algo rico ¿qué me recomiendas hacer?,manuel,3.48
+f0240,f0240.wav,RECIPE_MULTIMEDIA,¿Qué se puede hacer de desayuno que sea nutritivo y rápido?,manuel,3.42
+f0241,f0241.wav,RECIPE_MULTIMEDIA,Tengo arroz fréjol y huevos ¿alcanza para un almuerzo completo?,manuel,3.48
+f0242,f0242.wav,RECIPE_MULTIMEDIA,¿Me lees la rutina de ejercicios que me dejó el fisioterapeuta?,manuel,3.42
+f0243,f0243.wav,RECIPE_MULTIMEDIA,Guíame pasito a pasito en los estiramientos de la mañana,manuel,2.94
+f0244,f0244.wav,RECIPE_MULTIMEDIA,¿Puedes poner el video de ejercicios de equilibrio que me recomendó el doctor?,manuel,3.66
+f0245,f0245.wav,RECIPE_MULTIMEDIA,Léeme los ejercicios del folleto que me dieron en el hospital,manuel,3.0
+f0246,f0246.wav,RECIPE_MULTIMEDIA,¿Me guías en la rutina de la silla que el médico me recetó?,manuel,3.42
+f0247,f0247.wav,RECIPE_MULTIMEDIA,Sigue guiándome con los ejercicios que nos quedamos a mitad,manuel,3.36
+f0248,f0248.wav,RECIPE_MULTIMEDIA,¿Me repites el tercer ejercicio de la rutina? no lo hice bien,manuel,3.3
+f0249,f0249.wav,RECIPE_MULTIMEDIA,¿Cuánto dura la rutina de fisioterapia de hoy?,manuel,2.88
+f0250,f0250.wav,RECIPE_MULTIMEDIA,Muéstrame los ejercicios para las manos que no recuerdo bien,manuel,2.76
+f0251,f0251.wav,RECIPE_MULTIMEDIA,Pon la guía de caminata que tengo guardada para los martes,manuel,3.66
+f0252,f0252.wav,RECIPE_MULTIMEDIA,¿Me puedes decir cómo se hace el seco de pollo no más?,manuel,2.94
+f0253,f0253.wav,RECIPE_MULTIMEDIA,Explícame pasito a paso cómo cocinar las lentejas que siempre se me queman,manuel,3.78
+f0254,f0254.wav,RECIPE_MULTIMEDIA,¿Cómo se prepara el arroz con leche como hacía mi mamacita?,manuel,3.0
+f0255,f0255.wav,EMERGENCY,Me caí en la cocina y me golpié la cabeza ayúdame,manuel,3.36
+f0256,f0256.wav,EMERGENCY,Tropecé con la alfombra y no me puedo levantar,manuel,2.52
+f0257,f0257.wav,EMERGENCY,Me resbalé en el baño y creo que me lastimé el brazo,manuel,2.94
+f0258,f0258.wav,EMERGENCY,Me caí de la cama y no puedo moverme del dolor,manuel,2.88
+f0259,f0259.wav,EMERGENCY,Oye me di un golpe fuerte en la rodilla y no puedo caminar,manuel,3.78
+f0260,f0260.wav,EMERGENCY,Me caí en las escaleras y me duele mucho el tobillo,manuel,3.24
+f0261,f0261.wav,EMERGENCY,Tropecé y me caí de frente me sangra la mano,manuel,3.18
+f0262,f0262.wav,EMERGENCY,Me golpié la cabeza contra la puerta y me siento mareada,manuel,2.82
+f0263,f0263.wav,EMERGENCY,Caí al suelo de repente y no sé cómo levantarme,manuel,3.48
+f0264,f0264.wav,EMERGENCY,Me resbalé al salir de la ducha y creo que me torcí el pie,manuel,3.18
+f0265,f0265.wav,EMERGENCY,Me duele el pecho muy fuerte y se me va la respiración,manuel,3.72
+f0266,f0266.wav,EMERGENCY,Tengo un mareo terrible y siento que me voy a caer,manuel,3.18
+f0267,f0267.wav,EMERGENCY,No puedo respirar bien desde hace un rato y me asusta mucho,manuel,3.66
+f0268,f0268.wav,EMERGENCY,Siento el brazo izquierdo dormido y el pecho muy apretado,manuel,3.18
+f0269,f0269.wav,EMERGENCY,Me está dando un dolor de cabeza horrible que nunca había sentido,manuel,3.54
+f0270,f0270.wav,EMERGENCY,Veo todo borroso de repente y tengo náuseas muy fuertes,manuel,3.66
+f0271,f0271.wav,EMERGENCY,Siento la lengua pesada y no puedo hablar bien,manuel,2.58
+f0272,f0272.wav,EMERGENCY,Me está dando taquicardia y no puedo controlarla,manuel,3.6
+f0273,f0273.wav,EMERGENCY,Tengo un zumbido en los oídos y siento que me desmayo,manuel,3.3
+f0274,f0274.wav,EMERGENCY,Me siento muy mal el corazón late rápido y me falta el aire,manuel,3.6
+f0275,f0275.wav,EMERGENCY,Ayúdame por favor necesito ayuda ya,manuel,2.7
+f0276,f0276.wav,EMERGENCY,Auxilio no me siento bien llama a alguien rápido,manuel,2.94
+f0277,f0277.wav,EMERGENCY,Llama a alguien rápido que me estoy sintiendo muy mal,manuel,2.94
+f0278,f0278.wav,EMERGENCY,Necesito ayuda urgente por favor no me dejes sola,manuel,3.18
+f0279,f0279.wav,EMERGENCY,Ayuda ayuda no puedo solo,manuel,2.16
+f0280,f0280.wav,EMERGENCY,Socorro que me pasó algo grave,manuel,3.06
+f0281,f0281.wav,EMERGENCY,Por favor que alguien venga ahorita mismo,manuel,2.34
+f0282,f0282.wav,EMERGENCY,Necesito que vengan ya me está pasando algo,manuel,3.24
+f0283,f0283.wav,EMERGENCY,Ayúdame rápido que no aguanto más,manuel,2.04
+f0284,f0284.wav,EMERGENCY,Que venga alguien por favor me siento muy mal,manuel,2.58
+f0285,f0285.wav,EMERGENCY,No sé dónde estoy me siento muy confundida,manuel,2.76
+f0286,f0286.wav,EMERGENCY,No reconozco el cuarto en que estoy ¿dónde estoy?,manuel,3.0
+f0287,f0287.wav,EMERGENCY,Me desperté y no recuerdo nada de lo que pasó,manuel,3.0
+f0288,f0288.wav,EMERGENCY,Estoy muy confundida no sé qué día es ni dónde me encuentro,manuel,7.26
+f0289,f0289.wav,EMERGENCY,No puedo pensar bien siento que mi cabeza no funciona,manuel,3.54
+f0290,f0290.wav,EMERGENCY,Verá que de pronto no supe quién era ni dónde estaba,manuel,3.84
+f0291,f0291.wav,EMERGENCY,Empecé a hablar pero las palabras no me salían bien,manuel,2.94
+f0292,f0292.wav,EMERGENCY,No entiendo lo que está pasando me siento muy perdida,manuel,2.94
+f0293,f0293.wav,EMERGENCY,De repente no reconocí a mi hija que estaba aquí conmigo,manuel,3.54
+f0294,f0294.wav,EMERGENCY,Siento que algo está muy mal en mi cabeza no pienso bien,manuel,2.76
+f0295,f0295.wav,EMERGENCY,Tengo mucho miedo algo me está pasando no sé qué es,manuel,3.0
+f0296,f0296.wav,EMERGENCY,Me entró un pánico horrible y no sé por qué,manuel,2.88
+f0297,f0297.wav,EMERGENCY,Estoy aterrada algo va muy mal ayúdame,manuel,3.18
+f0298,f0298.wav,EMERGENCY,Siento que me voy a morir de verdad llama a alguien,manuel,2.4
+f0299,f0299.wav,EMERGENCY,Me está dando un ataque de pánico no puedo respirar,manuel,2.7
+f0300,f0300.wav,EMERGENCY,Estoy temblando y no puedo parar tengo mucho miedo,manuel,3.66
+f0301,f0301.wav,EMERGENCY,Algo horrible está pasando en mi cuerpo ayúdame por favor,manuel,3.0
+f0302,f0302.wav,EMERGENCY,Tengo un miedo terrible siento que me voy a desmayar,manuel,2.94
+f0303,f0303.wav,EMERGENCY,Estoy muy asustada nunca me había sentido así,manuel,2.7
+f0304,f0304.wav,EMERGENCY,Me da miedo quedarme sola así llama a mi hija pronto,manuel,3.18
+f0305,f0305.wav,EMERGENCY,Hay alguien en la casa y yo no llamé a nadie,manuel,2.64
+f0306,f0306.wav,EMERGENCY,Escucho ruidos raros afuera como que alguien está intentando entrar,manuel,4.2
+f0307,f0307.wav,EMERGENCY,Hay un extraño en el jardín que no conozco,manuel,2.52
+f0308,f0308.wav,EMERGENCY,Creo que entraron a robar llama a la policía,manuel,2.46
+f0309,f0309.wav,EMERGENCY,Oigo pasos en el cuarto de al lado y estoy sola,manuel,3.0
+f0310,f0310.wav,EMERGENCY,Alguien está tocando la puerta muy fuerte y me da miedo abrir,manuel,3.06
+f0311,f0311.wav,EMERGENCY,Vi a alguien mirando por la ventana que me asustó mucho,manuel,3.18
+f0312,f0312.wav,EMERGENCY,Hay un olor a gas muy fuerte en la cocina,manuel,2.46
+f0313,f0313.wav,EMERGENCY,Hay humo saliendo del cuarto del fondo,manuel,2.28
+f0314,f0314.wav,EMERGENCY,El timbre no para de sonar y hay alguien que no conozco afuera,manuel,3.54
+f0315,f0315.wav,EMERGENCY,Estoy en el suelo y no puedo levantarme necesito ayuda,manuel,3.24
+f0316,f0316.wav,EMERGENCY,Me quedé trabado en la bañera y no puedo salir,manuel,3.06
+f0317,f0317.wav,EMERGENCY,Caí y no puedo moverme del dolor en la cadera,manuel,2.46
+f0318,f0318.wav,EMERGENCY,Estoy atrapada entre la cama y la pared y no puedo moverme,manuel,3.36
+f0319,f0319.wav,EMERGENCY,No tengo fuerzas para ponerme de pie llama a alguien,manuel,2.52
+f0320,f0320.wav,EMERGENCY,Me quedé sentado en el piso y no puedo levantarme solo,manuel,3.18
+f0321,f0321.wav,EMERGENCY,Estoy tirado en el baño desde hace rato y nadie viene,manuel,2.94
+f0322,f0322.wav,EMERGENCY,No me puedo mover del brazo creo que me lo rompí,manuel,3.12
+f0323,f0323.wav,EMERGENCY,Caí y me quedé paralizado del susto y del dolor,manuel,2.94
+f0324,f0324.wav,EMERGENCY,Estoy aquí en el suelo y no tengo fuerzas para nada,manuel,2.58
+f0325,f0325.wav,EMERGENCY,Llama a la ambulancia ya que me siento muy mal,manuel,2.28
+f0326,f0326.wav,EMERGENCY,Marca el 911 ahorita mismo por favor,manuel,2.4
+f0327,f0327.wav,EMERGENCY,Llama a mi hija urgente que necesito ayuda ya,manuel,2.46
+f0328,f0328.wav,EMERGENCY,Necesito que llames a los paramédicos ya,manuel,2.22
+f0329,f0329.wav,EMERGENCY,Llama al médico de emergencias por favor es urgente,manuel,3.12
+f0330,f0330.wav,EMERGENCY,Marca a mi hijo ahora mismo que me estoy sintiendo muy mal,manuel,2.82
+f0331,f0331.wav,EMERGENCY,Llama a alguien que me lleve al hospital ya,manuel,2.34
+f0332,f0332.wav,EMERGENCY,Necesito una ambulancia ahorita que no puedo esperar,manuel,3.18
+f0333,f0333.wav,EMERGENCY,Llama al número de emergencias por favor que es grave,manuel,2.28
+f0334,f0334.wav,EMERGENCY,Avisa a mi familia ya que algo muy malo me está pasando,manuel,2.76
+f0335,f0335.wav,SMALL_TALK,Buenas ¿me escuchas bien hoy?,manuel,2.1
+f0336,f0336.wav,SMALL_TALK,Buenas tardes mijito ¿todo bien por allá?,manuel,2.82
+f0337,f0337.wav,SMALL_TALK,Hola ¿estás ahí?,manuel,1.8
+f0338,f0338.wav,SMALL_TALK,Buenas noches ya me voy a dormir,manuel,2.1
+f0339,f0339.wav,SMALL_TALK,Hasta luego ya me voy a descansar un ratito,manuel,2.82
+f0340,f0340.wav,SMALL_TALK,Chao chao que ya es tarde,manuel,1.44
+f0341,f0341.wav,SMALL_TALK,Buen provecho me voy a almorzar,manuel,1.98
+f0342,f0342.wav,SMALL_TALK,Hasta mañana que ya me venció el sueño,manuel,2.88
+f0343,f0343.wav,SMALL_TALK,Hola hola ¿sigues ahí?,manuel,2.4
+f0344,f0344.wav,SMALL_TALK,Buenas me alegra encontrarte hoy,manuel,2.1
+f0345,f0345.wav,SMALL_TALK,Qué frío tan bravo está haciendo ahorita ¿no te parece?,manuel,3.06
+f0346,f0346.wav,SMALL_TALK,Qué calor tan bravo hace hoy en la tarde,manuel,3.24
+f0347,f0347.wav,SMALL_TALK,Está lloviendo muy fuerte y no puedo salir,manuel,3.3
+f0348,f0348.wav,SMALL_TALK,Hoy amaneció nublado y me da flojera,manuel,2.58
+f0349,f0349.wav,SMALL_TALK,Verá que el sol está duro hoy ni ganas de salir,manuel,3.24
+f0350,f0350.wav,SMALL_TALK,Qué frío tan horrible ha hecho toda esta semana,manuel,3.06
+f0351,f0351.wav,SMALL_TALK,Está lloviendo a cántaros y me duelen los huesos,manuel,3.0
+f0352,f0352.wav,SMALL_TALK,Hoy el clima está raro ni frío ni calor,manuel,3.36
+f0353,f0353.wav,SMALL_TALK,Qué día tan gris tan feo que me pone triste,manuel,2.82
+f0354,f0354.wav,SMALL_TALK,Oye hace tanto viento que la ventana no para de sonar,manuel,3.18
+f0355,f0355.wav,SMALL_TALK,¿Cómo te llamas tú?,manuel,1.62
+f0356,f0356.wav,SMALL_TALK,¿Qué eres tú exactamente?,manuel,2.52
+f0357,f0357.wav,SMALL_TALK,¿Eres una persona real o una máquina?,manuel,2.64
+f0358,f0358.wav,SMALL_TALK,¿Tú también tienes familia?,manuel,1.86
+f0359,f0359.wav,SMALL_TALK,¿Cuántos años tienes tú?,manuel,1.86
+f0360,f0360.wav,SMALL_TALK,¿De dónde eres tú?,manuel,1.62
+f0361,f0361.wav,SMALL_TALK,¿Tú sientes algo o solo obedeces?,manuel,3.24
+f0362,f0362.wav,SMALL_TALK,¿Puedes hacer cualquier cosa o tienes límites?,manuel,3.9
+f0363,f0363.wav,SMALL_TALK,¿Tú duermes o estás despierto siempre?,manuel,2.34
+f0364,f0364.wav,SMALL_TALK,¿Cómo sabes tanto si eres una máquina?,manuel,2.64
+f0365,f0365.wav,SMALL_TALK,Qué aburrido está el día hoy,manuel,2.16
+f0366,f0366.wav,SMALL_TALK,No tengo nada qué hacer y me aburro mucho,manuel,2.4
+f0367,f0367.wav,SMALL_TALK,Qué lento pasa el tiempo cuando uno está solo,manuel,2.76
+f0368,f0368.wav,SMALL_TALK,Este día se me ha hecho eterno,manuel,2.58
+f0369,f0369.wav,SMALL_TALK,Nada que hacer y nada que ver qué aburrimiento,manuel,2.94
+f0370,f0370.wav,SMALL_TALK,Qué días tan largos los de ahora,manuel,2.52
+f0371,f0371.wav,SMALL_TALK,Me siento muy solo hoy y no sé por qué,manuel,2.76
+f0372,f0372.wav,SMALL_TALK,Nada me anima hoy todo está feo,manuel,3.36
+f0373,f0373.wav,SMALL_TALK,Qué pesado se siente el día cuando no llueve ni hace sol,manuel,3.96
+f0374,f0374.wav,SMALL_TALK,Estoy aburrido sin nada qué hacer,manuel,1.86
+f0375,f0375.wav,SMALL_TALK,Antes la vida era más tranquila no tan complicada,manuel,2.94
+f0376,f0376.wav,SMALL_TALK,En mis tiempos las cosas eran distintas y más bonitas,manuel,2.94
+f0377,f0377.wav,SMALL_TALK,Qué tiempos aquellos cuando los hijos vivían cerca,manuel,2.7
+f0378,f0378.wav,SMALL_TALK,Antes se visitaba más a los vecinos ahora nadie sale,manuel,3.96
+f0379,f0379.wav,SMALL_TALK,Cuando era joven todo era diferente más sencillo,manuel,2.7
+f0380,f0380.wav,SMALL_TALK,Extraño cuando mi esposo estaba aquí conmigo,manuel,2.46
+f0381,f0381.wav,SMALL_TALK,Antes la comida tenía otro sabor no sé por qué,manuel,2.88
+f0382,f0382.wav,SMALL_TALK,Los jóvenes de ahora no son como los de mi época,manuel,3.0
+f0383,f0383.wav,SMALL_TALK,Me acuerdo cuando mi barrio era pura tierra y éramos muy felices,manuel,4.02
+f0384,f0384.wav,SMALL_TALK,Antes los domingos eran sagrados toda la familia unida,manuel,3.54
+f0385,f0385.wav,SMALL_TALK,¿Qué día es hoy?,manuel,1.26
+f0386,f0386.wav,SMALL_TALK,¿Qué hora es ahorita?,manuel,1.68
+f0387,f0387.wav,SMALL_TALK,¿Cuántos días faltan para el feriado?,manuel,2.58
+f0388,f0388.wav,SMALL_TALK,¿Cómo se llama el presidente ahorita?,manuel,2.7
+f0389,f0389.wav,SMALL_TALK,¿Cuánto está el dólar hoy?,manuel,2.58
+f0390,f0390.wav,SMALL_TALK,¿Qué año estamos?,manuel,1.74
+f0391,f0391.wav,SMALL_TALK,¿Cuántos días tiene este mes?,manuel,1.68
+f0392,f0392.wav,SMALL_TALK,¿Mañana es feriado o no?,manuel,1.62
+f0393,f0393.wav,SMALL_TALK,¿A qué hora amanece en invierno?,manuel,2.1
+f0394,f0394.wav,SMALL_TALK,¿Cuánto falta para navidad?,manuel,1.74
+f0395,f0395.wav,SMALL_TALK,Muchas gracias mijito por tu ayuda,manuel,2.04
+f0396,f0396.wav,SMALL_TALK,Qué bueno tenerte aquí para conversar un rato,manuel,2.4
+f0397,f0397.wav,SMALL_TALK,Gracias por escucharme siempre,manuel,1.86
+f0398,f0398.wav,SMALL_TALK,Qué amable eres de verdad,manuel,1.74
+f0399,f0399.wav,SMALL_TALK,Muchas gracias no sé qué haría sin ti,manuel,2.04
+f0400,f0400.wav,SMALL_TALK,Muy amable de tu parte gracias,manuel,2.04
+f0401,f0401.wav,SMALL_TALK,Oye gracias por todo lo que haces por mí,manuel,2.22
+f0402,f0402.wav,SMALL_TALK,De verdad te lo agradezco con todo el corazón,manuel,2.46
+f0403,f0403.wav,SMALL_TALK,Qué cosa tan buena que existas para ayudarme,manuel,2.88
+f0404,f0404.wav,SMALL_TALK,Gracias gracias eres muy bueno conmigo,manuel,2.28
+f0405,f0405.wav,SMALL_TALK,Estaba viendo las noticias y todo está muy feo,manuel,3.18
+f0406,f0406.wav,SMALL_TALK,La novela de las ocho está muy buena últimamente,manuel,2.52
+f0407,f0407.wav,SMALL_TALK,Mi vecina Rosa vino a visitarme ayer qué alegría,manuel,2.58
+f0408,f0408.wav,SMALL_TALK,El vecino de arriba pone música muy fuerte que no me deja dormir,manuel,2.82
+f0409,f0409.wav,SMALL_TALK,Ayer pasaron una película muy bonita en la tele,manuel,2.82
+f0410,f0410.wav,SMALL_TALK,Los vecinos nuevos no saludan nada antipáticos,manuel,3.18
+f0411,f0411.wav,SMALL_TALK,El perro del vecino ladró toda la noche y no dormí,manuel,2.4
+f0412,f0412.wav,SMALL_TALK,Vi un programa sobre historia que me gustó mucho,manuel,2.28
+f0413,f0413.wav,SMALL_TALK,Mi vecina está enferma y nadie la visita qué tristeza,manuel,3.06
+f0414,f0414.wav,SMALL_TALK,Pusieron a construir algo cerca y el ruido es horrible,manuel,2.46
