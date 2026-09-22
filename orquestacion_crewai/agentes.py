@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 
+from infraestructura.modelos import resolver_modelo
 from rag.buscar import buscar_receta
 
 # override=True: el .env del proyecto manda sobre variables ya presentes en el
@@ -13,8 +14,15 @@ from rag.buscar import buscar_receta
 load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 
 VLLM_CHAT_BASE_URL = os.getenv("VLLM_CHAT_BASE_URL", "http://172.28.230.10:12559/v1")
-VLLM_CHAT_MODEL = os.getenv("VLLM_CHAT_MODEL", "google/gemma-4-12B-it")
 VLLM_API_KEY = os.getenv("VLLM_API_KEY", "local")
+
+# Mismo endpoint y mismo modelo que LangGraph, resuelto igual: la comparación
+# LangGraph vs CrewAI solo tiene sentido si ambos corren sobre el mismo modelo.
+VLLM_CHAT_MODEL = resolver_modelo(
+    base_url=VLLM_CHAT_BASE_URL,
+    modelo_preferido=os.getenv("VLLM_CHAT_MODEL", "google/gemma-4-12B-it"),
+    api_key=VLLM_API_KEY,
+)
 
 # Las 5 intenciones que rutea el sistema. Idénticas a langgraph/agentes.py
 INTENCIONES = [

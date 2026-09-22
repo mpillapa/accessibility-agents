@@ -104,6 +104,43 @@ def procesar_consulta_verbose(consulta: str) -> dict:
     }
 
 
+# Igual que traza_por_nodo(), pero ENTREGANDO cada paso apenas ocurre en vez de
+# esperar a que el grafo termine. Lo consume la interfaz web para mostrar por
+# dónde va el sistema mientras trabaja.
+#
+# Por qué existe: una consulta con RAG tarda entre 6 y 30 segundos, y el 88% se
+# va en el nodo `generar`. Sin retroalimentación la interfaz parece colgada, que
+# fue exactamente el problema al presentar la demo. Mostrar el avance no acelera
+# nada, pero convierte una espera opaca en uno donde se ve qué está pasando.
+#
+# Entrega dicts {"nodo": str, "cambios": dict}; el último trae el estado final
+# acumulado bajo la clave "estado_final".
+def procesar_consulta_en_vivo(consulta: str):
+    import time
+
+    app = construir_grafo()
+    estado_acumulado = _estado_inicial(consulta)
+
+    inicio = time.time()
+    for actualizacion in app.stream(_estado_inicial(consulta), stream_mode="updates"):
+        for nodo, cambios in actualizacion.items():
+            estado_acumulado.update(cambios)
+            yield {"nodo": nodo, "cambios": cambios}
+
+    yield {
+        "nodo": None,
+        "cambios": {},
+        "estado_final": {
+            "consulta": consulta,
+            "intencion": estado_acumulado.get("intencion"),
+            "razonamiento": estado_acumulado.get("razonamiento"),
+            "respuesta": estado_acumulado.get("respuesta"),
+            "traza_rag": estado_acumulado.get("traza_rag"),
+            "latencia_segundos": round(time.time() - inicio, 2),
+        },
+    }
+
+
 # traza_por_nodo() devuelve el mismo intercambio que imprime
 # procesar_consulta_verbose(), pero COMO DATOS (lista de dicts), sin imprimir,
 # para que el notebook comparativo pueda renderizar el cruce de información

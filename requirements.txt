@@ -14,3 +14,6 @@ openai
 chromadb
 Pillow
 faster-whisper
+
+# Interfaz web del sistema multiagente (interfaz/app.py)
+streamlit
