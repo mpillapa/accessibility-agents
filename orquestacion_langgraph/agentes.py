@@ -57,15 +57,12 @@ def nodo_orchestrator(estado: EstadoConversacion) -> dict:
     return {"intencion": decision.intencion, "razonamiento": decision.razonamiento}
 
 
-# Edge condicional: decide el próximo nodo según la intención detectada.
+# Edge condicional: devuelve la INTENCIÓN detectada, y el grafo la traduce a
+# nodo (ver construir_grafo). Devolver la intención en vez del nombre del nodo
+# mantiene la decisión en el vocabulario del dominio y deja que el diagrama
+# etiquete cada flecha con la intención que la dispara.
 def ruta_siguiente_nodo(estado: EstadoConversacion) -> str:
-    return {
-        "MEDICATION_HEALTH": "medicacion",
-        "RECIPE_MULTIMEDIA": "recetas",
-        "FAMILY_COMMUNICATION": "familia",
-        "EMERGENCY": "emergencia",
-        "SMALL_TALK": "small_talk",
-    }[estado["intencion"]]
+    return estado["intencion"]
 
 
 # Especialista en consultas de medicación y salud básica (mismo rol que CrewAI).

@@ -146,7 +146,8 @@ accessibility-agents/
 │   ├── estado.py                 State del grafo principal
 │   ├── llm.py                    Cliente LLM compartido (aparte, para evitar imports circulares)
 │   ├── agentes.py                Nodos del grafo (mismos roles/prompts que orquestacion_crewai/agentes.py)
-│   ├── grafo.py                  StateGraph + edges condicionales; traza_por_nodo(), procesar_consulta_en_vivo() y clasificar_consulta()
+│   ├── grafo.py                  StateGraph + edges condicionales; procesar_consulta(), procesar_audio(), traza_por_nodo()
+│   ├── voz.py                    Entrada por voz: transcribe y VERIFICA antes de dejar entrar el texto al sistema
 │   ├── rag_agentico/             SUBGRAFO de recuperación del especialista en recetas
 │   │   ├── estado.py             EstadoRAG + reglas de negocio del ciclo (constantes con nombre)
 │   │   ├── nodos.py              decidir / recuperar / evaluar / reformular / generar / sin_resultado
@@ -165,7 +166,8 @@ accessibility-agents/
 │   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
 │   ├── prueba_ciclo_rag.py       Los 4 caminos del subgrafo de RAG, con dobles (no requiere VPN)
-│   └── prueba_calidad_ingesta.py Detección de OCR degenerado y troceado (no requiere VPN)
+│   ├── prueba_calidad_ingesta.py Detección de OCR degenerado y troceado (no requiere VPN)
+│   └── prueba_guardrail_voz.py   El guardrail del ASR: qué transcripciones NO entran (no requiere GPU)
 ├── notebooks/
 │   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
@@ -246,6 +248,7 @@ Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones pur
 ```bash
 python -m pruebas.prueba_ciclo_rag         # los caminos del subgrafo de RAG
 python -m pruebas.prueba_calidad_ingesta   # deteccion de OCR degenerado y troceado
+python -m pruebas.prueba_guardrail_voz     # el guardrail de la entrada por voz
 ```
 
 Evaluación del comportamiento real (**sí** requiere VPN y el recetario ingerido).
@@ -254,6 +257,42 @@ volver a correrlo después, permite comparar el antes y el después:
 ```bash
 python -m pruebas.evaluar_rag_real --json antes.json
 ```
+
+---
+
+## Entrada por voz y su guardrail
+
+El grafo acepta audio además de texto:
+
+```python
+from orquestacion_langgraph.grafo import procesar_audio
+procesar_audio("ruta/al/audio.wav")
+```
+
+**No es "transcribir y pasar el texto".** Whisper siempre devuelve texto: no
+tiene forma de decir "no escuché nada", y ante audio sin habla genera lo más
+frecuente de su entrenamiento (cierres de video de YouTube), reportando máxima
+confianza. Medido sobre este corpus, eso hizo que **31 de 180 emergencias (17%)
+no se atendieran**: se clasificaban como conversación trivial.
+
+Por eso la transcripción pasa por dos filtros antes de convertirse en consulta
+(`orquestacion_langgraph/voz.py`): el flag `sin_voz` del detector de actividad
+de voz, y el detector de muletillas alucinadas. Si no los pasa, el grafo **no
+clasifica**: pide que repitan.
+
+Mismo audio de emergencia degradado a 0 dB:
+
+| | Sin guardrail | Con guardrail |
+|---|---|---|
+| Whisper transcribe | `"Gracias por ver el video"` | (descartado) |
+| Ruteo | **SMALL_TALK** | NO_SE_ENTENDIO |
+
+Está implementado como edge condicional y no como un `if` dentro de un nodo,
+para que quede visible en el diagrama del grafo y en las trazas.
+
+**Limitación:** el guardrail no recupera la emergencia, solo evita tratarla como
+charla trivial. La persona tiene que repetir. Un sistema real debería escalar
+tras N intentos fallidos; está identificado, no implementado.
 
 ---
 

@@ -14,21 +14,40 @@ from orquestacion_langgraph.agentes import (
     nodo_emergencia_stub,
     nodo_small_talk,
 )
+from orquestacion_langgraph.voz import (
+    RAMA_CONTINUAR,
+    RAMA_DESCARTAR,
+    nodo_transcribir_voz,
+    ruta_tras_transcribir,
+    nodo_no_se_entendio,
+)
 
 
-def _estado_inicial(consulta: str) -> dict:
+def _estado_inicial(consulta: str, ruta_audio: str | None = None) -> dict:
     return {
         "consulta": consulta,
         "intencion": None,
         "razonamiento": None,
         "respuesta": None,
         "traza_rag": None,
+        "ruta_audio": ruta_audio,
+        "transcripcion": None,
+        "entrada_descartada": None,
     }
+
+
+# Por dónde entra el grafo: si hay audio, hay que transcribirlo y verificarlo
+# antes de clasificar nada. Si la consulta ya viene como texto, va directo al
+# Orchestrator (comportamiento original, intacto).
+def _ruta_de_entrada(estado: EstadoConversacion) -> str:
+    return "entra por voz" if estado.get("ruta_audio") else "entra por texto"
 
 
 def construir_grafo():
     grafo = StateGraph(EstadoConversacion)
 
+    grafo.add_node("transcribir_voz", nodo_transcribir_voz)
+    grafo.add_node("no_se_entendio", nodo_no_se_entendio)
     grafo.add_node("orchestrator", nodo_orchestrator)
     grafo.add_node("medicacion", nodo_medicacion)
     grafo.add_node("recetas", nodo_recetas)
@@ -36,13 +55,27 @@ def construir_grafo():
     grafo.add_node("emergencia", nodo_emergencia_stub)
     grafo.add_node("small_talk", nodo_small_talk)
 
-    grafo.add_edge(START, "orchestrator")
+    # Las claves de estos mapas son las etiquetas que aparecen en el diagrama:
+    # describen POR QUÉ se toma cada rama, no a dónde va.
+    grafo.add_conditional_edges(START, _ruta_de_entrada, {
+        "entra por voz": "transcribir_voz",
+        "entra por texto": "orchestrator",
+    })
+
+    # El guardrail del ASR, explícito en la topología: una transcripción que no
+    # se pudo verificar NO llega al Orchestrator. Ver voz.py.
+    grafo.add_conditional_edges("transcribir_voz", ruta_tras_transcribir, {
+        RAMA_CONTINUAR: "orchestrator",
+        RAMA_DESCARTAR: "no_se_entendio",
+    })
+    grafo.add_edge("no_se_entendio", END)
+
     grafo.add_conditional_edges("orchestrator", ruta_siguiente_nodo, {
-        "medicacion": "medicacion",
-        "recetas": "recetas",
-        "familia": "familia",
-        "emergencia": "emergencia",
-        "small_talk": "small_talk",
+        "MEDICATION_HEALTH": "medicacion",
+        "RECIPE_MULTIMEDIA": "recetas",
+        "FAMILY_COMMUNICATION": "familia",
+        "EMERGENCY": "emergencia",
+        "SMALL_TALK": "small_talk",
     })
     grafo.add_edge("medicacion", END)
     grafo.add_edge("recetas", END)
@@ -53,22 +86,36 @@ def construir_grafo():
     return grafo.compile()
 
 
-def procesar_consulta(consulta: str) -> dict:
+def procesar_consulta(consulta: str, ruta_audio: str | None = None) -> dict:
     import time
 
     app = construir_grafo()
     inicio = time.time()
-    resultado = app.invoke(_estado_inicial(consulta))
+    resultado = app.invoke(_estado_inicial(consulta, ruta_audio))
     latencia = time.time() - inicio
 
     return {
-        "consulta": consulta,
+        # Con entrada por voz, la consulta la escribe el ASR: se devuelve la del
+        # estado final, no la que se pasó por parámetro (que va vacía).
+        "consulta": resultado.get("consulta") or consulta,
         "intencion": resultado["intencion"],
         "razonamiento": resultado.get("razonamiento"),
         "respuesta": resultado["respuesta"],
         "traza_rag": resultado.get("traza_rag"),
+        "transcripcion": resultado.get("transcripcion"),
+        "entrada_descartada": resultado.get("entrada_descartada"),
         "latencia_segundos": round(latencia, 2),
     }
+
+
+def procesar_audio(ruta_audio: str) -> dict:
+    """Entrada por voz: transcribe el audio y lo procesa como una consulta.
+
+    Si el ASR no da una transcripción confiable, el grafo NO clasifica: pide
+    que repitan y devuelve `entrada_descartada` con el motivo. Ver
+    orquestacion_langgraph/voz.py.
+    """
+    return procesar_consulta(consulta="", ruta_audio=ruta_audio)
 
 
 # Igual que procesar_consulta, pero usando app.stream() en vez de app.invoke().
@@ -115,14 +162,14 @@ def procesar_consulta_verbose(consulta: str) -> dict:
 #
 # Entrega dicts {"nodo": str, "cambios": dict}; el último trae el estado final
 # acumulado bajo la clave "estado_final".
-def procesar_consulta_en_vivo(consulta: str):
+def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None):
     import time
 
     app = construir_grafo()
-    estado_acumulado = _estado_inicial(consulta)
+    estado_acumulado = _estado_inicial(consulta, ruta_audio)
 
     inicio = time.time()
-    for actualizacion in app.stream(_estado_inicial(consulta), stream_mode="updates"):
+    for actualizacion in app.stream(_estado_inicial(consulta, ruta_audio), stream_mode="updates"):
         for nodo, cambios in actualizacion.items():
             estado_acumulado.update(cambios)
             yield {"nodo": nodo, "cambios": cambios}
@@ -131,11 +178,13 @@ def procesar_consulta_en_vivo(consulta: str):
         "nodo": None,
         "cambios": {},
         "estado_final": {
-            "consulta": consulta,
+            "consulta": estado_acumulado.get("consulta") or consulta,
             "intencion": estado_acumulado.get("intencion"),
             "razonamiento": estado_acumulado.get("razonamiento"),
             "respuesta": estado_acumulado.get("respuesta"),
             "traza_rag": estado_acumulado.get("traza_rag"),
+            "transcripcion": estado_acumulado.get("transcripcion"),
+            "entrada_descartada": estado_acumulado.get("entrada_descartada"),
             "latencia_segundos": round(time.time() - inicio, 2),
         },
     }
