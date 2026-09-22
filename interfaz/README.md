@@ -15,6 +15,32 @@ la máquina dentro de la red (por ejemplo `http://172.28.230.10:8501`).
 Requiere VPN institucional activa: los modelos corren en los servidores de la
 Universidad.
 
+## Entrada por voz
+
+Tres vías, en el desplegable "Hablar en vez de escribir":
+
+| Vía | Funciona por IP | Para qué |
+|---|---|---|
+| **Grabar** | no | Hablar en vivo |
+| **Subir un audio** | sí | Un `.wav`/`.mp3` cualquiera |
+| **Ejemplos** | sí | El audio de emergencia, limpio y degradado |
+
+**El micrófono necesita `localhost` o HTTPS.** La API del navegador que usa
+`st.audio_input` (`getUserMedia`) solo está disponible en contextos seguros: si
+abrís la app por `http://<IP>:8501`, el navegador bloquea la grabación y
+Streamlit lo reporta con un error genérico que no explica la causa.
+
+Para grabar desde otra máquina, hacé un túnel y entrá por localhost:
+
+```bash
+ssh -L 8501:localhost:8501 usuario@172.28.230.10
+# después, en el navegador: http://localhost:8501
+```
+
+Las otras dos vías no tienen esa restricción, y para una demo son preferibles:
+los ejemplos muestran el guardrail del ASR en dos clics, sin depender de que el
+micrófono funcione ni de hablar en el momento.
+
 ## Qué muestra
 
 Un chat con historial. Bajo cada respuesta, plegado, el recorrido real por el

@@ -294,6 +294,12 @@ para que quede visible en el diagrama del grafo y en las trazas.
 charla trivial. La persona tiene que repetir. Un sistema real debería escalar
 tras N intentos fallidos; está identificado, no implementado.
 
+La interfaz web acepta voz por tres vías (grabar, subir un archivo, o ejemplos
+del corpus). **Grabar con micrófono exige `localhost` o HTTPS**, porque la API
+`getUserMedia` del navegador solo existe en contextos seguros: por IP queda
+bloqueada. Para grabar desde otra máquina, `ssh -L 8501:localhost:8501` y entrar
+por localhost. Ver `interfaz/README.md`.
+
 ---
 
 ## Rotación de modelos en el servidor (2026-09-21)
