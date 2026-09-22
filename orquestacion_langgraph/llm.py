@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
 from infraestructura.modelos import resolver_modelo
+from infraestructura.trazas import configurar_trazas
 
 # override=True: el .env del proyecto manda sobre variables ya presentes en el
 # entorno (p. ej. las que VSCode inyecta desde un .env del workspace padre).
@@ -30,6 +31,10 @@ VLLM_CHAT_MODEL = resolver_modelo(
     modelo_preferido=os.getenv("VLLM_CHAT_MODEL", "google/gemma-4-12B-it"),
     api_key=VLLM_API_KEY,
 )
+
+# Deja el entorno listo para LangSmith antes de crear el cliente. Si no hay API
+# key configurada no pasa nada: el sistema funciona igual, sin trazas.
+configurar_trazas()
 
 llm = ChatOpenAI(
     model=VLLM_CHAT_MODEL,

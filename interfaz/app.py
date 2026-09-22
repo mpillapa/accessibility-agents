@@ -34,6 +34,7 @@ if str(RAIZ_DEL_PROYECTO) not in sys.path:
 import streamlit as st
 
 from infraestructura.modelos import describir_resolucion
+from infraestructura.trazas import describir_trazas
 from orquestacion_langgraph.grafo import procesar_consulta_en_vivo
 from orquestacion_langgraph.llm import VLLM_CHAT_BASE_URL, VLLM_CHAT_MODEL
 
@@ -83,6 +84,18 @@ def _barra_lateral():
             for url, datos in resoluciones.items():
                 st.caption(url)
                 st.text(datos["resuelto"])
+
+        st.divider()
+        trazas = describir_trazas()
+        if trazas["activo"] == "True":
+            st.caption("Trazas en LangSmith")
+            st.success(f"Activas · proyecto `{trazas['proyecto']}`")
+            st.link_button(
+                "Ver trazas", "https://smith.langchain.com", use_container_width=True
+            )
+        else:
+            st.caption("Trazas en LangSmith")
+            st.info("Desactivadas")
 
         st.divider()
         if st.button("Limpiar conversación", use_container_width=True):

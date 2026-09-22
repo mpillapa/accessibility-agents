@@ -133,6 +133,12 @@ python -m pruebas.prueba_ciclo_rag
 
 ```
 accessibility-agents/
+├── infraestructura/               ACCESO A SERVICIOS EXTERNOS (aisla lo que no controlamos)
+│   ├── modelos.py                Resuelve el id de modelo contra GET /v1/models; el .env es preferencia, no dato fijo
+│   └── trazas.py                 Configura LangSmith; si no hay clave el sistema corre igual, sin trazas
+├── interfaz/                      CAPA DE PRESENTACION (no decide nada)
+│   ├── app.py                    Chat en Streamlit + recorrido por el grafo bajo cada respuesta
+│   └── README.md                 Como ejecutarla y que muestra
 ├── orquestacion_crewai/
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
 │   └── demo.py                   Demo en vivo (verbose=True: muestra razonamiento y delegación)
@@ -140,7 +146,7 @@ accessibility-agents/
 │   ├── estado.py                 State del grafo principal
 │   ├── llm.py                    Cliente LLM compartido (aparte, para evitar imports circulares)
 │   ├── agentes.py                Nodos del grafo (mismos roles/prompts que orquestacion_crewai/agentes.py)
-│   ├── grafo.py                  StateGraph + edges condicionales; traza_por_nodo() y clasificar_consulta()
+│   ├── grafo.py                  StateGraph + edges condicionales; traza_por_nodo(), procesar_consulta_en_vivo() y clasificar_consulta()
 │   ├── rag_agentico/             SUBGRAFO de recuperación del especialista en recetas
 │   │   ├── estado.py             EstadoRAG + reglas de negocio del ciclo (constantes con nombre)
 │   │   ├── nodos.py              decidir / recuperar / evaluar / reformular / generar / sin_resultado
@@ -150,7 +156,7 @@ accessibility-agents/
 │   ├── visualizar.py             Diagramas del grafo principal y del subgrafo de RAG
 │   └── README.md                 Alcance, flujo/cruce de información y hallazgos técnicos
 ├── rag/                           CAPA DE ACCESO A DATOS (no decide nada, solo consulta)
-│   ├── config.py                 Endpoints/modelos vLLM para embeddings y OCR (desde .env)
+│   ├── config.py                 Endpoints de embeddings y OCR; los ids se resuelven vía infraestructura/modelos.py
 │   ├── embeddings.py              Llama a BGE-M3 en lotes que quepan en su ventana de contexto
 │   ├── ocr.py                    Llama a glm-ocr para imágenes (OpenAI-compatible, formato "vision")
 │   ├── calidad.py                 Detecta texto degenerado del OCR antes de indexarlo
@@ -164,7 +170,7 @@ accessibility-agents/
 │   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
 ├── requirements.txt              Dependencias
-├── .env.example                   Config de endpoints vLLM (chat, embeddings, OCR)
+├── .env.example                   Config de endpoints (chat en vLLM; embeddings y OCR en Ollama)
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -193,6 +199,8 @@ pip install -r requirements.txt
 
 # 4. Copiar la config de endpoints (los defaults ya apuntan a los servidores de la universidad)
 cp .env.example .env
+#    No hace falta acertar el id del modelo: se resuelve contra el servidor al
+#    arrancar (ver "Rotación de modelos" más abajo).
 
 # 5. Ingerir el recetario (OCR + embeddings -> ChromaDB local), una sola vez
 python -m rag.ingesta
@@ -201,6 +209,16 @@ python -m rag.ingesta
 > Todos los comandos se corren **desde la raíz del repo** y con `python -m`, porque
 > el proyecto está organizado como paquetes de Python. Correr los archivos
 > directamente (`python orquestacion_langgraph/demo.py`) falla con `ModuleNotFoundError`.
+
+Interfaz web (chat con historial, accesible desde otra máquina de la red):
+```bash
+streamlit run interfaz/app.py                          # solo local
+streamlit run interfaz/app.py --server.address 0.0.0.0 # accesible por IP, puerto 8501
+```
+
+Bajo cada respuesta muestra, plegado, el recorrido real por el grafo: a qué
+agente ruteó el orquestador, por qué, y los ciclos del RAG agéntico. Ver
+`interfaz/README.md`.
 
 Demo de CrewAI:
 ```bash
@@ -236,6 +254,39 @@ volver a correrlo después, permite comparar el antes y el después:
 ```bash
 python -m pruebas.evaluar_rag_real --json antes.json
 ```
+
+---
+
+## Rotación de modelos en el servidor (2026-09-21)
+
+Los endpoints de la Universidad cambian el modelo servido sin aviso y sin
+cambiar el puerto. Registrado sobre el puerto 12559:
+
+| Desde | Modelo | Cómo terminó |
+|---|---|---|
+| — | `google/gemma-4-12B-it` | detenido 2026-09-08, contenedor **eliminado** |
+| 2026-09-09 | `zai-org/GLM-5.3-Flash` (FP16) | contenedor eliminado |
+| 2026-09-21 17:57 | `canada-quant/GLM-5.3-Flash-W4A16-MTP` | SIGKILL a las 20:15 |
+| 2026-09-21 20:24 | `zai-org/GLM-5.3-Flash` (FP16) | vigente |
+
+Cuatro rotaciones en trece días, dos el mismo día; una de ellas ocurrió
+**durante** una corrida de `pruebas.evaluar_rag_real`. Los endpoints de
+embeddings (12556) y OCR (12560) no existen desde el 2026-09-09: se reemplazaron
+por Ollama (`bge-m3:latest` y `qwen2.5vl:7b`).
+
+La API OpenAI valida el campo `model` contra el id exacto del contenedor, así
+que con el id fijado a mano en el `.env` **cada rotación devuelve 404 y tumba el
+sistema**. `infraestructura/modelos.py` lo resuelve contra `GET /v1/models` al
+arrancar; el `.env` queda como preferencia y respaldo sin VPN.
+
+No sustituye a ciegas: si el endpoint sirve varios modelos y ninguno coincide
+(caso Ollama, 14 modelos en un puerto), avisa y deja fallar, porque reemplazar
+el modelo de embeddings por uno de chat cambiaría la dimensión del vector y
+corrompería el índice de ChromaDB en silencio.
+
+**Esto evita la caída, no restaura la reproducibilidad.** Un modelo distinto da
+salidas distintas: `describir_resolucion()` deja registro de con qué modelo se
+respondió, y toda medición debe anotarlo.
 
 ---
 
