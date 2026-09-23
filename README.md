@@ -167,7 +167,8 @@ accessibility-agents/
 ├── pruebas/
 │   ├── prueba_ciclo_rag.py       Los 4 caminos del subgrafo de RAG, con dobles (no requiere VPN)
 │   ├── prueba_calidad_ingesta.py Detección de OCR degenerado y troceado (no requiere VPN)
-│   └── prueba_guardrail_voz.py   El guardrail del ASR: qué transcripciones NO entran (no requiere GPU)
+│   ├── prueba_guardrail_voz.py   El guardrail del ASR: qué transcripciones NO entran (no requiere GPU)
+│   └── prueba_emergencia.py      El camino crítico: número correcto, sin LLM, sin promesas falsas
 ├── notebooks/
 │   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
@@ -249,6 +250,7 @@ Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones pur
 python -m pruebas.prueba_ciclo_rag         # los caminos del subgrafo de RAG
 python -m pruebas.prueba_calidad_ingesta   # deteccion de OCR degenerado y troceado
 python -m pruebas.prueba_guardrail_voz     # el guardrail de la entrada por voz
+python -m pruebas.prueba_emergencia        # el camino critico de emergencias
 ```
 
 Evaluación del comportamiento real (**sí** requiere VPN y el recetario ingerido).
@@ -299,6 +301,30 @@ del corpus). **Grabar con micrófono exige `localhost` o HTTPS**, porque la API
 `getUserMedia` del navegador solo existe en contextos seguros: por IP queda
 bloqueada. Para grabar desde otra máquina, `ssh -L 8501:localhost:8501` y entrar
 por localhost. Ver `interfaz/README.md`.
+
+---
+
+## Agente de emergencias
+
+Responde con el número de emergencias y **no llama al LLM**. Es el único camino
+del sistema donde equivocarse tiene consecuencias físicas, así que no se delega
+en algo que puede alucinar ni depende del servidor de modelos: si la VPN se cae
+o el endpoint se reinicia, todo el sistema falla menos este nodo.
+
+La respuesta dice explícitamente que el asistente **no** hizo la llamada: dejar
+creer que ya viene ayuda, cuando no viene, es peor que no responder.
+
+Tampoco da instrucciones sobre qué hacer físicamente. El sistema clasifica todo
+en una sola categoría `EMERGENCY`: no distingue una caída de un incendio, y un
+consejo único sería contraproducente en alguno de los casos ("no se mueva" ante
+humo en la cocina). Un prototipo sin validación clínica no está en posición de
+instruir sobre primeros auxilios.
+
+El número se configura con `NUMERO_DE_EMERGENCIAS` en el `.env` (default `911`,
+el del ECU 911).
+
+**No implementado, y declarado como tal:** no marca el teléfono, no avisa a un
+contacto ni activa ningún protocolo.
 
 ---
 

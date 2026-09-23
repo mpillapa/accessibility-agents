@@ -11,7 +11,7 @@ from orquestacion_langgraph.agentes import (
     nodo_medicacion,
     nodo_recetas,
     nodo_familia_stub,
-    nodo_emergencia_stub,
+    nodo_emergencia,
     nodo_small_talk,
 )
 from orquestacion_langgraph.voz import (
@@ -52,7 +52,7 @@ def construir_grafo():
     grafo.add_node("medicacion", nodo_medicacion)
     grafo.add_node("recetas", nodo_recetas)
     grafo.add_node("familia", nodo_familia_stub)
-    grafo.add_node("emergencia", nodo_emergencia_stub)
+    grafo.add_node("emergencia", nodo_emergencia)
     grafo.add_node("small_talk", nodo_small_talk)
 
     # Las claves de estos mapas son las etiquetas que aparecen en el diagrama:

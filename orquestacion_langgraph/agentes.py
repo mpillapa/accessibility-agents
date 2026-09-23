@@ -1,3 +1,4 @@
+import os
 import re
 from typing import Literal
 
@@ -106,14 +107,50 @@ def nodo_familia_stub(estado: EstadoConversacion) -> dict:
     }
 
 
-# Stub de emergencias: no ejecuta acción real, solo confirma.
-def nodo_emergencia_stub(estado: EstadoConversacion) -> dict:
-    return {
-        "respuesta": (
-            "Se registró tu aviso de emergencia. "
-            "(STUB — en producción esto activaría protocolos locales de auxilio)"
-        )
-    }
+# Número de emergencias. 911 es el del ECU 911 (Ecuador); se deja configurable
+# para no fijar por código algo que cambia según el país donde se despliegue.
+NUMERO_DE_EMERGENCIAS = os.getenv("NUMERO_DE_EMERGENCIAS", "911")
+
+# Qué se responde ante una emergencia. Es texto FIJO, no generado por el LLM, y
+# esa es una decisión deliberada por dos razones:
+#
+# 1. Un mensaje de emergencia no puede depender de que el modelo redacte bien
+#    esta vez. Es el único camino del sistema donde equivocarse tiene
+#    consecuencias físicas, así que no se delega en algo que puede alucinar.
+#    Es la misma regla que aplica el guardrail del ASR (ver voz.py): lo crítico
+#    va en código determinista.
+#
+# 2. Quitar la llamada al LLM quita también su latencia y su dependencia del
+#    servidor. Si la VPN está caída o el endpoint rotando de modelo —lo que
+#    pasó cuatro veces en trece días—, TODO el sistema falla menos esto.
+#
+# El aviso final es igual de deliberado: la persona tiene que saber que nadie
+# fue avisado todavía. Dejar creer que ya viene ayuda, cuando no viene, es peor
+# que no responder nada.
+#
+# NO da instrucciones sobre qué hacer físicamente, y eso también es a propósito.
+# El sistema clasifica en una sola categoría EMERGENCY: no distingue una caída
+# de un incendio o de un dolor de pecho. Un consejo único sería contraproducente
+# en alguno de esos casos —"no se mueva" es correcto ante una posible fractura y
+# peligroso ante humo en la cocina—, y un prototipo académico no validado
+# clínicamente no está en posición de instruir sobre primeros auxilios.
+# Lo único seguro que puede hacer es dirigir a quien sí sabe, rápido y claro.
+MENSAJE_DE_EMERGENCIA = (
+    "**Llame al {numero} ahora mismo.**\n\n"
+    "Es el número de emergencias. Si hay alguien cerca, pídale ayuda.\n\n"
+    "_Este asistente todavía no puede llamar por usted: la llamada la tiene que "
+    "hacer usted o alguien que esté a su lado._"
+)
+
+
+# Especialista en emergencias.
+#
+# No llama al LLM a propósito (ver MENSAJE_DE_EMERGENCIA). Sigue siendo un
+# prototipo: no marca el teléfono, no avisa a un contacto ni activa ningún
+# protocolo. Lo único que hace es dar la instrucción correcta de inmediato y
+# decir con claridad qué NO hizo.
+def nodo_emergencia(estado: EstadoConversacion) -> dict:
+    return {"respuesta": MENSAJE_DE_EMERGENCIA.format(numero=NUMERO_DE_EMERGENCIAS)}
 
 
 # Small talk: no llamamos ningún especialista, igual que la versión A1 de CrewAI.
