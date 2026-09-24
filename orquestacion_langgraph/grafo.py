@@ -23,9 +23,11 @@ from orquestacion_langgraph.voz import (
 )
 
 
-def _estado_inicial(consulta: str, ruta_audio: str | None = None) -> dict:
+def _estado_inicial(consulta: str, ruta_audio: str | None = None,
+                    id_perfil: str | None = None) -> dict:
     return {
         "consulta": consulta,
+        "id_perfil": id_perfil,
         "intencion": None,
         "razonamiento": None,
         "respuesta": None,
@@ -86,12 +88,13 @@ def construir_grafo():
     return grafo.compile()
 
 
-def procesar_consulta(consulta: str, ruta_audio: str | None = None) -> dict:
+def procesar_consulta(consulta: str, ruta_audio: str | None = None,
+                      id_perfil: str | None = None) -> dict:
     import time
 
     app = construir_grafo()
     inicio = time.time()
-    resultado = app.invoke(_estado_inicial(consulta, ruta_audio))
+    resultado = app.invoke(_estado_inicial(consulta, ruta_audio, id_perfil))
     latencia = time.time() - inicio
 
     return {
@@ -108,14 +111,14 @@ def procesar_consulta(consulta: str, ruta_audio: str | None = None) -> dict:
     }
 
 
-def procesar_audio(ruta_audio: str) -> dict:
+def procesar_audio(ruta_audio: str, id_perfil: str | None = None) -> dict:
     """Entrada por voz: transcribe el audio y lo procesa como una consulta.
 
     Si el ASR no da una transcripción confiable, el grafo NO clasifica: pide
     que repitan y devuelve `entrada_descartada` con el motivo. Ver
     orquestacion_langgraph/voz.py.
     """
-    return procesar_consulta(consulta="", ruta_audio=ruta_audio)
+    return procesar_consulta(consulta="", ruta_audio=ruta_audio, id_perfil=id_perfil)
 
 
 # Igual que procesar_consulta, pero usando app.stream() en vez de app.invoke().
@@ -162,14 +165,15 @@ def procesar_consulta_verbose(consulta: str) -> dict:
 #
 # Entrega dicts {"nodo": str, "cambios": dict}; el último trae el estado final
 # acumulado bajo la clave "estado_final".
-def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None):
+def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None,
+                              id_perfil: str | None = None):
     import time
 
     app = construir_grafo()
-    estado_acumulado = _estado_inicial(consulta, ruta_audio)
+    estado_acumulado = _estado_inicial(consulta, ruta_audio, id_perfil)
 
     inicio = time.time()
-    for actualizacion in app.stream(_estado_inicial(consulta, ruta_audio), stream_mode="updates"):
+    for actualizacion in app.stream(_estado_inicial(consulta, ruta_audio, id_perfil), stream_mode="updates"):
         for nodo, cambios in actualizacion.items():
             estado_acumulado.update(cambios)
             yield {"nodo": nodo, "cambios": cambios}

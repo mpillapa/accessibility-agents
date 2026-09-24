@@ -1,0 +1,211 @@
+{
+  "_aviso": "DATOS FICTICIOS DE PROTOTIPO ACADÉMICO. Estas recetas no existen, no fueron emitidas por ningún profesional y NO deben usarse para tomar ninguna decisión sobre medicación real. Los principios activos son reales para que el caso se entienda; las pautas son ilustrativas y no están validadas clínicamente.",
+  "_por_que_existe_este_archivo": "La receta médica es la FUENTE DE VERDAD de qué toma cada persona. El sistema no elige medicamentos: lee lo que el médico indicó, lo organiza por horario y lo explica. Antes se intentaba lo contrario (filtrar un vademécum por condición) y producía regímenes clínicamente absurdos: para un perfil con hipertensión devolvía siete antihipertensivos simultáneos, tres del mismo eje y dos betabloqueantes. Ver BITACORA_HALLAZGOS.md.",
+  "_campos": {
+    "id": "Identificador de la receta.",
+    "id_perfil": "A qué persona de perfiles.json corresponde.",
+    "emitida": "Fecha de emisión (AAAA-MM-DD).",
+    "vigente_hasta": "Última fecha en que la receta sigue vigente. null = sin vencimiento declarado.",
+    "medico": "Profesional que la emite. Ficticio.",
+    "tipo": "'cronica' (tratamiento de fondo) o 'aguda' (tratamiento por tiempo limitado).",
+    "indicaciones": "Qué tomar. Cada entrada es una indicación del médico, no una sugerencia del sistema.",
+    "indicaciones[].medicamento": "Debe coincidir con un 'nombre' de medicamentos.json.",
+    "indicaciones[].dosis_mg": "Miligramos POR TOMA.",
+    "indicaciones[].tomas_por_dia": "Cuántas veces al día.",
+    "indicaciones[].horarios": "Horas concretas que fijó el médico. Si falta, se derivan de tomas_por_dia (ver reglas.HORARIOS_POR_NUMERO_DE_TOMAS).",
+    "indicaciones[].con_comida": "Si debe tomarse con alimento.",
+    "indicaciones[].duracion_dias": "Días de tratamiento. null = indefinido.",
+    "indicaciones[].motivo": "Para qué es. Sirve para explicarlo en lenguaje llano.",
+    "indicaciones[].nota_medico": "Indicación textual del profesional. Se muestra tal cual, no se reinterpreta."
+  },
+  "_casos_de_prueba": {
+    "rosa": "Receta limpia. Ningún aviso esperado.",
+    "manuel": "Dos recetas simultáneas (crónica + aguda). La aguda contiene Amoxicilina y Manuel es alérgico a penicilina: debe dispararse el aviso de ALERGIA. Prueba además que el plan del día consolide dos recetas.",
+    "carmen": "Furosemida 40 mg cada 12 h es una pauta plausible, pero con función renal reducida supera el tope ajustado (80 mg indicados contra 40 mg de tope): debe dispararse el aviso de EXCESO. Este es el caso que antes justificaba el ajuste automático de dosis; ahora es una validación, no una decisión.",
+    "jorge": "Naproxeno con úlcera gástrica: error de prescripción clásico y real. Debe dispararse el aviso de CONTRAINDICACIÓN.",
+    "elena": "Receta limpia, sin benzodiacepinas. Ningún aviso esperado.",
+    "luis": "NO tiene receta a propósito. El sistema debe decir que no encuentra ninguna, no inventarle un tratamiento."
+  },
+  "prescripciones": [
+    {
+      "id": "rx-rosa-001",
+      "id_perfil": "rosa",
+      "emitida": "2026-07-14",
+      "vigente_hasta": "2027-01-14",
+      "medico": "Dra. Elsa Moncayo (ficticia)",
+      "tipo": "cronica",
+      "indicaciones": [
+        {
+          "medicamento": "Metformina",
+          "dosis_mg": 850,
+          "tomas_por_dia": 2,
+          "horarios": ["08:00", "20:00"],
+          "con_comida": true,
+          "duracion_dias": null,
+          "motivo": "diabetes_tipo_2",
+          "nota_medico": "Siempre con el desayuno y con la cena, nunca en ayunas."
+        },
+        {
+          "medicamento": "Losartan",
+          "dosis_mg": 50,
+          "tomas_por_dia": 1,
+          "horarios": ["08:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "hipertension",
+          "nota_medico": "Controlar la presión una vez por semana."
+        },
+        {
+          "medicamento": "Aspirina",
+          "dosis_mg": 100,
+          "tomas_por_dia": 1,
+          "horarios": ["20:00"],
+          "con_comida": true,
+          "duracion_dias": null,
+          "motivo": "prevencion_cardiovascular",
+          "nota_medico": "Después de la cena."
+        }
+      ]
+    },
+    {
+      "id": "rx-manuel-001",
+      "id_perfil": "manuel",
+      "emitida": "2026-06-02",
+      "vigente_hasta": "2026-12-02",
+      "medico": "Dr. Patricio Vega (ficticio)",
+      "tipo": "cronica",
+      "indicaciones": [
+        {
+          "medicamento": "Paracetamol",
+          "dosis_mg": 500,
+          "tomas_por_dia": 3,
+          "horarios": ["08:00", "15:00", "20:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "artrosis",
+          "nota_medico": "Si el dolor cede, puede espaciarlo; no pasar de tres al día."
+        },
+        {
+          "medicamento": "Omeprazol",
+          "dosis_mg": 20,
+          "tomas_por_dia": 1,
+          "horarios": ["08:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "proteccion_gastrica",
+          "nota_medico": "Media hora antes del desayuno."
+        }
+      ]
+    },
+    {
+      "id": "rx-manuel-002",
+      "id_perfil": "manuel",
+      "emitida": "2026-09-20",
+      "vigente_hasta": "2026-09-27",
+      "medico": "Dr. Patricio Vega (ficticio)",
+      "tipo": "aguda",
+      "indicaciones": [
+        {
+          "medicamento": "Amoxicilina",
+          "dosis_mg": 500,
+          "tomas_por_dia": 3,
+          "horarios": ["08:00", "15:00", "22:00"],
+          "con_comida": false,
+          "duracion_dias": 7,
+          "motivo": "infeccion",
+          "nota_medico": "Completar los siete días aunque se sienta mejor."
+        }
+      ]
+    },
+    {
+      "id": "rx-carmen-001",
+      "id_perfil": "carmen",
+      "emitida": "2026-08-30",
+      "vigente_hasta": "2027-02-28",
+      "medico": "Dra. Elsa Moncayo (ficticia)",
+      "tipo": "cronica",
+      "indicaciones": [
+        {
+          "medicamento": "Amlodipino",
+          "dosis_mg": 5,
+          "tomas_por_dia": 1,
+          "horarios": ["08:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "hipertension",
+          "nota_medico": "Avisar si se le hinchan los tobillos."
+        },
+        {
+          "medicamento": "Furosemida",
+          "dosis_mg": 40,
+          "tomas_por_dia": 2,
+          "horarios": ["08:00", "16:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "hipertension",
+          "nota_medico": "No tomarla de noche: le va a dar ganas de orinar."
+        }
+      ]
+    },
+    {
+      "id": "rx-jorge-001",
+      "id_perfil": "jorge",
+      "emitida": "2026-09-08",
+      "vigente_hasta": "2026-12-08",
+      "medico": "Dr. Patricio Vega (ficticio)",
+      "tipo": "cronica",
+      "indicaciones": [
+        {
+          "medicamento": "Naproxeno",
+          "dosis_mg": 250,
+          "tomas_por_dia": 2,
+          "horarios": ["08:00", "20:00"],
+          "con_comida": true,
+          "duracion_dias": null,
+          "motivo": "artrosis",
+          "nota_medico": "Siempre con alimento."
+        },
+        {
+          "medicamento": "Omeprazol",
+          "dosis_mg": 20,
+          "tomas_por_dia": 1,
+          "horarios": ["08:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "ulcera_gastrica",
+          "nota_medico": "En ayunas."
+        }
+      ]
+    },
+    {
+      "id": "rx-elena-001",
+      "id_perfil": "elena",
+      "emitida": "2026-09-01",
+      "vigente_hasta": "2027-03-01",
+      "medico": "Dra. Elsa Moncayo (ficticia)",
+      "tipo": "cronica",
+      "indicaciones": [
+        {
+          "medicamento": "Sertralina",
+          "dosis_mg": 50,
+          "tomas_por_dia": 1,
+          "horarios": ["08:00"],
+          "con_comida": true,
+          "duracion_dias": null,
+          "motivo": "ansiedad",
+          "nota_medico": "Por la mañana, con el desayuno."
+        },
+        {
+          "medicamento": "Melatonina",
+          "dosis_mg": 2,
+          "tomas_por_dia": 1,
+          "horarios": ["22:00"],
+          "con_comida": false,
+          "duracion_dias": null,
+          "motivo": "insomnio",
+          "nota_medico": "Una hora antes de acostarse."
+        }
+      ]
+    }
+  ]
+}

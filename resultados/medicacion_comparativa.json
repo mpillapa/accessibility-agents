@@ -1,0 +1,931 @@
+[
+  {
+    "perfil": "rosa",
+    "tipo": "plan",
+    "consulta": "¿Qué pastillas me toca tomar hoy?",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 10.12,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "¡Hola, Rosa! Hoy le tocan pastillas en dos momentos del día: en la mañana y en la noche. Se lo explico despacito.\n\n## 🌅 A las 8:00 de la mañana — con el desayuno\n\n- **Metformina, 850 mg** (1 comprimido) — es para la diabetes.\n  El médico indicó: *\"Siempre con el desayuno y con la cena, nunca en ayunas.\"*\n  Es decir: tómela junto con el desayuno, nunca con el estómago vacío.\n\n- **Losartán, 50 mg** (1 comprimido) — es para la presión alta.\n  El médico indicó: *\"Controlar la presión una vez por semana.\"*\n\n## 🌙 A las 8:00 de la noche — con la cena\n\n- **Metformina, 850 mg** (1 comprimido) — es para la diabetes, igual que en la mañana.\n  El médico indicó: *\"Siempre con el desayuno y con la cena, nunca en ayunas.\"*\n  Tómela acompañando la cena.\n\n- **Aspirina, 100 mg** (1 comprimido) — es para cuidar su corazón.\n  El médico indicó: *\"Después de la cena.\"*\n  O sea, tómela cuando ya haya terminado de cenar.\n\n## En resumen\n\nSon **4 comprimidos en todo el día**:\n- 2 de **Metformina** (mañana y noche, siempre con comida)\n- 1 de **Losartán** (mañana)\n- 1 de **Aspirina** (noche, después de cenar)\n\nNo hay ninguna pastilla con aviso especial hoy, así que puede tomar todo con tranquilidad tal como le expliqué.\n\n¿Quiere que se lo repita o que le anote los horarios en un papel para tenerlo a la mano?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "rosa",
+    "tipo": "plan",
+    "consulta": "¿Qué pastillas me toca tomar hoy?",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 5.93,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Hola Rosa, con gusto le explico. Hoy le tocan **tres pastillas distintas, en dos momentos del día**: una en la mañana y dos en la noche. Se lo voy a dejar bien clarito.\n\n---\n\n## 🌅 A las 8:00 de la mañana (con el desayuno)\n\n**1. Metformina — 1 comprimido de 850 mg** (para la diabetes)\n- Su médico dejó esta nota: *\"Siempre con el desayuno y con la cena, nunca en ayunas.\"*\n- Es decir: tómela junto con el desayuno, nunca con el estómago vacío.\n\n**2. Losartan — 1 comprimido de 50 mg** (para la presión alta)\n- Este comprimido no necesita comida, así que puede tomarlo en ese mismo momento.\n- Su médico dejó esta nota: *\"Controlar la presión una vez por semana.\"*\n\n---\n\n## 🌙 A las 8:00 de la noche (con la cena)\n\n**1. Metformina — 1 comprimido de 850 mg** (para la diabetes)\n- Es la misma de la mañana. Recuerde su nota: *\"Siempre con el desayuno y con la cena, nunca en ayunas.\"*\n- Tómela junto con la cena.\n\n**2. Aspirina — 1 comprimido de 100 mg** (para prevenir problemas del corazón)\n- Su médico dejó esta nota: *\"Después de la cena.\"*\n- Es decir: tómela cuando ya haya terminado de cenar.\n\n---\n\n**En resumen:** mañana, Metformina y Losartan con el desayuno; en la noche, Metformina con la cena y la Aspirina al terminar de cenar.\n\n¿Quiere que le repita alguna parte o que le explique para qué sirve cada pastilla con más detalle?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "rosa",
+    "tipo": "plan",
+    "consulta": "¿Qué pastillas me toca tomar hoy?",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 7.99,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "¡Hola, Rosa! Con gusto le explico qué le toca tomar hoy. Son dos momentos del día: la mañana y la noche.\n\n**A las 8:00 de la mañana (con el desayuno):**\n\n1. **Metformina, 1 comprimido de 850 mg** — es para la diabetes.\n   - El médico escribió: *\"Siempre con el desayuno y con la cena, nunca en ayunas.\"*\n   - Es decir: tómela junto con el desayuno, nunca con el estómago vacío.\n\n2. **Losartán, 1 comprimido de 50 mg** — es para la presión alta.\n   - El médico escribió: *\"Controlar la presión una vez por semana.\"*\n\n**A las 8:00 de la noche (con la cena):**\n\n1. **Metformina, 1 comprimido de 850 mg** — es la misma de la mañana, para la diabetes.\n   - El médico escribió: *\"Siempre con el desayuno y con la cena, nunca en ayunas.\"*\n   - Tómela junto con la cena.\n\n2. **Aspirina, 1 comprimido de 100 mg** — es para prevenir problemas del corazón.\n   - El médico escribió: *\"Después de la cena.\"*\n   - Tómela también junto con la comida, no en ayunas.\n\n**En resumen:** hoy le toca tomar 4 comprimidos en total: 2 en la mañana y 2 en la noche, siempre acompañados de la comida.\n\nSi tiene alguna duda con alguna pastilla, no dude en preguntarme. ¿Quiere que le repita alguna parte?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "rosa",
+    "tipo": "plan",
+    "consulta": "¿Qué pastillas me toca tomar hoy?",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 6.35,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Buenos días, Rosa. Le explico qué le toca tomar hoy. He revisado su receta con la base de datos y **todo está en orden**: las dosis no superan los máximos permitidos, ningún medicamento está contraindicado por su diabetes o su tensión alta, y usted no tiene alergias que afecten a estos fármacos. Como su función renal es normal, no hay que ajustar nada.\n\n## Su día, hora por hora\n\n### 🌅 08:00 — Con el desayuno\n- **Metformina, 1 comprimido de 850 mg** (para la diabetes)\n  - Importante: tómela *siempre* con el desayuno, nunca en ayunas.\n- **Losartan, 1 comprimido de 50 mg** (para la tensión)\n\n### 🌙 20:00 — Con la cena\n- **Metformina, 1 comprimido de 850 mg** (para la diabetes)\n  - Igual que por la mañana: junto con la cena, nunca en ayunas.\n- **Aspirina, 1 comprimido de 100 mg** (para la prevención cardiovascular)\n  - Tómela *después* de cenar, no antes.\n\n**En total son 3 comprimidos al día.**\n\n## Recordatorios importantes\n\n- **La Metformina nunca se toma con el estómago vacío.** Si algún día no va a desayunar o cenar, avíseme o consulte con su médico antes de tomarla.\n- **La tensión:** su doctora le indicó medírsela **una vez por semana**. Tenga a mano el tensiómetro y anote el resultado.\n- La receta está vigente hasta el 14 de enero de 2027, así que no tiene que preocuparse por renovarla todavía.\n\nSi algún día se le olvida una toma, no tome doble dosis para compensar: avíseme y le indico qué hacer. ¿Tiene alguna duda sobre alguno de estos medicamentos?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "rosa",
+    "tipo": "plan",
+    "consulta": "¿Qué pastillas me toca tomar hoy?",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 9.17,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Buenos días, doña Rosa. Le explico qué medicinas le tocan hoy. Antes, hice la revisión de su receta y le confirmo que **todo está en orden**: ningún medicamento le está contraindicado por su diabetes o su presión alta, no tiene alergias registradas y ninguna dosis pasa del máximo diario permitido. Como sus riñones funcionan bien, no hay que reducir nada.\n\n## Su día, paso a paso\n\n**🌅 A las 8:00 de la mañana — con el desayuno**\n- **1 pastilla de Metformina (850 mg)** — para la diabetes. *Importante: tómela siempre con el desayuno, nunca en ayunas.*\n- **1 pastilla de Losartan (50 mg)** — para la presión alta.\n\n**🌇 A las 8:00 de la noche — con la cena**\n- **1 pastilla de Metformina (850 mg)** — otra vez con comida, nunca en ayunas.\n- **1 pastilla de Aspirina (100 mg)** — tómela después de cenar.\n\n**En total hoy: 4 pastillas** (2 de Metformina, 1 de Losartan y 1 de Aspirina).\n\n## Revisión que hice por usted\n\n- **Metformina:** toma 1.700 mg al día y el máximo permitido es 2.550 mg. Correcto. Solo sería problema si tuviera insuficiencia renal, y no es su caso.\n- **Losartan:** toma 50 mg al día y el máximo es 100 mg. Correcto.\n- **Aspirina:** toma 100 mg al día, que es justo el máximo permitido. Correcto, no se excede.\n\n## Dos recordatorios\n\n1. La Dra. Moncayo le pidió que **se controle la presión una vez por semana**. No se le olvide apuntarlo.\n2. Su receta está vigente hasta el **14 de enero de 2027**, así que tiene medicamento garantizado por varios meses más.\n\nSi un día se le olvida una toma, no se tome doble al día siguiente; siga con su horario normal. ¿Quiere que le repita los horarios de otra forma o que le anote algo más?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "rosa",
+    "tipo": "plan",
+    "consulta": "¿Qué pastillas me toca tomar hoy?",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 5.91,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Buenos días, Rosa. Le explico qué le toca tomar hoy. He revisado su receta con la base de datos y **todo está en orden**: no tiene ninguna alergia a estos medicamentos, ninguno está contraindicado por su diabetes o su tensión alta, y las dosis están dentro de los límites seguros. Puede tomarlos con tranquilidad.\n\n## 🌅 Por la mañana — 8:00 (con el desayuno)\n\n1. **Metformina, 1 comprimido de 850 mg** — para la diabetes.\n   - Importante: tómela **siempre con el desayuno**, nunca en ayunas, como le indicó la doctora.\n2. **Losartán, 1 comprimido de 50 mg** — para la tensión alta.\n   - Este lo puede tomar a la misma hora, con o sin comida.\n\n## 🌙 Por la noche — 20:00 (con la cena)\n\n1. **Metformina, 1 comprimido de 850 mg** — su segunda toma del día, **junto con la cena**.\n2. **Aspirina, 1 comprimido de 100 mg** — para la prevención cardiovascular.\n   - Tómela **después de terminar de cenar**, nunca con el estómago vacío.\n\n## 📌 Un recordatorio importante\n\nLa doctora le dejó una nota: debe **controlarse la tensión una vez por semana**. Si tiene tensiómetro en casa, elija un día fijo (por ejemplo, los lunes por la mañana) y apunte el resultado.\n\n**Resumen del día:** 2 comprimidos de Metformina, 1 de Losartán y 1 de Aspirina. En total, 4 comprimidos.\n\nSi algún día se le olvida una toma, no tome doble dosis para compensar; avísame y le indico qué hacer. ¿Tiene alguna duda sobre alguno de estos medicamentos?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "plan",
+    "consulta": "Dígame todo lo que tengo que tomar hoy, por favor.",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 60.92,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Amoxicilina",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Por supuesto, don Manuel. Le explico todo lo que dice su receta para hoy, hora por hora y con calma.\n\nDos cosas antes de empezar:\n\n- Según su receta, ninguno de estos medicamentos necesita tomarse con comida.\n- **Hay un aviso muy importante de alergia** en uno de los medicamentos (la amoxicilina). Se lo voy a señalar con claridad cada vez que aparezca.\n\n---\n\n**A las 8:00 de la mañana**\n\n**1. Paracetamol: 1 comprimido de 500 mg.** Es para el dolor de la artrosis. El médico escribió: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n**2. Omeprazol: 1 cápsula de 20 mg.** Es para proteger el estómago. El médico escribió: *\"Media hora antes del desayuno.\"*\n\n**3. Amoxicilina: 1 cápsula de 500 mg** (la recetada para la infección).\n⚠️ **AVISO MUY IMPORTANTE: usted es alérgico a la penicilina. NO tome esta cápsula y llame hoy mismo al médico para que se la reemplace.**\nLa receta dice: *\"Completar los siete días aunque se sienta mejor\"*, pero por esa alergia lo que corresponde es **no tomarla**.\n\n---\n\n**A las 3:00 de la tarde (15:00)**\n\n**1. Paracetamol: 1 comprimido de 500 mg.** Para el dolor de la artrosis. El médico escribió: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n**2. Amoxicilina: 1 cápsula de 500 mg.**\n⚠️ **Le repito el aviso porque es importante: usted es alérgico a la penicilina. NO tome esta cápsula y llame hoy mismo al médico para que se la reemplace.** La nota de la receta (*\"Completar los siete días aunque se sienta mejor\"*) queda sin efecto por la alergia: **no la tome**.\n\n---\n\n**A las 8:00 de la noche (20:00)**\n\n**Paracetamol: 1 comprimido de 500 mg.** Para el dolor de la artrosis. El médico escribió: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n---\n\n**A las 10:00 de la noche (22:00)**\n\n**Amoxicilina: 1 cápsula de 500 mg.**\n⚠️ **Otra vez el mismo aviso: usted es alérgico a la penicilina. NO tome esta cápsula y llame hoy mismo al médico para que se la reemplace.** Por la alergia, **no la tome**.\n\n---\n\n**En resumen, don Manuel:**\n\n- **Lo que sí toma hoy:** el Omeprazol a las 8:00 de la mañana (media hora antes del desayuno) y el Paracetamol a las 8:00, a las 3 de la tarde y a las 8 de la noche. Recuerde: no más de tres paracetamol al día.\n- **Lo que NO toma:** la Amoxicilina, a ninguna de las tres horas en que figura (8:00, 15:00 y 22:00), porque usted es alérgico a la penicilina.\n- **Lo más importante de hoy:** llamar al médico para que le reemplace la amoxicilina.\n\nSi algo no le quedó claro, dígamelo y se lo explico de otra manera. ¿Quiere que se lo repita o que se lo anote más grande para tenerlo a mano?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "plan",
+    "consulta": "Dígame todo lo que tengo que tomar hoy, por favor.",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 52.52,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Amoxicilina",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Claro que sí, don Manuel. Le explico todo lo que le corresponde hoy, hora por hora. Fíjese bien, porque uno de los medicamentos tiene un **aviso muy importante** que le marco cada vez que aparece.\n\n---\n\n**🌅 A las 8:00 de la mañana**\n\n- **Omeprazol, 20 mg, cápsula** (para proteger el estómago).\n  El médico anotó: *\"Media hora antes del desayuno.\"*\n\n- **Paracetamol, 500 mg, comprimido** (para el dolor de la artrosis). Puede tomarlo con o sin comida.\n  El médico anotó: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n- **Amoxicilina, 500 mg, cápsula** (la recetaron para la infección).\n  ⚠️ **AVISO IMPORTANTE:** usted es alérgico a la penicilina. **NO tome esta cápsula.** Llame hoy mismo al médico para que se la reemplace.\n  (En la receta, el médico anotó: *\"Completar los siete días aunque se sienta mejor.\"*)\n\n**🕐 A las 3:00 de la tarde**\n\n- **Paracetamol, 500 mg, comprimido** (para la artrosis).\n  El médico anotó: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n- **Amoxicilina, 500 mg, cápsula** (para la infección).\n  ⚠️ **AVISO IMPORTANTE:** usted es alérgico a la penicilina. **NO tome esta cápsula.** Llame hoy mismo al médico para que se la reemplace.\n\n**🕗 A las 8:00 de la noche**\n\n- **Paracetamol, 500 mg, comprimido** (para la artrosis).\n  El médico anotó: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n**🕙 A las 10:00 de la noche**\n\n- **Amoxicilina, 500 mg, cápsula** (para la infección).\n  ⚠️ **AVISO IMPORTANTE:** usted es alérgico a la penicilina. **NO tome esta cápsula.** Llame hoy mismo al médico para que se la reemplace.\n\n---\n\n**Lo más importante de hoy:**\n\n- **La amoxicilina no la toma** (ninguna de las tres tomas: ni a las 8, ni a las 3, ni a las 10). Usted es alérgico a la penicilina y este antibiótico es de esa familia. **Llame hoy mismo al médico** para que se la reemplace.\n- **El omeprazol y el paracetamol sí los toma**, en los horarios que le marqué arriba.\n\n¿Quiere que se la vuelva a leer más despacio, o que le aclare algo de algún medicamento?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "plan",
+    "consulta": "Dígame todo lo que tengo que tomar hoy, por favor.",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 19.37,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Amoxicilina",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Por supuesto, don Manuel. Le explico lo que le corresponde hoy, según su receta, hora por hora. Le repito el aviso de la amoxicilina cada vez que aparece, para que no se le pase. Según la receta, ninguno de estos medicamentos necesita tomarse con comida.\n\n## A las 8:00 de la mañana\n\n**1. Paracetamol: 1 comprimido de 500 mg** (para la artrosis).\nSu médico anotó: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n**2. Omeprazol: 1 cápsula de 20 mg** (para proteger el estómago).\nSu médico anotó: *\"Media hora antes del desayuno.\"*\n\n**3. Amoxicilina: 1 cápsula de 500 mg** (para la infección).\n⚠️ **ATENCIÓN: usted es alérgico a la penicilina. NO tome esta cápsula. Llame hoy mismo al médico para que se la reemplace.**\nEn la receta figura la nota: *\"Completar los siete días aunque se sienta mejor.\"*\n\n## A las 3:00 de la tarde (15:00)\n\n**1. Paracetamol: 1 comprimido de 500 mg** (para la artrosis).\nSu médico anotó: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n**2. Amoxicilina: 1 cápsula de 500 mg** (para la infección).\n⚠️ **ATENCIÓN: usted es alérgico a la penicilina. NO tome esta cápsula. Llame hoy mismo al médico para que se la reemplace.**\nEn la receta figura la nota: *\"Completar los siete días aunque se sienta mejor.\"*\n\n## A las 8:00 de la noche (20:00)\n\n**1. Paracetamol: 1 comprimido de 500 mg** (para la artrosis).\nSu médico anotó: *\"Si el dolor cede, puede espaciarlo; no pasar de tres al día.\"*\n\n## A las 10:00 de la noche (22:00)\n\n**1. Amoxicilina: 1 cápsula de 500 mg** (para la infección).\n⚠️ **ATENCIÓN: usted es alérgico a la penicilina. NO tome esta cápsula. Llame hoy mismo al médico para que se la reemplace.**\nEn la receta figura la nota: *\"Completar los siete días aunque se sienta mejor.\"*\n\n---\n\n**En resumen, don Manuel:** hoy tomará el paracetamol a las 8:00, a las 15:00 y a las 20:00, y el omeprazol a las 8:00, media hora antes del desayuno. La amoxicilina aparece tres veces en la receta, pero **ninguna de las tres se toma**, porque usted es alérgico a la penicilina. Lo más importante de hoy es llamar al médico para que se la reemplace.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "plan",
+    "consulta": "Dígame todo lo que tengo que tomar hoy, por favor.",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 17.77,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [
+        "Azitromicina"
+      ],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Amoxicilina",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Claro que sí, don Manuel. Le explico todo, pero primero debo darle un **aviso muy importante**.\n\n## ⚠️ Aviso importante: NO tome la amoxicilina\n\nEn su receta para la infección viene **amoxicilina**, pero este antibiótico pertenece al grupo de la **penicilina**, y usted tiene registrada **alergia a la penicilina**. Por su seguridad, he retirado ese medicamento de su plan de hoy: **no debe tomar ninguna de sus tres tomas** (las de las 08:00, 15:00 y 22:00).\n\n**Qué debe hacer:** llame hoy mismo al Dr. Patricio Vega para que le recete un antibiótico de otro grupo. Existen alternativas que no son penicilinas (por ejemplo, la azitromicina), pero esa decisión corresponde a su médico. Aunque la receta diga \"completar los siete días\", con una alergia lo correcto es suspenderla y consultarlo.\n\nSi ya tomó alguna cápsula y nota sarpullido, picor, hinchazón de la cara o los labios, o dificultad para respirar, vaya **inmediatamente a urgencias**.\n\n## Su plan para hoy (lo que sí puede tomar)\n\n**08:00 — en ayunas, media hora antes del desayuno**\n- **Omeprazol**: 1 cápsula de 20 mg (para proteger el estómago)\n- **Paracetamol**: 1 comprimido de 500 mg (para la artrosis)\n\n**15:00**\n- **Paracetamol**: 1 comprimido de 500 mg\n\n**20:00**\n- **Paracetamol**: 1 comprimido de 500 mg\n\n## Recordatorios\n\n- **Paracetamol:** hoy tomará 1.500 mg en total, muy por debajo del máximo de 3.000 mg diarios. Si el dolor cede, puede espaciar las tomas, pero **no tome más de tres al día**, como le indicó su médico.\n- **Omeprazol:** recuerde que es en ayunas, media hora antes de desayunar.\n- Verifiqué también lo demás: ningún medicamento le está contraindicado por la artrosis, y como su función renal es normal, no hace falta ajustar ninguna dosis.\n\n¿Quiere que le repita los horarios o que le aclare alguna otra cosa?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "plan",
+    "consulta": "Dígame todo lo que tengo que tomar hoy, por favor.",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 13.79,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Amoxicilina",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, don Manuel. Le explico su plan de hoy, pero antes debo decirle algo **muy importante**.\n\n## ⚠️ Aviso importante: NO tome la amoxicilina\n\nSu receta incluye **amoxicilina** para la infección, pero usted tiene **alergia a la penicilina**, y la amoxicilina pertenece justamente a ese grupo de antibióticos. Tomarla podría causarle una reacción grave.\n\n**Qué debe hacer:** hoy mismo, llame al Dr. Patricio Vega y explíquele que es alérgico a la penicilina, para que le recete otro antibiótico distinto. Mientras tanto, no tome ninguna cápsula de amoxicilina, aunque la receta diga que complete los siete días.\n\nSi ya hubiera tomado alguna cápsula y nota sarpullido, hinchazón de la cara o los labios, o dificultad para respirar, acuda a urgencias de inmediato.\n\n## Su horario de hoy (lo que sí puede tomar)\n\n**08:00 — en ayunas, antes del desayuno**\n- **Omeprazol:** 1 cápsula de 20 mg. Tómela media hora antes de desayunar, tal como indica el médico.\n- **Paracetamol:** 1 comprimido de 500 mg, con un vaso de agua.\n\n**15:00**\n- **Paracetamol:** 1 comprimido de 500 mg, con un vaso de agua.\n\n**20:00**\n- **Paracetamol:** 1 comprimido de 500 mg, con un vaso de agua.\n\n## Recordatorios\n\n- **Paracetamol:** no necesita comida. Si el dolor le cede, puede espaciar las tomas, pero **nunca tome más de tres comprimidos al día**.\n- **Omeprazol:** recuerde que es siempre antes del desayuno, no después.\n\n## Verificación hecha (para que esté tranquilo)\n\n- **Paracetamol:** toma 1.500 mg al día y su máximo es 3.000 mg. Está dentro de lo seguro, es adecuado para su artrosis y su riñón funciona bien.\n- **Omeprazol:** toma 20 mg y su máximo es 40 mg. Sin ningún problema.\n- **Amoxicilina:** aquí detecté el problema de la alergia que le comenté arriba. La dosis estaría dentro del límite, pero **la alergia la descarta por completo**.\n\nResumiendo: hoy toma el omeprazol en ayunas y tres paracetamols (08:00, 15:00 y 20:00), y **llama al Dr. Vega por lo de la amoxicilina**. ¿Tiene alguna duda, don Manuel?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "plan",
+    "consulta": "Dígame todo lo que tengo que tomar hoy, por favor.",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 12.03,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Amoxicilina",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, don Manuel. Le explico todo lo que tiene que tomar hoy, pero **primero un aviso muy importante**.\n\n## ⚠️ Aviso importante: NO tome la amoxicilina\n\nSu receta reciente para la infección incluye **Amoxicilina**, pero usted es **alérgico a la penicilina**, y la amoxicilina pertenece justamente a ese grupo. Tomarla podría causarle una reacción alérgica.\n\n**Qué hacer:** llame hoy mismo al Dr. Patricio Vega para que le recete un antibiótico alternativo (los hay de otras familias que no son penicilina, pero eso debe decidirlo él). Mientras tanto, **no tome ninguna pastilla de la receta de la infección**. Las tomas de las 15:00 y las 22:00 quedan canceladas.\n\n## 📋 Su día de hoy, hora por hora\n\n**🕗 08:00 — Al levantarse (estómago vacío)**\n- **Omeprazol**: 1 cápsula de 20 mg. Recuerde la indicación del médico: es media hora *antes* del desayuno. Si desayuna a las 8:30, tómelo a las 8:00 en punto.\n- **Paracetamol**: 1 comprimido de 500 mg (para la artrosis).\n\n**🕐 15:00 — Media tarde**\n- **Paracetamol**: 1 comprimido de 500 mg.\n\n**🕗 20:00 — Por la noche**\n- **Paracetamol**: 1 comprimido de 500 mg.\n\n## ✅ Comprobaciones que hice por usted\n\n- **Paracetamol**: toma 1.500 mg al día (3 comprimidos de 500 mg). El máximo seguro es 3.000 mg, así que va holgado. Su médico le dijo que, si el dolor cede, puede espaciar las tomas, pero **nunca más de tres al día**.\n- **Omeprazol**: 20 mg al día, muy por debajo del máximo de 40 mg. Correcto.\n- **Función renal normal**: no hay que reducir ninguna dosis.\n- **Contraindicaciones**: ninguno de sus medicamentos choca con su artrosis ni con otras condiciones.\n- **Alergias**: el único medicamento de sus recetas que toca su alergia es la amoxicilina, ya retirado del plan de hoy.\n\nEn resumen: hoy son **4 pastillas en total** (1 omeprazol y 3 paracetamol), y una llamada importante al Dr. Vega. ¿Quiere que le repita los horarios de alguna otra forma, por ejemplo en una nota más grande para imprimir?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "carmen",
+    "tipo": "plan",
+    "consulta": "¿Cuántas pastillas tomo al día y a qué hora?",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 18.24,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Furosemida",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Hola, doña Carmen. Le explico su receta con calma.\n\n**Respuesta a su pregunta: hoy toma 3 pastillas en total — 2 a las 8 de la mañana y 1 a las 4 de la tarde.** Todas son para la presión alta.\n\n---\n\n### 🕗 A las 8:00 de la mañana (2 pastillas)\n\n**1) Amlodipino — 1 comprimido de 5 miligramos**\n- Es para la presión alta.\n- No necesita tomarlo con comida.\n- Nota de su médico: *\"Avisar si se le hinchan los tobillos.\"*\n\n**2) Furosemida — 1 comprimido de 40 miligramos**\n- **IMPORTANTE, antes de tomarla:** la receta indica 80 mg al día, pero el máximo que le corresponde es 40 mg (le redujeron la dosis desde 80 mg por la función de sus riñones). Por eso, **consulte a su médico antes de la próxima toma**.\n- Es para la presión alta.\n- No necesita tomarla con comida.\n- Nota de su médico: *\"No tomarla de noche: le va a dar ganas de orinar.\"*\n\n---\n\n### 🕓 A las 4:00 de la tarde (1 pastilla)\n\n**3) Furosemida — 1 comprimido de 40 miligramos**\n- **La misma advertencia de la mañana aplica a esta pastilla:** la receta indica 80 mg al día y el máximo es 40 mg (reducido desde 80 mg por la función renal). Por eso, **consulte a su médico antes de la próxima toma**.\n- Es para la presión alta.\n- Nota de su médico: *\"No tomarla de noche: le va a dar ganas de orinar.\"* Por eso esta pastilla es a las 4 de la tarde, nunca más tarde.\n\n---\n\n### En resumen\n\n| Hora | Pastillas |\n|------|-----------|\n| 8:00 de la mañana | 2 (Amlodipino y Furosemida) |\n| 4:00 de la tarde | 1 (Furosemida) |\n\n**Lo más importante que le quiero repetir:** con la Furosemida hay una diferencia entre lo que dice la receta (80 mg al día) y la dosis máxima que le corresponde (40 mg al día). Antes de la próxima toma de la Furosemida, consulte a su médico.\n\n¿Quiere que le repita algo o que se lo anote más grande para tenerlo a mano?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "carmen",
+    "tipo": "plan",
+    "consulta": "¿Cuántas pastillas tomo al día y a qué hora?",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 15.76,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Furosemida",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Hola, doña Carmen. Le explico su receta con calma.\n\n**Respuesta rápida a su pregunta:** son **3 pastillas en total al día**: 2 a las 8 de la mañana y 1 a las 4 de la tarde. Ninguna necesita tomarse con comida.\n\n---\n\n### 🕗 A las 8:00 de la mañana (2 pastillas)\n\n**1. Amlodipino, 5 mg (1 pastilla)** — para la presión alta.\n- Nota de su médico: *\"Avisar si se le hinchan los tobillos.\"*\n\n**2. Furosemida, 40 mg (1 pastilla)** — para la presión alta.\n- ⚠️ **Aviso importante sobre este medicamento:** la receta indica 80 mg al día y el máximo es 40 mg (reducido desde 80 mg por la función renal). **Antes de la próxima toma, consulte al médico.**\n- Nota de su médico: *\"No tomarla de noche: le va a dar ganas de orinar.\"*\n\n---\n\n### 🕓 A las 4 de la tarde (1 pastilla)\n\n**3. Furosemida, 40 mg (1 pastilla)** — para la presión alta.\n- ⚠️ **Aviso importante sobre este medicamento:** la receta indica 80 mg al día y el máximo es 40 mg (reducido desde 80 mg por la función renal). **Antes de la próxima toma, consulte al médico.**\n- Nota de su médico: *\"No tomarla de noche: le va a dar ganas de orinar.\"*\n\n---\n\n**Lo más importante, doña Carmen:** sobre la Furosemida hay un aviso de la verificación de su receta. No tiene que decidir nada por su cuenta: lo que corresponde es **consultar a su médico antes de tomar la próxima dosis** de ese medicamento, y él le indicará cómo seguir.\n\n¿Quiere que le repita los horarios o que se lo anote de forma más sencilla para tenerlo a mano?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "carmen",
+    "tipo": "plan",
+    "consulta": "¿Cuántas pastillas tomo al día y a qué hora?",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 27.02,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Furosemida",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Carmen, con mucho gusto le explico. La respuesta corta a su pregunta es: **usted toma 3 pastillas al día**: **2 a las 8:00 de la mañana** y **1 a las 4:00 de la tarde**. Ninguna necesita tomarse con comida.\n\nAhora se lo explico pastilla por pastilla:\n\n---\n\n**🌅 A las 8:00 de la mañana (2 pastillas)**\n\n**1) Amlodipino, 5 mg — 1 comprimido** (es para la presión alta)\n- Nota de su médico: *\"Avisar si se le hinchan los tobillos.\"*\n\n**2) Furosemida, 40 mg — 1 comprimido** (es para la presión alta)\n- ⚠️ **Aviso importante sobre esta pastilla:** la receta indica 80 mg al día y el máximo es 40 mg (reducido desde 80 mg por la función renal). **Lo que hay que hacer: consultar al médico antes de la próxima toma.** Esto no significa que usted deba dejarla de tomar por su cuenta: la indicación es hablar con su médico antes de tomar la siguiente dosis.\n- Nota de su médico: *\"No tomarla de noche: le va a dar ganas de orinar.\"*\n- Indicación: tomar 1 comprimido a las 8:00 de la mañana.\n\n---\n\n**🌇 A las 4:00 de la tarde (1 pastilla)**\n\n**3) Furosemida, 40 mg — 1 comprimido** (es para la presión alta)\n- ⚠️ **Aquí aplica el mismo aviso de la mañana:** la receta indica 80 mg al día y el máximo es 40 mg (reducido desde 80 mg por la función renal). **Lo que hay que hacer: consultar al médico antes de la próxima toma.**\n- Nota de su médico: *\"No tomarla de noche: le va a dar ganas de orinar.\"*\n- Indicación: tomar 1 comprimido a las 4:00 de la tarde.\n\n---\n\n**En resumen:** son **3 pastillas al día** — 1 de Amlodipino y 2 de Furosemida. Dos a las 8:00 de la mañana y una a las 4:00 de la tarde.\n\nY lo más importante que le pido que recuerde: sobre la **Furosemida**, **consulte a su médico antes de la próxima toma**, porque hay una diferencia entre lo que dice la receta y la dosis máxima indicada para usted.\n\n¿Quiere que se lo repita o que se lo anote en una hoja paso a paso?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "carmen",
+    "tipo": "plan",
+    "consulta": "¿Cuántas pastillas tomo al día y a qué hora?",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 12.93,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Furosemida",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, Carmen. Le explico su medicación de hoy de forma clara y sencilla.\n\n## La respuesta rápida\n\n**Son 3 pastillas al día**, repartidas en dos momentos: 2 por la mañana y 1 por la tarde.\n\n## Su horario\n\n**🌅 8:00 de la mañana — 2 pastillas**\n- 1 comprimido de **Amlodipino 5 mg** (para la tensión)\n- 1 comprimido de **Furosemida 40 mg** (para la tensión; es el diurético, el que le hace orinar)\n\nNinguna de las dos necesita comida: puede tomarlas en ayunas o con el desayuno, como le resulte más cómodo.\n\n**🌆 4:00 de la tarde — 1 pastilla**\n- 1 comprimido de **Furosemida 40 mg**\n\nEstá bien tomada a las 4 y no más tarde, porque su médica le indicó no tomarla de noche para que no la despierten las ganas de orinar.\n\n## Lo que revisé por usted\n\n✅ **El Amlodipino está perfecto**: toma 5 mg al día, muy por debajo del máximo permitido (10 mg), y no da problema con sus riñones.\n\n✅ **No es alérgica a nada de lo que toma.** Sin problema.\n\n⚠️ **Pero encontré algo que debe consultar con la Dra. Moncayo:**\n\nLa Furosemida la está tomando en su dosis máxima normal: 80 mg al día (40 mg dos veces). El detalle es que, como sus riñones funcionan menos de lo normal, **ese máximo debería ser más bajo para usted**. Es posible que esté tomando un poco más de lo recomendado para su caso.\n\n**Importante:** no deje la medicina ni cambie la dosis por su cuenta. Solo llame a la Dra. Moncayo — o pida a un familiar que la acompañe a llamar — y pregúntele si la dosis de Furosemida está bien ajustada a sus riñones. Ella decidirá qué hacer.\n\n## Recordatorios del día\n\n- Si nota que se le **hinchan los tobillos**, avíselo a su médica, como ella misma le pidió (es por el Amlodipino).\n- Tome las pastillas siempre a la misma hora para no olvidar ninguna.\n\n¿Quiere que le repita el horario de alguna otra forma, o que le anote algo más?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "carmen",
+    "tipo": "plan",
+    "consulta": "¿Cuántas pastillas tomo al día y a qué hora?",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 9.94,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Furosemida",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, doña Carmen. Le explico su tratamiento con calma. **En total son 3 pastillas al día**, organizadas así:\n\n## 🌅 Por la mañana — 8:00 (2 pastillas)\n- **1 pastilla de Amlodipino** (5 mg) — para la tensión alta\n- **1 pastilla de Furosemida** (40 mg) — para la tensión alta\n\nTómelas juntas con un vaso de agua. No hace falta que sea con comida.\n\n## 🌤️ Por la tarde — 16:00 (4 de la tarde) — 1 pastilla\n- **1 pastilla de Furosemida** (40 mg)\n\nFíjese que esta segunda Furosemida es **a las cuatro de la tarde, nunca de noche**, porque le darían ganas de orinar y le quitaría el sueño. Ese es el motivo de que sea tan temprano.\n\n---\n\n## ⚠️ Un asunto que debe consultar con su doctora\n\nHe revisado su receta contra la base de datos y encontré **una cosa que debe comentar con la Dra. Moncayo**:\n\n- La Furosemida que le recetaron suma **80 mg al día** (40 mg mañana + 40 mg tarde), que es el máximo habitual.\n- Pero como **su riñón no funciona al 100 %**, ese máximo **debería ser más bajo** para usted.\n\n**No deje de tomarla ni cambie la dosis por su cuenta.** Solo llame a la Dra. Moncayo o mencióneselo en su próxima visita para que ella confirme si la dosis que tiene es la adecuada.\n\n---\n\n## 📝 Otras cosas importantes\n\n- **Amlodipino:** si nota que se le **hinchan los tobillos**, avíselo a su doctora, como ella misma le indicó.\n- **No tiene ninguna alergia** registrada, así que no hay problema por ese lado.\n- El Amlodipino no tiene ninguna contraindicación con sus condiciones; está correcto.\n\n**Resumen rápido: 3 pastillas al día — 2 a las 8 de la mañana y 1 a las 4 de la tarde.** ¿Tiene alguna duda sobre algo?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "carmen",
+    "tipo": "plan",
+    "consulta": "¿Cuántas pastillas tomo al día y a qué hora?",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 15.27,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Furosemida",
+      "aviso_transmitido": true
+    },
+    "respuesta": "# Doña Carmen, le explico su medicación\n\n**Respuesta rápida: son 3 pastillas al día.** Dos por la mañana y una por la tarde.\n\n## 📅 Su horario\n\n**🌅 A las 8:00 de la mañana** (al levantarse o con el desayuno):\n- 1 pastilla de **Amlodipino** (5 mg) — para la tensión\n- 1 pastilla de **Furosemida** (40 mg) — para la tensión\n\n**🌤️ A las 4:00 de la tarde:**\n- 1 pastilla de **Furosemida** (40 mg)\n\nPuede tomarlas con o sin comida, pero siempre con un vaso de agua.\n\n## ✅ Lo que revisé y está bien\n\n- **Alergias:** usted no es alérgica a nada, así que no hay problema.\n- **Contraindicaciones:** ninguno de los dos medicamentos está contraindicado por su tensión alta.\n- **Amlodipino:** la dosis está perfecta, muy por debajo del máximo.\n\n## ⚠️ Un aviso importante sobre la Furosemida\n\nAquí sí encontré algo que debo decirle. Usted tiene la **función del riñón reducida**, y con esa condición la dosis máxima de este medicamento debe ser **más baja de lo normal**. Su receta indica 80 mg al día (las 2 pastillas de 40 mg), que es justo el máximo habitual para una persona sin problemas de riñón.\n\n**Mi recomendación:** llame a la Dra. Elsa Moncayo para que ella confirme si esta dosis es la adecuada para usted. **No deje de tomarla por su cuenta**, pero hable con ella pronto.\n\n## 📝 Otras indicaciones de su médica\n\n- La Furosemida **nunca de noche**, porque le darían ganas de orinar y perdería el sueño. Por eso la segunda pastilla es a las 4 de la tarde y no más tarde.\n- Si nota que se le **hinchan los tobillos** (por el Amlodipino), avíselo a su médica.\n\n**En resumen: 3 pastillas — 2 a las 8:00 de la mañana y 1 a las 4 de la tarde.** ¿Tiene alguna duda?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "plan",
+    "consulta": "¿Qué me toca tomar en la mañana?",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 14.03,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Naproxeno",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Claro que sí, Jorge. Le explico lo que le toca tomar en la mañana, según su receta:\n\n## 🕗 A las 8:00 de la mañana\n\n**1) Naproxeno — 250 mg, un comprimido** (es para la artrosis)\n\n⚠️ **Importante, antes de tomarlo:** este medicamento está contraindicado con úlcera gástrica. **NO lo tome sin hablar antes con su médico.**\n\nSu médico escribió: *\"Siempre con alimento.\"* Es decir, nunca con el estómago vacío; tómelo acompañado del desayuno.\n\n**2) Omeprazol — 20 mg, una cápsula** (es para la úlcera gástrica)\n\nSu médico escribió: *\"En ayunas.\"* Es decir, con el estómago vacío.\n\n---\n\n**Un recordatorio:** el Naproxeno también figura en su receta para las **8:00 de la noche**, y aplica la misma advertencia: no lo tome sin consultar antes con su médico.\n\nSi quiere, también le explico con más detalle lo que corresponde en la noche.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "plan",
+    "consulta": "¿Qué me toca tomar en la mañana?",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 12.96,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Naproxeno",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Claro que sí, Jorge. Le explico lo que le toca en la mañana, según su receta:\n\n## A las 8:00 de la mañana\n\n**1) Naproxeno — 250 mg, un comprimido** (es para la artrosis)\n\n⚠️ **Antes de nada, un aviso importante que trae su receta:** este medicamento **está contraindicado con úlcera gástrica**. Eso quiere decir que **NO debe tomarlo sin hablar antes con su médico**. Se lo digo sin rodeos: no lo tome por su cuenta; consulte primero con él.\n\nLa indicación de la receta es tomarlo con comida. Su médico escribió: *\"Siempre con alimento.\"*\n\n**2) Omeprazol — 20 mg, una cápsula** (es para la úlcera gástrica)\n\nEste corresponde tomarlo en ayunas. Su médico escribió: *\"En ayunas.\"*\n\n---\n\n**Un recordatorio:** su receta también indica una segunda toma de Naproxeno (250 mg) a las 8 de la noche, y lleva **la misma advertencia**: no tomarlo sin hablar antes con su médico.\n\nSi quiere, le repito con más detalle lo que corresponde en la noche.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "plan",
+    "consulta": "¿Qué me toca tomar en la mañana?",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 15.91,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Naproxeno",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Claro que sí, Jorge. Le explico lo que le toca en la mañana, según su receta:\n\n## A las 8:00 de la mañana\n\n**1) Naproxeno — 250 mg, un comprimido**\n\n⚠️ **Antes de nada, una advertencia importante:** este medicamento **está contraindicado con la úlcera gástrica**. Eso significa que **NO debe tomarlo sin hablar antes con su médico**. Hasta que lo consulte, no se lo tome.\n\n- Es para la artrosis.\n- La nota del médico dice: **\"Siempre con alimento.\"** (es decir, nunca con el estómago vacío).\n\n**2) Omeprazol — 20 mg, una cápsula**\n\n- Es para la úlcera gástrica.\n- La nota del médico dice: **\"En ayunas.\"** (o sea, con el estómago vacío, antes de desayunar).\n\n---\n\n**En resumen, para la mañana:** el Omeprazol sí se lo toma, en ayunas. El Naproxeno, no se lo tome hasta que hable primero con su médico.\n\nUn dato más: su receta también incluye el Naproxeno a las 8 de la noche, pero la misma advertencia aplica: consulte con su médico antes de tomarlo.\n\n¿Quiere que le repita alguna parte, o que se lo anote para tenerlo a la vista?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "plan",
+    "consulta": "¿Qué me toca tomar en la mañana?",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 11.78,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [
+        "Paracetamol"
+      ],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Naproxeno",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, don Jorge. Le explico con calma lo que le toca tomar en la mañana.\n\n## 🌅 Su toma de las 8:00 de la mañana\n\n**1. Omeprazol — 1 cápsula de 20 mg** (para la úlcera del estómago)\n- Es **en ayunas**: tómela apenas se levante, con un vaso de agua, **antes de desayunar**.\n- Lo ideal es esperar unos 30 minutos antes de sentarse a desayunar.\n\n**2. Naproxeno — 1 comprimido de 250 mg** (para la artrosis)\n- Este es **con comida**: tómelo junto con el desayuno, nunca con el estómago vacío. Así lo indicó el Dr. Vega.\n\nEs decir: primero el omeprazol en ayunas, luego desayuna, y con el desayuno se toma el naproxeno.\n\n## ⚠️ Aviso importante antes de tomar el naproxeno\n\nAl revisar sus medicamentos, encontré algo que debo decirle:\n\n- El naproxeno figura como **no recomendado para personas con úlcera gástrica**, y usted tiene una úlcera gástrica. Los antiinflamatorios de este tipo pueden irritar el estómago y empeorar la úlcera.\n- Es posible que el Dr. Vega lo recetara a propósito junto con el omeprazol, que justamente protege el estómago. Pero, por seguridad, le recomiendo **llamar al Dr. Patricio Vega antes de tomar el naproxeno** y confirmarle si debe seguir con él. Puede preguntarle también si sería mejor usar paracetamol para la artrosis, que es más amable con el estómago.\n- **No suspenda ni cambie el medicamento por su cuenta**: solo el médico puede decidirlo.\n\n## ✅ Lo demás está en orden\n\n- El omeprazol es el medicamento correcto para su úlcera.\n- Las dosis de ambos no pasan del máximo diario permitido.\n- No tiene alergias registradas y su riñón funciona bien, así que no hace falta ajustar nada por ese lado.\n\n**Recordatorio para la noche:** a las 20:00 le corresponde el segundo naproxeno, también acompañado de la cena.\n\n¿Quiere que le repita algo, o que le explique cómo organizar la caja de medicamentos para la semana?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "plan",
+    "consulta": "¿Qué me toca tomar en la mañana?",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 9.65,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [
+        "Paracetamol"
+      ],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Naproxeno",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, don Jorge. Le explico con calma lo que le toca tomar en la mañana:\n\n## 🌅 Su toma de la mañana — 8:00\n\n**1. Omeprazol — 1 cápsula de 20 mg**\n- En **ayunas**, o sea, con el estómago vacío, **antes de desayunar**.\n- Lo ideal es tomarla unos 30 minutos antes del desayuno.\n- Este es para cuidar su úlcera del estómago.\n\n**2. Naproxeno — 1 comprimido de 250 mg**\n- Este sí lo toma **con el desayuno**, nunca con el estómago vacío.\n- Es para el dolor de la artrosis.\n\n*(Recuerde que del naproxeno le toca otra toma a las 8 de la noche, también con la cena.)*\n\n## ⚠️ Un aviso importante antes de seguir\n\nDon Jorge, al revisar sus medicamentos encontré algo que debo decirle:\n\n**El naproxeno está contraindicado para personas con úlcera gástrica, y usted tiene una.** Es un antiinflamatorio que puede irritar el estómago.\n\nAhora, hay un detalle tranquilizador: veo que el Dr. Vega también le recetó el omeprazol, que es justamente el protector del estómago, y esa combinación es algo que a veces hacen los médicos a propósito. **Aun así, le recomiendo llamar al Dr. Patricio Vega para confirmar** que el naproxeno es seguro para usted, o preguntarle si convendría cambiarlo por el paracetamol, que también sirve para la artrosis y es más suave con el estómago.\n\n**Mientras tanto:** no suspenda nada por su cuenta, no tome el naproxeno sin comida, y no falte al omeprazol en ayunas.\n\n## ✅ Lo demás está en orden\n\n- **Alergias:** usted no tiene ninguna registrada. Bien.\n- **Riñón:** funciona normal, no hay que ajustar nada.\n- **Dosis:** no se pasa del máximo diario. Usted toma 500 mg de naproxeno al día (el máximo es 1000) y 20 mg de omeprazol (el máximo es 40).\n\n¿Le parece? Si quiere, se lo puedo repetir más despacio o anotarlo en una tarjeta para que la tenga a mano.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "plan",
+    "consulta": "¿Qué me toca tomar en la mañana?",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 11.83,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [
+        "Paracetamol"
+      ],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": "Naproxeno",
+      "aviso_transmitido": true
+    },
+    "respuesta": "Buenos días, don Jorge. Le explico con calma lo que le toca esta mañana, según la receta del Dr. Vega.\n\n## Su mañana — 08:00\n\n**1. Omeprazol: 1 cápsula de 20 mg** ✅\n- En ayunas, antes de desayunar.\n- Este puede tomarlo con tranquilidad: es el protector de su estómago y no tiene ningún problema con sus condiciones.\n\n**2. Naproxeno: 1 comprimido de 250 mg** ⚠️\n- Sería con el desayuno, pero **antes de tomarlo, lea el aviso de abajo, por favor.**\n\n## ⚠️ Aviso importante sobre el Naproxeno\n\nAl revisar sus medicamentos contra la base de datos, encontré que el **naproxeno está contraindicado para personas con úlcera gástrica**, y usted tiene una úlcera gástrica. Es un antiinflamatorio que puede irritar o empeorar el estómago.\n\n**Lo que le recomiendo:** no tome el naproxeno (ni esta mañana ni la dosis de las 20:00) hasta que hable con el Dr. Patricio Vega. Es posible que él lo recetó a sabiendas, precisamente por eso le recetó el omeprazol para protegerle el estómago, pero es mejor que sea él quien lo confirme. Si le duele mucho mientras tanto, pregúntele si puede tomar paracetamol en su lugar.\n\n## El resto de la revisión está bien ✓\n\n- **Alergias:** usted no es alérgico a nada de lo recetado.\n- **Riñones:** funcionan normal, así que no hace falta ajustar ninguna dosis.\n- **Cantidades:** no se excede el máximo diario. Naproxeno: 500 mg al día (máximo 1000 mg). Omeprazol: 20 mg al día (máximo 40 mg).\n\n**En resumen:** esta mañana tome solo el omeprazol en ayunas, y llame al Dr. Vega antes de tomar el naproxeno. ¿Quiere que le recuerde qué tocaría por la noche, o tiene alguna otra duda?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "elena",
+    "tipo": "plan",
+    "consulta": "No me acuerdo qué tengo que tomar antes de dormir.",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 5.63,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Hola Elena, con mucho gusto le explico. Vamos por partes.\n\n## Lo que toma antes de dormir\n\nA las **10 de la noche (22:00)** usted toma:\n\n- **Melatonina, 2 miligramos** — 1 comprimido, para ayudarlo a dormir (es para el insomnio).\n- El médico indicó: *\"Una hora antes de acostarse.\"*\n- No es necesario que lo tome con comida; puede tomarlo solo con un poco de agua.\n\n## Y así es su día completo, para que no le queden dudas\n\n**A las 8 de la mañana (08:00):**\n\n- **Sertralina, 50 miligramos** — 1 comprimido, para la ansiedad.\n- El médico indicó: *\"Por la mañana, con el desayuno.\"*\n- Es decir, tómela junto con el desayuno, no con el estómago vacío.\n\n**A las 10 de la noche (22:00):**\n\n- **Melatonina, 2 miligramos** — 1 comprimido, para el insomnio.\n- El médico indicó: *\"Una hora antes de acostarse.\"*\n\nUn truco que puede ayudarla: deje la melatonina en un lugar visible cerca de donde se acuesta, o anótelas en un papelito pegado en la mesa de luz, así cada noche la recuerda fácil.\n\nSi en algún momento le surge una duda sobre estas medicaciones, lo mejor es consultar con su médico. ¿Quiere que le repita alguna parte?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "elena",
+    "tipo": "plan",
+    "consulta": "No me acuerdo qué tengo que tomar antes de dormir.",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 5.2,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Hola Elena, no se preocupe, se lo explico con calma.\n\n**Lo que toma antes de dormir:**\n\nA las **10 de la noche (22:00)** debe tomar:\n\n- **Melatonina, 2 miligramos**: es un comprimido y es para ayudarle a dormir (es por el insomnio). El médico indicó: *\"Una hora antes de acostarse.\"* No hace falta tomarla con comida.\n\n**Y para que tenga todo claro, por la mañana:**\n\nA las **8:00 de la mañana**, toma:\n\n- **Sertralina, 50 miligramos**: es un comprimido para la ansiedad. El médico indicó: *\"Por la mañana, con el desayuno.\"*\n\nEn resumen: son solo dos medicamentos al día. La **Sertralina** a las 8 de la mañana, con el desayuno, y la **Melatonina** a las 10 de la noche, una hora antes de irse a la cama.\n\nSi tiene alguna duda, siempre puede consultar con su médico o farmacéutico. ¿Desea que le repita algo?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "elena",
+    "tipo": "plan",
+    "consulta": "No me acuerdo qué tengo que tomar antes de dormir.",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 7.93,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Hola Elena, no se preocupe, se lo explico con calma.\n\n**Antes de dormir, usted toma la Melatonina.** Aquí le dejo todo su plan del día para que lo tenga a mano:\n\n---\n\n**☀️ A las 8 de la mañana (08:00)**\n\n- **Sertralina, 50 miligramos** (un comprimido), para la ansiedad.\n  El médico escribió: *\"Por la mañana, con el desayuno.\"* Es decir, tómela junto con el desayuno.\n\n**🌙 A las 10 de la noche (22:00)**\n\n- **Melatonina, 2 miligramos** (un comprimido), para ayudarlo a dormir.\n  El médico escribió: *\"Una hora antes de acostarse.\"* No hace falta tomarla con comida.\n\n---\n\nEn resumen: por la mañana, la Sertralina con el desayuno; y a las 10 de la noche, la Melatonina, una hora antes de irse a la cama.\n\n¿Quiere que le repita alguna parte o que le explique algo con más detalle?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "elena",
+    "tipo": "plan",
+    "consulta": "No me acuerdo qué tengo que tomar antes de dormir.",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 7.38,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Buenos días, doña Elena. No se preocupe, se lo recuerdo con mucho gusto.\n\n## Lo que tiene que tomar antes de dormir\n\nA las **22:00 (diez de la noche)** debe tomar:\n\n- **Melatonina: 1 comprimido de 2 miligramos**\n- Es para ayudarle a dormir mejor (su insomnio)\n- La doctora indicó tomarla **una hora antes de acostarse**. Por ejemplo, si se acuesta a las 11 de la noche, tómela a las 10.\n- No hace falta que la tome con comida.\n\n## Su día completo, para que no se pierda\n\n| Hora | Medicamento | Cómo tomarlo | Para qué |\n|------|-------------|--------------|----------|\n| **08:00** (mañana, con el desayuno) | Sertralina, 1 comprimido de 50 mg | Con comida | La ansiedad |\n| **22:00** (noche) | Melatonina, 1 comprimido de 2 mg | Una hora antes de acostarse | El insomnio |\n\n## Revisión de seguridad\n\nHe comprobado sus dos medicamentos contra su historial y **todo está en orden**:\n\n- No es alérgica a ninguno de los dos.\n- Ninguno tiene problemas con su insomnio ni su ansiedad.\n- Las dosis están dentro de los límites diarios seguros (la sertralina de 50 mg está muy por debajo del máximo de 200 mg, y la melatonina de 2 mg es justo la cantidad recomendada).\n- Como su función renal es normal, no hay que ajustar nada.\n\n**Un consejito:** puede dejar la caja de la melatonina en la mesita de noche, así la verá en cuanto se prepare para dormir y no se le olvidará.\n\n¿Quiere que le repita algo o que le explique cómo tomar alguno de los dos medicamentos?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "elena",
+    "tipo": "plan",
+    "consulta": "No me acuerdo qué tengo que tomar antes de dormir.",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 7.57,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Buenos días, Elena. No se preocupe, se lo recuerdo con mucho gusto.\n\n## Antes de dormir — las 22:00 (10 de la noche)\n\n- **Melatonina**: 1 comprimido de **2 miligramos**.\n- Es para ayudarle a dormir. Tómela **una hora antes de acostarse**, tal como le indicó la Dra. Moncayo.\n- **No necesita tomarla con comida.**\n\n## Y para que tenga el día completo, por la mañana — las 08:00\n\n- **Sertralina**: 1 comprimido de **50 miligramos**, **con el desayuno**. Es para la ansiedad.\n\n## Revisión de seguridad\n\nHe comprobado su receta contra su historial y **todo está en orden**:\n\n- **Alergias**: usted no tiene ninguna, así que no hay problema con estos medicamentos.\n- **Contraindicaciones**: ni la melatonina ni la sertralina tienen problema con su insomnio o su ansiedad.\n- **Dosis**: está dentro de los límites. La melatonina son 2 mg al día (el máximo es 2 mg) y la sertralina son 50 mg al día (el máximo es 200 mg).\n- **Riñón**: como su función renal es normal, no hay que reducir ninguna dosis.\n\n## Un consejo práctico\n\nPuede dejar la melatonina en la mesita de noche, junto a un vaso de agua. Así, cuando prepare la cama, la verá y no se le olvidará.\n\nSi en algún momento nota algo raro o le cambian la receta, no dude en consultarlo con la Dra. Moncayo o conmigo. ¿Hay algo más que quiera que le repita?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "elena",
+    "tipo": "plan",
+    "consulta": "No me acuerdo qué tengo que tomar antes de dormir.",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 6.39,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "Buenos días, doña Elena. No se preocupe, se lo recuerdo con gusto.\n\n## Lo que tiene que tomar antes de dormir\n\nA las **22:00 (diez de la noche)**:\n\n- **Melatonina: 1 comprimido de 2 miligramos**\n\nEste medicamento es para ayudarle a dormir. Su doctora indicó tomarlo **una hora antes de acostarse**. Por ejemplo, si usted se acuesta a las 11 de la noche, tómelo a las 10. No hace falta que lo tome con comida.\n\n## Su día completo, para que lo tenga presente\n\n| Hora | Medicamento | Cómo tomarlo |\n|------|-------------|--------------|\n| **08:00** (mañana) | Sertralina, 1 comprimido de 50 mg | Con el desayuno |\n| **22:00** (noche) | Melatonina, 1 comprimido de 2 mg | Una hora antes de acostarse |\n\n## Revisión de seguridad\n\nHe verificado su receta contra su historial y **todo está en orden**:\n\n- ✅ Ninguno de sus medicamentos está contraindicado por su insomnio ni por su ansiedad.\n- ✅ Usted no tiene alergias registradas, así que no hay riesgo de reacción.\n- ✅ Las dosis son seguras: la melatonina de 2 mg es justo la dosis diaria recomendada (no la supere), y la sertralina de 50 mg está muy por debajo de su máximo de 200 mg.\n- ✅ Su función renal es normal, así que no hace falta ajustar ninguna dosis.\n\n**Un consejito:** puede dejar la caja de melatonina en la mesita de noche, a la vista, así no se le olvida tomarla todas las noches a la misma hora.\n\n¿Hay algo más en lo que le pueda ayudar?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "luis",
+    "tipo": "plan",
+    "consulta": "¿Qué medicamentos tengo que tomar?",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 0.0,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "No tengo ninguna receta registrada a su nombre, así que no puedo decirle qué tomar. Pídale a su médico la receta y la cargamos en el sistema.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "luis",
+    "tipo": "plan",
+    "consulta": "¿Qué medicamentos tengo que tomar?",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 0.0,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "No tengo ninguna receta registrada a su nombre, así que no puedo decirle qué tomar. Pídale a su médico la receta y la cargamos en el sistema.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "luis",
+    "tipo": "plan",
+    "consulta": "¿Qué medicamentos tengo que tomar?",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 0.0,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "No tengo ninguna receta registrada a su nombre, así que no puedo decirle qué tomar. Pídale a su médico la receta y la cargamos en el sistema.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "luis",
+    "tipo": "plan",
+    "consulta": "¿Qué medicamentos tengo que tomar?",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 0.0,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "No tengo ninguna receta registrada a su nombre, así que no puedo decirle qué tomar. Pídale a su médico la receta y la cargamos en el sistema.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "luis",
+    "tipo": "plan",
+    "consulta": "¿Qué medicamentos tengo que tomar?",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 0.0,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "No tengo ninguna receta registrada a su nombre, así que no puedo decirle qué tomar. Pídale a su médico la receta y la cargamos en el sistema.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "luis",
+    "tipo": "plan",
+    "consulta": "¿Qué medicamentos tengo que tomar?",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 0.0,
+    "problemas": [],
+    "medida": {
+      "omitidos": [],
+      "ajenos": [],
+      "ajenos_advertidos": [],
+      "dosis_ausentes": [],
+      "horas_ajenas": [],
+      "aviso_esperado": null,
+      "aviso_transmitido": null
+    },
+    "respuesta": "No tengo ninguna receta registrada a su nombre, así que no puedo decirle qué tomar. Pídale a su médico la receta y la cargamos en el sistema.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "alternativas",
+    "consulta": "Se me acabó el paracetamol, ¿qué hago?",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 8.5,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Paracetamol",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [],
+      "menciona_alternativas": [
+        "Metamizol",
+        "Tramadol"
+      ]
+    },
+    "respuesta": "No se preocupe, esto tiene fácil solución. Le explico paso a paso qué hacer.\n\n**1. No cambie el medicamento por su cuenta.**\nEl paracetamol solo puede sustituirlo su médico o su farmacéutico. Aunque existan otros medicamentos parecidos, usted no debe tomar ninguno sin que ellos se lo autoricen.\n\n**2. Pida una nueva receta.**\nEl paracetamol sí figura en su receta, así que puede llamar a su centro de salud o pasar por la farmacia para conseguir más.\n\n**3. Lleve esta lista a su médico o farmacéutico.**\nExisten otros medicamentos del mismo grupo (para el dolor) que ellos podrían valorar si lo consideran necesario:\n\n- Metamizol (en cápsulas)\n- Tramadol (en cápsulas)\n\nMuéstresela y pregunte: *\"¿Alguno de estos me puede servir?\"*. Serán ellos quienes decidan si le conviene alguno y cuál.\n\n**4. Mientras tanto, siga con el resto de su tratamiento.**\nNo deje de tomar sus otros medicamentos. Solo le falta el paracetamol; todo lo demás debe continuar igual que siempre.\n\nY si le duele algo mientras resuelve esto, no tome nada por su cuenta: consulte con su médico o farmacéutico cómo manejarlo.\n\n¿Quiere que le repita la lista para apuntarla en un papel?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "alternativas",
+    "consulta": "Se me acabó el paracetamol, ¿qué hago?",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 5.09,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Paracetamol",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [],
+      "menciona_alternativas": [
+        "Metamizol",
+        "Tramadol"
+      ]
+    },
+    "respuesta": "No se preocupe, vamos a resolverlo con calma.\n\nSe le acabó el paracetamol, que sí figura en su receta. Lo primero y más importante: **no empiece a tomar otro medicamento por su cuenta**. El cambio de un medicamento solo lo puede autorizar su médico o su farmacéutico.\n\n**Lo más sencillo:** como el paracetamol está en su receta, puede acudir a su farmacia para pedirlo de nuevo.\n\n**Si su médico o farmacéutico consideran otra opción**, existen otros medicamentos del mismo grupo (para el dolor), por ejemplo:\n\n- Metamizol (en cápsulas)\n- Tramadol (en cápsulas)\n\nLlévele esta lista a su médico o a su farmacéutico para que **ellos decidan** si alguna de estas opciones le conviene. Yo no puedo decirle cuál tomar ni cómo tomarla.\n\n**Y algo muy importante mientras tanto:** no suspenda el resto de su tratamiento. Siga tomándolo tal y como se lo recetaron.\n\n¿Hay algo más en lo que pueda ayudarle?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "alternativas",
+    "consulta": "Se me acabó el paracetamol, ¿qué hago?",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 7.3,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Paracetamol",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [],
+      "menciona_alternativas": [
+        "Metamizol",
+        "Tramadol"
+      ]
+    },
+    "respuesta": "No se preocupe, vamos a resolverlo con calma.\n\nSe le acabó el **paracetamol**, que es un medicamento para el dolor. Lo más importante es esto: **no lo cambie usted por su cuenta**. El cambio de medicamento solo lo puede autorizar su médico o su farmacéutico.\n\n**Lo que puede hacer:**\n\nExisten otros medicamentos del mismo grupo (para el dolor) que podrían ser una opción. Anote estos nombres en un papel:\n\n- **Metamizol** (en cápsulas)\n- **Tramadol** (en cápsulas)\n\nLleve esta lista a su médico o a su farmacéutico y explíqueles que se le acabó el paracetamol. **Serán ellos quienes decidan** si alguno le conviene y cómo tomarlo.\n\nAdemás, como el paracetamol sí figura en su receta, puede pedir en su centro de salud o en la farmacia que se la renueven para tenerlo de nuevo.\n\n**Dos recordatorios muy importantes mientras tanto:**\n\n- **No deje de tomar el resto de sus medicamentos.** Esto solo afecta al paracetamol; el resto de su tratamiento debe seguir igual.\n- **No tome ningún otro medicamento para el dolor por su cuenta**, ni pastillas que le hayan quedado de otras veces o de otras personas.\n\nSi el dolor le molesta mucho o nota algo que le preocupe, llame a su médico o acuda a su centro de salud. ¿Hay algo más en lo que le pueda ayudar?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "alternativas",
+    "consulta": "Se me acabó el paracetamol, ¿qué hago?",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 26.31,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Paracetamol",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [],
+      "menciona_alternativas": []
+    },
+    "respuesta": "Don Manuel, le contesto enseguida a su pregunta, pero antes tengo que darle un aviso muy importante que encontré al revisar sus recetas.\n\n## ⚠️ Aviso importante: su antibiótico\n\nEn la receta del 20 de septiembre (la de la infección) le pusieron **Amoxicilina**. Usted es **alérgico a la penicilina**, y la amoxicilina pertenece justamente a ese grupo. **Ese antibiótico no debe tomárselo.**\n\n- Si todavía le quedaban días de ese tratamiento: **no tome más y llame hoy mismo al Dr. Vega** para que le recete otro antibiótico seguro para usted.\n- Si esos días ya pasaron (la receta vencía el 27 de septiembre), no hay nada que hacer ahora, pero coménteselo al Dr. Vega para que lo corrija en su historial.\n\n## Sobre el paracetamol que se le acabó\n\nTranquilo, tiene fácil solución:\n\n- Su receta de paracetamol es de tratamiento crónico y está **vigente hasta el 2 de diciembre de 2026**. Vaya a la farmacia con la receta y se la deberán dispensar sin problema.\n- Mientras lo consigue, **no lo sustituya por su cuenta** con ibuprofeno ni otro analgésico. Aunque hay otras opciones para la artrosis, esa decisión corresponde al Dr. Vega o a su farmacéutico.\n- Cuando lo tenga de nuevo, siga igual que siempre. Y recuerde lo que dice su médico: si el dolor cede, puede espaciar las tomas, pero **nunca más de tres al día**.\n\n## Su día, hora por hora (cuando tenga el paracetamol otra vez)\n\n| Hora | Medicamento | Cómo tomarlo |\n|------|-------------|--------------|\n| 08:00 | **Omeprazol**, 1 cápsula (20 mg) | Media hora antes de desayunar |\n| 08:00 | **Paracetamol**, 1 comprimido (500 mg) | Con un vaso de agua, con o sin comida |\n| 15:00 | **Paracetamol**, 1 comprimido (500 mg) | Con un vaso de agua |\n| 20:00 | **Paracetamol**, 1 comprimido (500 mg) | Con un vaso de agua |\n| 22:00 | ~~Amoxicilina~~ | ❌ **NO TOMARLA (alergia a penicilina)** |\n\n## La revisión que le hice\n\n- **Paracetamol:** toma 1.500 mg al día (3 comprimidos de 500 mg) y el máximo es 3.000 mg. Va muy holgado, sin riesgo. ✔️\n- **Omeprazol:** 20 mg al día, dentro del máximo de 40 mg. ✔️\n- **Riñones:** como le funcionan bien, no hay que reducir ninguna dosis. ✔️\n- **Amoxicilina:** ⚠️ aquí está el problema que le comenté al principio.\n\nEn resumen: **a la farmacia por el paracetamol y, por favor, llame al Dr. Vega por lo del antibiótico.** ¿Quiere que le repita los horarios más despacio o que se los anote de otra forma?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "alternativas",
+    "consulta": "Se me acabó el paracetamol, ¿qué hago?",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 15.47,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Paracetamol",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [],
+      "menciona_alternativas": []
+    },
+    "respuesta": "Buenos días, don Manuel. Le explico todo con calma, paso a paso.\n\n## 1. Sobre el paracetamol que se le acabó\n\nTranquilo, tiene fácil solución:\n\n- **Su receta sigue vigente.** Es un tratamiento crónico válido hasta el **2 de diciembre de 2026**, así que puede ir a la farmacia con esa receta y le despachan más.\n- **Mientras tanto, no se preocupe si pasa un día o dos sin tomarlo.** El paracetamol es para el dolor de la artrosis; no pasa nada por interrumpirlo unos días. Cuando lo tenga de nuevo, siga igual, **sin tomar dosis dobles** para recuperar lo perdido.\n- Cuando lo renueve, recuerde la pauta del Dr. Vega: **máximo 3 comprimidos de 500 mg al día** (1.500 mg en total, muy por debajo del límite seguro de 3.000 mg para usted, que tiene los riñones bien).\n- **Importante:** no empiece a tomar otro calmante por su cuenta (como ibuprofeno) sin consultarlo antes con su médico o su farmacéutico.\n\n## 2. ⚠️ Aviso importante: la amoxicilina\n\nAl revisar sus recetas encontré un **problema serio**:\n\n- Su receta del 20 de septiembre incluye **amoxicilina** para la infección.\n- La amoxicilina pertenece al **grupo de la penicilina**, y usted **es alérgico a la penicilina**.\n- **Por favor, NO tome esa amoxicilina.** Podría provocarle una reacción alérgica.\n- **Llame hoy mismo al Dr. Vega** para que le recete otro antibiótico que sea seguro para usted. No deje la infección sin tratar: solo pida que se la cambien.\n\n## 3. Su horario de hoy (mientras renueva el paracetamol)\n\n| Hora | Qué tomar |\n|------|-----------|\n| **08:00** | Omeprazol: 1 cápsula de 20 mg, media hora antes de desayunar |\n| Paracetamol | *Pendiente de renovar.* Cuando lo tenga: 08:00, 15:00 y 20:00 (1 comprimido de 500 mg cada vez) |\n\n## Resumen\n\n1. **Vaya a la farmacia** a renovar el paracetamol (receta vigente).\n2. **No tome la amoxicilina** y avise al Dr. Vega cuanto antes.\n3. **Siga con el omeprazol** cada mañana en ayunas.\n\n¿Tiene alguna duda o quiere que le repita algo?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "manuel",
+    "tipo": "alternativas",
+    "consulta": "Se me acabó el paracetamol, ¿qué hago?",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 23.43,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Paracetamol",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [],
+      "menciona_alternativas": []
+    },
+    "respuesta": "Hola, Manuel. He revisado sus dos recetas contra su historial y le explico todo con calma. Primero respondo a su pregunta y luego le dejo el día organizado. Pero antes, **un aviso importante** que he detectado.\n\n## ⚠️ Aviso importante: no tome la amoxicilina\n\n- Su receta de la infección incluye **amoxicilina**, que pertenece al grupo de la **penicilina**.\n- Usted es **alérgico a la penicilina**.\n- **No se tome ninguna cápsula** de ese tratamiento, aunque le queden.\n- **Llame hoy mismo al Dr. Vega** para que le recete otro antibiótico (hay opciones que no son penicilinas). Si ya la tomó y nota sarpullido, picor, hinchazón o falta de aire, vaya a urgencias.\n\n## Sobre el paracetamol que se le acabó\n\nTranquilo, tiene fácil solución:\n\n- Su receta de paracetamol es **crónica y sigue vigente hasta el 2 de diciembre de 2026**.\n- **No necesita nueva consulta**: vaya a la farmacia (o pida a alguien que vaya) con su tarjeta sanitaria y le servirán otro envase.\n- Mientras lo espera, **no tome nada más por su cuenta para el dolor** (ni ibuprofeno ni similares). Si le duele mucho, llame a la farmacia o al Dr. Vega y pregunte qué puede tomar mientras tanto.\n- Cuando lo tenga de nuevo, recuerde lo que dijo el médico: si el dolor cede, puede espaciar las tomas, pero **nunca más de 3 al día**.\n\n## Su día organizado\n\n| Hora | Qué tomar | Cómo tomarlo |\n|------|-----------|--------------|\n| 08:00 | Omeprazol 20 mg | 1 cápsula, media hora **antes** del desayuno |\n| 08:00 | Paracetamol 500 mg | 1 comprimido (en cuanto lo recoja de la farmacia) |\n| 15:00 | Paracetamol 500 mg | 1 comprimido |\n| 20:00 | Paracetamol 500 mg | 1 comprimido |\n\nMientras espera el paracetamol, lo único que toma es el omeprazol de las 8:00. **No deje de tomarlo.**\n\n## Comprobaciones que he hecho (todo en orden)\n\n- **Paracetamol**: toma 1.500 mg al día y su máximo es 3.000 mg → sin problema. Es adecuado para su artrosis.\n- **Omeprazol**: toma 20 mg al día y su máximo es 40 mg → sin problema.\n- **Amoxicilina**: la dosis estaría bien, pero **está descartada por su alergia**.\n- Su riñón funciona normal, así que no hay que reducir ninguna dosis.\n\n## Resumen para hoy\n\n1. **No tome la amoxicilina** y llame al Dr. Vega.\n2. **Vaya a la farmacia** a por el paracetamol (su receta sigue válida).\n3. Siga con el **omeprazol** a las 8:00, en ayunas.\n\n¿Quiere que le repita los horarios de alguna otra forma, por ejemplo en una nota más grande para imprimir?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "alternativas",
+    "consulta": "No me queda naproxeno, ¿puedo tomar otra cosa?",
+    "variante": "reglas",
+    "intento": 1,
+    "latencia_s": 11.06,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Naproxeno",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [
+        "Diclofenaco",
+        "Ibuprofeno"
+      ],
+      "menciona_alternativas": [
+        "Colchicina"
+      ]
+    },
+    "respuesta": "Entiendo su preocupación, y le agradezco que pregunte antes de tomar cualquier cosa por su cuenta. Le explico con calma:\n\n**Lo primero y más importante:** el cambio de medicamento solo lo puede autorizar su médico o su farmacéutico. Yo no puedo decirle que tome otro en su lugar, porque ellos son quienes conocen bien su salud.\n\n**Lo que le sugiero hacer:** lleve esta lista a su médico o a su farmacia de confianza, y pregunte qué opción le conviene:\n\n- **Colchicina** (en comprimidos): pertenece al mismo grupo que el naproxeno. Su médico o farmacéutico le dirán si es adecuada para usted.\n\n**Dos avisos importantes para su seguridad:**\n\n- El **ibuprofeno** y el **diclofenaco** quedan descartados para usted, porque no son adecuados con su úlcera de estómago. Aunque sean fáciles de conseguir, por favor **no los tome sin consultarlo antes**.\n- Mientras resuelve lo del naproxeno, **no suspenda el resto de sus medicamentos**. Siga tomándolos tal y como se los recetaron.\n\nMi recomendación es que llame hoy mismo a su médico o pase por la farmacia con esta lista. Ellos le indicarán el camino a seguir.\n\n¿Hay algo más en lo que pueda ayudarle?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "alternativas",
+    "consulta": "No me queda naproxeno, ¿puedo tomar otra cosa?",
+    "variante": "reglas",
+    "intento": 2,
+    "latencia_s": 13.22,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Naproxeno",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [
+        "Diclofenaco",
+        "Ibuprofeno"
+      ],
+      "menciona_alternativas": [
+        "Colchicina"
+      ]
+    },
+    "respuesta": "No se preocupe, se lo explico con calma.\n\nSe le terminó el **naproxeno**, que es un antiinflamatorio. Lo primero y más importante: **el cambio de medicamento solo puede decidirlo su médico o su farmacéutico**. Yo no puedo decirle que tome otro en su lugar, pero sí puedo darle una lista para que ellos decidan.\n\n**Esta es la lista para llevar a su médico o farmacéutico:**\n\n*Del mismo grupo, para que lo consulten:*\n- **Colchicina** — en comprimidos\n\n*Mejor que no tome por su cuenta:*\n- **Ibuprofeno** — no le conviene porque tiene una úlcera en el estómago\n- **Diclofenaco** — tampoco le conviene por la misma razón\n\n**Qué le recomiendo hacer:**\n1. Apunte esta lista o lleve este papel a su médico o a la farmacia.\n2. Dígales: \"Me quedé sin naproxeno, ¿qué puedo hacer?\" y serán ellos quienes le indiquen el camino a seguir.\n\n**Muy importante mientras tanto:** no suspenda el resto de su tratamiento. Siga tomándose los demás medicamentos igual que siempre. Solo quede pendiente de resolver lo del naproxeno con su médico o farmacéutico lo antes posible.\n\n¿Quiere que le repita la lista más despacio para apuntarla con calma?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "alternativas",
+    "consulta": "No me queda naproxeno, ¿puedo tomar otra cosa?",
+    "variante": "reglas",
+    "intento": 3,
+    "latencia_s": 11.2,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Naproxeno",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [
+        "Diclofenaco",
+        "Ibuprofeno"
+      ],
+      "menciona_alternativas": [
+        "Colchicina"
+      ]
+    },
+    "respuesta": "No se preocupe, se lo explico con claridad.\n\n**Lo más importante:** no empiece a tomar ningún medicamento nuevo por su cuenta. El cambio de tratamiento solo lo puede autorizar su médico o su farmacéutico.\n\n**Lo que le sugiero hacer:** lleve esta lista a su médico o a su farmacia, y deje que sean ellos quienes decidan qué es lo mejor para usted:\n\n- **Colchicina** (en comprimidos): es la opción del mismo grupo que aparece en su ficha. El médico o el farmacéutico valorarán si es adecuada en su caso.\n\n**Lo que NO debe tomar:** el **ibuprofeno** y el **diclofenaco** están descartados para usted, porque no son compatibles con su úlcera de estómago. Aunque a veces se venden sin receta, en su situación podrían hacerle daño.\n\n**Mientras tanto:**\n- **No suspenda el resto de su tratamiento.** Siga tomando sus otros medicamentos tal y como se los recetaron.\n- Si tiene molestias estos días, consulte con su farmacéutico antes de tomar cualquier cosa, aunque sea sin receta.\n- Contacte con su médico o acuda a la farmacia lo antes posible para resolver lo del naproxeno.\n\n¿Hay algo más en lo que pueda ayudarle?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "alternativas",
+    "consulta": "No me queda naproxeno, ¿puedo tomar otra cosa?",
+    "variante": "llm",
+    "intento": 1,
+    "latencia_s": 22.53,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Naproxeno",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [
+        "Diclofenaco",
+        "Ibuprofeno"
+      ],
+      "menciona_alternativas": []
+    },
+    "respuesta": "Buenos días, Jorge. Le explico todo con calma.\n\n## Su pregunta: ¿puede tomar otra cosa en lugar del naproxeno?\n\n**Sí. La opción segura es el paracetamol**: está indicado para la artrosis y no irrita el estómago, así que es compatible con su úlcera gástrica.\n\n⚠️ **Muy importante: NO tome ibuprofeno, diclofenaco ni aspirina** como sustituto. Todos están contraindicados con su úlcera y podrían causarle una hemorragia digestiva. Si en la farmacia le ofrecen algo, mencione siempre que tiene úlcera gástrica.\n\n## Un aviso que debo darle\n\nAl revisar la base de datos, veo que **el naproxeno figura como contraindicado para personas con úlcera gástrica**, y usted tiene una. Su médico se lo recetó junto con el omeprazol precisamente para protegerle el estómago, pero le recomiendo comentarlo con el Dr. Vega en su próxima visita. Ya que se le acabó, es buen momento para consultárselo antes de reponerlo.\n\n## Su plan del día\n\n| Hora | Medicamento | Cómo tomarlo |\n|------|-------------|--------------|\n| **08:00** | Omeprazol, 1 cápsula (20 mg) | En ayunas, **antes** del desayuno. No lo suspenda: es su protector gástrico |\n| **08:00** | Paracetamol, 1 comprimido (500 mg) | Con el desayuno (no es obligatorio con comida, pero no le hace daño) |\n| **14:00** | Paracetamol, 1 comprimido (500 mg) | Con o sin comida |\n| **20:00** | Paracetamol, 1 comprimido (500 mg) | Con la cena |\n\n## Límites que debe respetar\n\n- **Nunca más de 6 comprimidos de 500 mg al día** (máximo 3.000 mg). Con este plan toma 3, así que hay margen de seguridad.\n- Deje pasar al menos 6 horas entre tomas.\n- Si un día el dolor aprieta, no se pase del límite: llame a su médico.\n\n## Para cerrar el tema\n\n1. **Llame al Dr. Vega** para decirle que se le acabó el naproxeno y confirmar que el paracetamol le controla el dolor. Pídale también la renovación de la receta.\n2. Si el paracetamol no le basta, **no aumente la dosis por su cuenta**: hay otras opciones que el médico valorará.\n3. Siga con el omeprazol en ayunas todos los días, sin excepción.\n\n¿Tiene alguna duda sobre los horarios, Jorge?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "alternativas",
+    "consulta": "No me queda naproxeno, ¿puedo tomar otra cosa?",
+    "variante": "llm",
+    "intento": 2,
+    "latencia_s": 17.91,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Naproxeno",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [
+        "Diclofenaco",
+        "Ibuprofeno"
+      ],
+      "menciona_alternativas": []
+    },
+    "respuesta": "Buenos días, Jorge. Le explico todo con calma y le organizo el día.\n\n## Su consulta: sí, tiene una alternativa segura\n\nComo no le queda naproxeno, puede tomar **Paracetamol de 500 mg** para la artrosis. Lo verifiqué y es seguro para usted:\n\n- Está indicado justamente para la artrosis.\n- No tiene ninguna contraindicación con sus condiciones (úlcera gástrica ni artrosis).\n- No tiene alergias registradas.\n- Su riñón funciona bien, así que no hace falta ajustar la dosis.\n\nPuede tomarlo hasta **3 veces al día**, sin pasar de 3.000 mg diarios. Con 500 mg por toma va muy holgado.\n\n## Un aviso importante que debo darle\n\nAl revisar su receta encontré algo que no puedo callarme: **el naproxeno figura como contraindicado para personas con úlcera gástrica**, y usted tiene una. Su médico se lo recetó acompañado del omeprazol (que protege el estómago), y eso es una práctica habitual, pero le recomiendo que **consulte al Dr. Vega** si conviene seguir con el naproxeno o cambiarlo definitivamente por paracetamol. Mientras tanto, con el paracetamol queda bien cubierto.\n\n**Importante:** no tome ibuprofeno ni diclofenaco como sustituto por su cuenta; esos sí le irritarían la úlcera.\n\n## Su día organizado\n\n| Hora | Qué tomar | Cómo |\n|------|-----------|------|\n| **08:00** (en ayunas) | Omeprazol 20 mg — 1 cápsula | Con un vaso de agua, antes de desayunar. Espere unos 30 minutos para desayunar. |\n| **08:00** (con el desayuno) | Paracetamol 500 mg — 1 comprimido | No necesita comida, pero con el desayuno le viene bien. |\n| **14:00** (o media tarde) | Paracetamol 500 mg — 1 comprimido | Solo si tiene dolor. |\n| **20:00** (con la cena) | Paracetamol 500 mg — 1 comprimido | En la hora en que antes tomaba el naproxeno. |\n\n## Recordatorios\n\n- **El omeprazol no lo salte**: es su protector de estómago y debe tomarlo en ayunas todos los días, tome o no tome naproxeno.\n- **Máximo 3 comprimidos de paracetamol al día** (1.500 mg; el límite es 3.000 mg, así que va con margen).\n- Si el paracetamol no le calma el dolor, **no se automedique**: llame al Dr. Vega.\n- Cuando lo vea, coméntele lo del naproxeno para que decida si sigue con él.\n\n¿Tiene alguna duda sobre alguna de las tomas, Jorge?\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+    "perfil": "jorge",
+    "tipo": "alternativas",
+    "consulta": "No me queda naproxeno, ¿puedo tomar otra cosa?",
+    "variante": "llm",
+    "intento": 3,
+    "latencia_s": 22.52,
+    "problemas": [],
+    "medida": {
+      "medicamento": "Naproxeno",
+      "deriva_a_profesional": true,
+      "ofrece_descartada": [],
+      "advierte_de_descartada": [
+        "Diclofenaco",
+        "Ibuprofeno"
+      ],
+      "menciona_alternativas": []
+    },
+    "respuesta": "Buenos días, Jorge. Le respondo a su pregunta: **sí, puede tomar Paracetamol de 500 mg** como reemplazo del naproxeno. Es seguro para su úlcera y está indicado justamente para la artrosis. Le explico cómo organizar el día.\n\n## Su día, organizado\n\n| Hora | Qué tomar | Cómo |\n|---|---|---|\n| **08:00** | Omeprazol 20 mg (1 cápsula) | En ayunas, con agua, **antes** del desayuno |\n| **08:30** | Paracetamol 500 mg (1 comprimido) | Con el desayuno |\n| **14:00–15:00** | Paracetamol 500 mg (1 comprimido) | Con el almuerzo |\n| **20:00** | Paracetamol 500 mg (1 comprimido) | Con la cena |\n\n**Total del día:** 1.500 mg de paracetamol. Su máximo permitido es 3.000 mg, así que hay buen margen de seguridad. Aun así, **no tome más de 6 comprimidos al día** bajo ninguna circunstancia.\n\n## Lo que verifiqué antes de recomendárselo\n\n- **Alergias:** usted no tiene ninguna registrada. Sin problema.\n- **Riñón:** su función renal es normal, no hace falta reducir la dosis.\n- **Úlcera gástrica:** el paracetamol **no** está contraindicado con su úlcera. Es la opción más segura para el dolor en su caso.\n- **Artrosis:** el paracetamol está indicado exactamente para eso.\n\n## Avisos importantes\n\n1. **No tome ibuprofeno, diclofenaco ni aspirina** para sustituir al naproxeno. Los tres están contraindicados con su úlcera gástrica y podrían causarle una hemorragia de estómago. Es un error muy común cuando se acaba el antiinflamatorio de cabecera.\n2. **Sobre el naproxeno, debo avisarle de algo:** en nuestra base de datos, el naproxeno figura como contraindicado para personas con úlcera gástrica. Su médico se lo recetó junto con el omeprazol para protegerle el estómago, lo cual es una práctica habitual, pero ya que se le acabó, es un buen momento para preguntarle al Dr. Vega si puede quedarse solo con paracetamol.\n3. **No combine por su cuenta:** cuando le renueven el naproxeno, consulte con el médico antes de tomarlo junto con el paracetamol.\n4. Si con las 3 tomas al día el dolor sigue siendo fuerte, **no aumente la dosis usted mismo**: llame al Dr. Vega.\n5. **Siga tomando el omeprazol todas las mañanas en ayunas**, aunque ya no tome naproxeno. Es su protector de estómago y debe continuar.\n\n¿Le quedó claro el horario? Si quiere, se lo puedo anotar en una tarjeta para tenerlo a mano.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  }
+]

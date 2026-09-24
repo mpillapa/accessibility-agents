@@ -1,0 +1,60 @@
+{
+  "_aviso": "DATOS FICTICIOS DE PROTOTIPO ACADÉMICO. Las personas no existen. Este archivo NO describe pacientes reales ni constituye información clínica.",
+  "_para_que_sirve": "Los perfiles permiten probar que el mismo medicamento se resuelve distinto según quién pregunte: lo que es seguro para una persona puede estar contraindicado para otra.",
+  "perfiles": [
+    {
+      "id": "rosa",
+      "nombre": "Rosa",
+      "edad": 78,
+      "condiciones": ["diabetes_tipo_2", "hipertension"],
+      "alergias": [],
+      "funcion_renal": "normal",
+      "notas": "Caso base con dos condiciones frecuentes que se afectan entre sí."
+    },
+    {
+      "id": "manuel",
+      "nombre": "Manuel",
+      "edad": 71,
+      "condiciones": ["artrosis"],
+      "alergias": ["penicilina"],
+      "funcion_renal": "normal",
+      "notas": "Prueba el filtro por alergia: hay antibióticos del grupo penicilina en el vademécum."
+    },
+    {
+      "id": "carmen",
+      "nombre": "Carmen",
+      "edad": 84,
+      "condiciones": ["insuficiencia_renal", "hipertension"],
+      "alergias": [],
+      "funcion_renal": "reducida",
+      "notas": "Caso clave: con función renal reducida la dosis máxima baja. Un sistema que no lo contemple daría de más."
+    },
+    {
+      "id": "jorge",
+      "nombre": "Jorge",
+      "edad": 69,
+      "condiciones": ["ulcera_gastrica", "artrosis"],
+      "alergias": [],
+      "funcion_renal": "normal",
+      "notas": "Conflicto directo: lo que alivia la artrosis (antiinflamatorios) está contraindicado con úlcera."
+    },
+    {
+      "id": "elena",
+      "nombre": "Elena",
+      "edad": 75,
+      "condiciones": ["insomnio", "ansiedad"],
+      "alergias": [],
+      "funcion_renal": "normal",
+      "notas": "Ansiolíticos y sedantes: categoría donde el exceso de dosis importa mucho en adultos mayores."
+    },
+    {
+      "id": "luis",
+      "nombre": "Luis",
+      "edad": 68,
+      "condiciones": [],
+      "alergias": [],
+      "funcion_renal": "normal",
+      "notas": "Sin condiciones registradas. Contrapeso: el sistema no debe inventarle enfermedades ni restricciones."
+    }
+  ]
+}

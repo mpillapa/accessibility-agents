@@ -139,6 +139,16 @@ accessibility-agents/
 ├── interfaz/                      CAPA DE PRESENTACION (no decide nada)
 │   ├── app.py                    Chat en Streamlit + recorrido por el grafo bajo cada respuesta
 │   └── README.md                 Como ejecutarla y que muestra
+├── medicacion/                    AGENTE DE MEDICACION (la receta es la fuente de verdad)
+│   ├── datos.py                  Carga los JSON y busca; no decide nada
+│   ├── prescripciones.py         REGLAS DE NEGOCIO: plan del dia, verificacion, alternativas
+│   ├── reglas.py                 Criterios reutilizables + el planteamiento original, como registro
+│   ├── agente.py                 Las dos variantes que se comparan (reglas vs LLM) y los prompts
+│   ├── README.md                 Que hace, por que se replanteo y sus limitaciones
+│   └── datos/
+│       ├── medicamentos.json     62 medicamentos ficticios: material de CONSULTA, no un menu
+│       ├── perfiles.json         6 personas con condiciones, alergias y funcion renal
+│       └── prescripciones.json   6 recetas medicas ficticias: LA FUENTE DE VERDAD
 ├── orquestacion_crewai/
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
 │   └── demo.py                   Demo en vivo (verbose=True: muestra razonamiento y delegación)
@@ -301,6 +311,40 @@ del corpus). **Grabar con micrófono exige `localhost` o HTTPS**, porque la API
 `getUserMedia` del navegador solo existe en contextos seguros: por IP queda
 bloqueada. Para grabar desde otra máquina, `ssh -L 8501:localhost:8501` y entrar
 por localhost. Ver `interfaz/README.md`.
+
+---
+
+## Agente de medicación
+
+Le dice a la persona qué le tocó hoy, a qué hora y cómo tomarlo, **a partir de la
+receta que le dio su médico**. El sistema no elige medicamentos: eso es una
+decisión clínica.
+
+**Por qué no al revés.** La primera versión filtraba el vademécum por las
+condiciones de la persona y presentaba el resultado como su tratamiento. Para un
+perfil hipertenso devolvía **siete antihipertensivos simultáneos** —tres del
+mismo eje, dos betabloqueantes— sin violar ninguna regla: cada uno estaba
+indicado, ninguno contraindicado, ninguno pasado de dosis.
+
+Un catálogo filtrado por condición devuelve **opciones elegibles**, no un
+**régimen**. Por eso falló idéntico con las reglas en código y con el LLM
+decidiendo: el problema estaba en el modelo de datos, no en quién lo procesaba.
+
+**La regla del módulo: marcar, nunca quitar.** Cuando la verificación encuentra
+un problema —alergia, contraindicación, dosis por encima del tope ajustado,
+receta vencida— la indicación sigue en el plan, marcada y con qué hacer.
+Suspender un tratamiento es tan clínico como recetarlo.
+
+**Experimento.** 8 casos × 2 variantes × 3 repeticiones: **reglas 0/24 · LLM
+0/24**. Las métricas no distinguen las variantes y la latencia es equivalente. Lo
+que sí las separa es el tipo de garantía: 26 pruebas que corren en milisegundos
+sin LLM, contra 24 aciertos observados sobre un modelo que en este servidor rotó
+cuatro veces en trece días.
+
+Detalle, limitaciones y uso: `medicacion/README.md`.
+
+> Datos ficticios. Ninguna respuesta de este módulo sirve para tomar una decisión
+> sobre medicación real.
 
 ---
 

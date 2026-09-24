@@ -9,6 +9,18 @@ class EstadoConversacion(TypedDict):
     razonamiento: Optional[str]
     respuesta: Optional[str]
 
+    # De quién es la consulta: qué perfil de medicacion/datos/perfiles.json y,
+    # por lo tanto, qué receta médica hay que leer.
+    #
+    # LIMITACIÓN DECLARADA: cuando viene None, el nodo de medicación cae al
+    # perfil de PERFIL_ACTIVO (ver agentes.PERFIL_POR_DEFECTO) para que la demo
+    # funcione sin login. Eso es aceptable en un prototipo con datos ficticios y
+    # NO lo sería en producción: responder sobre la medicación de una persona
+    # cualquiera porque no se sabe quién pregunta es justo lo que un sistema real
+    # no puede hacer. En producción esto sale de la autenticación y sin sesión no
+    # hay respuesta.
+    id_perfil: Optional[str]
+
     # --- Entrada por voz (None cuando la consulta entra como texto) ---
 
     # Audio a transcribir. Su presencia es lo que hace que el grafo arranque

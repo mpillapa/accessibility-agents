@@ -67,15 +67,30 @@ def ruta_siguiente_nodo(estado: EstadoConversacion) -> str:
 
 
 # Especialista en consultas de medicación y salud básica (mismo rol que CrewAI).
+# Perfil que se asume cuando la consulta no dice de quién es. En un sistema real
+# esto saldría de la autenticación, nunca de una variable de entorno.
+PERFIL_POR_DEFECTO = os.getenv("PERFIL_ACTIVO", "rosa")
+
+
+# Especialista en medicación: delega en medicacion/agente.py.
+#
+# Antes este nodo tenía el prompt "simulas el acceso a la base de datos de la
+# familia", o sea que el LLM inventaba la medicación entera. Ahora lee la RECETA
+# MÉDICA de la persona (medicacion/datos/prescripciones.json), la consolida por
+# horario y la verifica en código determinista; el modelo solo redacta.
+#
+# El cambio de fondo está documentado en medicacion/prescripciones.py: filtrar un
+# vademécum por condición devuelve opciones elegibles, no un tratamiento, y
+# presentarlas como tal producía respuestas clínicamente absurdas.
 def nodo_medicacion(estado: EstadoConversacion) -> dict:
-    respuesta = llm.invoke(
-        "Eres un asistente especializado en gestión de medicación para adultos "
-        "mayores. Conoces el inventario de pastillas, horarios y posibles "
-        "interacciones. Respondes en español, de forma clara y empática. "
-        "En esta versión simulas el acceso a la base de datos de la familia.\n\n"
-        f"Consulta del usuario: '{estado['consulta']}'"
+    from medicacion.agente import VARIANTE_REGLAS, responder
+
+    resultado = responder(
+        estado["consulta"],
+        estado.get("id_perfil") or PERFIL_POR_DEFECTO,
+        VARIANTE_REGLAS,
     )
-    return {"respuesta": respuesta.content}
+    return {"respuesta": resultado["respuesta"]}
 
 
 
