@@ -1,0 +1,121 @@
+{
+  "_aviso": "DATOS FICTICIOS DE PROTOTIPO ACADÉMICO. NO es una guía clínica. Las interacciones se inspiran en advertencias conocidas de estos principios activos para que el caso se entienda, pero la selección, la severidad y las recomendaciones son ILUSTRATIVAS, fueron redactadas con ayuda de IA y NO están validadas por un profesional. No deben usarse para decidir qué comer o qué tomar.",
+  "_para_que_sirve": "Fuente de verdad de la tarea medicamento × comida. El agente integrador cruza los medicamentos de la prescripción vigente de la persona con las categorías de alimento de la receta de cocina recuperada (ver ingredientes_recetas.json). El cruce se hace en código determinista; el LLM solo redacta el resultado.",
+  "_alcance": "Solo interacciones MEDICAMENTO–ALIMENTO, y solo para los medicamentos que aparecen en prescripciones.json. Quedan fuera, a propósito: (1) las interacciones CONDICIÓN–ALIMENTO (diabetes con azúcar, hipertensión con sal), que dependen del perfil y no del medicamento; (2) los medicamentos del vademécum que nadie tiene recetados.",
+  "_campos": {
+    "categorias_alimento": "Qué alimentos cuentan en cada categoría. La lista es cerrada: un alimento que no está no dispara nada.",
+    "interacciones[].medicamento": "Debe coincidir con un 'nombre' de medicacion/datos/medicamentos.json.",
+    "interacciones[].categoria": "Una clave de categorias_alimento.",
+    "interacciones[].severidad": "'evitar' (no combinar) o 'precaucion' (combinar con cuidado o con moderación).",
+    "interacciones[].solo_si": "Condición del perfil que tiene que cumplirse para que la interacción aplique. null = aplica siempre.",
+    "interacciones[].motivo": "Por qué interactúan, en lenguaje llano.",
+    "interacciones[].recomendacion": "Qué decirle a la persona.",
+    "sin_interacciones_registradas": "Medicamentos recetados que se revisaron y no tienen interacción alimentaria registrada en este catálogo. Están listados para que su ausencia sea una decisión explícita y no un olvido."
+  },
+  "_decisiones": {
+    "potasio_condicionado": "Losartán × alimentos altos en potasio aplica SOLO con función renal reducida. Con función renal normal no se restringe el potasio de la dieta, y el recetario tiene plátano, papa o aguacate en casi todos los platos: alertar siempre produciría un aviso en casi cada receta, que es el mismo tipo de sinsentido que la bitácora documenta en la sección 16 (siete antihipertensivos juntos, cada uno 'correcto').",
+    "alcohol_en_cualquier_cantidad": "Cualquier presencia de alcohol cuenta, esté cocido o no. El catálogo no modela cuánto alcohol queda después de la cocción: eso requeriría datos que el prototipo no tiene. ingredientes_recetas.json sí registra si el alcohol es parte principal, acompañamiento u opcional, para que la respuesta lo pueda matizar.",
+    "cacao_no_cuenta_como_cafeina": "La categoría 'cafeina' es el café. El cacao tiene cantidades pequeñas de cafeína y se deja fuera para no alertar por una torta de chocolate."
+  },
+  "categorias_alimento": {
+    "alcohol": {
+      "descripcion": "Bebidas alcohólicas, usadas como bebida o como ingrediente de cocción.",
+      "alimentos": ["vino", "vino blanco", "jerez", "cerveza", "chicha fermentada", "ron", "brandy", "oporto"]
+    },
+    "cafeina": {
+      "descripcion": "Café.",
+      "alimentos": ["café", "café pasado"]
+    },
+    "alto_potasio": {
+      "descripcion": "Alimentos con contenido alto de potasio frecuentes en el recetario.",
+      "alimentos": ["plátano verde", "plátano maduro", "guineo", "papa", "camote", "aguacate", "lenteja", "agua de coco"]
+    },
+    "pomelo": {
+      "descripcion": "Pomelo o toronja, en fruta o jugo. No aparece en el recetario actual; está porque la interacción con amlodipino es de las más conocidas y su ausencia en el recetario debe verse como dato, no como olvido.",
+      "alimentos": ["pomelo", "toronja"]
+    }
+  },
+  "interacciones": [
+    {
+      "medicamento": "Metformina",
+      "categoria": "alcohol",
+      "severidad": "evitar",
+      "solo_si": null,
+      "motivo": "El alcohol junto con la metformina aumenta el riesgo de que baje demasiado el azúcar y de una complicación rara pero grave (acidosis láctica).",
+      "recomendacion": "Evitar las bebidas y comidas con alcohol."
+    },
+    {
+      "medicamento": "Aspirina",
+      "categoria": "alcohol",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "El alcohol y la aspirina juntos irritan el estómago y aumentan el riesgo de sangrado.",
+      "recomendacion": "Si lo come, que sea poco y no todos los días."
+    },
+    {
+      "medicamento": "Paracetamol",
+      "categoria": "alcohol",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "Tomar paracetamol todos los días y consumir alcohol a la vez cansa al hígado.",
+      "recomendacion": "Si lo come, que sea poco y no todos los días."
+    },
+    {
+      "medicamento": "Naproxeno",
+      "categoria": "alcohol",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "El alcohol y el naproxeno juntos irritan el estómago y aumentan el riesgo de sangrado.",
+      "recomendacion": "Si lo come, que sea poco y no todos los días."
+    },
+    {
+      "medicamento": "Sertralina",
+      "categoria": "alcohol",
+      "severidad": "evitar",
+      "solo_si": null,
+      "motivo": "El alcohol aumenta el sueño y el mareo que puede dar la sertralina.",
+      "recomendacion": "Evitar las bebidas y comidas con alcohol."
+    },
+    {
+      "medicamento": "Melatonina",
+      "categoria": "alcohol",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "El alcohol suma somnolencia a la melatonina y empeora la calidad del sueño.",
+      "recomendacion": "No combinarlo en la noche, cerca de la hora de la pastilla."
+    },
+    {
+      "medicamento": "Melatonina",
+      "categoria": "cafeina",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "El café contrarresta el efecto de la melatonina.",
+      "recomendacion": "No tomar café en la tarde ni en la noche; en la mañana no hay problema."
+    },
+    {
+      "medicamento": "Furosemida",
+      "categoria": "alcohol",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "El alcohol suma su efecto al de la furosemida y puede bajar la presión: mareo y riesgo de caídas.",
+      "recomendacion": "Si lo come, que sea poco, y levantarse despacio."
+    },
+    {
+      "medicamento": "Amlodipino",
+      "categoria": "pomelo",
+      "severidad": "precaucion",
+      "solo_si": null,
+      "motivo": "El pomelo hace que el cuerpo acumule más amlodipino del indicado.",
+      "recomendacion": "Evitar el pomelo o la toronja, en fruta o en jugo."
+    },
+    {
+      "medicamento": "Losartan",
+      "categoria": "alto_potasio",
+      "severidad": "precaucion",
+      "solo_si": {"funcion_renal": "reducida"},
+      "motivo": "Con los riñones trabajando menos, el losartán y mucho potasio en la comida pueden subir el potasio de la sangre.",
+      "recomendacion": "Comer estos alimentos con moderación y consultar la cantidad con el médico."
+    }
+  ],
+  "sin_interacciones_registradas": ["Omeprazol", "Amoxicilina"]
+}

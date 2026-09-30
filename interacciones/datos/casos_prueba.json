@@ -1,0 +1,153 @@
+{
+  "_aviso": "Verdad de referencia de la tarea medicamento × comida. Escrita A MANO a partir de prescripciones.json, perfiles.json, interacciones_alimentarias.json e ingredientes_recetas.json, NO calculada con el código del agente integrador: si la regla generara también la respuesta esperada, la prueba sería circular.",
+  "_fecha_referencia": "2026-10-01",
+  "_por_que_una_fecha_fija": "Qué prescripción está vigente depende del día. rx-manuel-002 (Amoxicilina) venció el 2026-09-27. Amoxicilina no tiene interacciones registradas, así que hoy no cambia ningún resultado, pero la prueba no debe depender del día en que se corra.",
+  "_como_se_lee": {
+    "esperado.hay_interaccion": "true si al menos un medicamento vigente de la persona interactúa con algún alimento marcado de la fuente.",
+    "esperado.interacciones": "Pares (medicamento, categoría) esperados, sin importar el orden. Tienen que coincidir exactamente: ni faltar ni sobrar.",
+    "esperado.evaluable": "false cuando no hay prescripción que cruzar: el sistema debe decirlo, no responder 'no hay problema'."
+  },
+
+  "desarrollo": {
+    "_para_que": "Casos para probar el cruce SIN pasar por el RAG: la fuente viene dada. Se usan en pruebas/prueba_interacciones.py.",
+    "casos": [
+      {
+        "id": "d01",
+        "usuario": "rosa",
+        "fuente": "receta5.jpeg",
+        "por_que": "Ron como bebida. Rosa toma metformina (evitar) y aspirina (precaución).",
+        "esperado": {"evaluable": true, "hay_interaccion": true, "interacciones": [["Metformina", "alcohol"], ["Aspirina", "alcohol"]]}
+      },
+      {
+        "id": "d02",
+        "usuario": "rosa",
+        "fuente": "bolon de verde.png",
+        "por_que": "NO debe alertar. Rosa toma losartán y el bolón es plátano verde, pero su función renal es normal: la regla del potasio no aplica. Prueba que el sistema no sobrealerta.",
+        "esperado": {"evaluable": true, "hay_interaccion": false, "interacciones": []}
+      },
+      {
+        "id": "d03",
+        "usuario": "carmen",
+        "fuente": "bolon de verde.png",
+        "por_que": "NO debe alertar. Carmen tiene la función renal reducida, pero no toma losartán. La condición sola no basta: hace falta el medicamento.",
+        "esperado": {"evaluable": true, "hay_interaccion": false, "interacciones": []}
+      },
+      {
+        "id": "d04",
+        "usuario": "elena",
+        "fuente": "tigrillo.png",
+        "por_que": "El café pasado es acompañamiento, no parte del plato. Igual cuenta: la persona lo va a tomar con el plato.",
+        "esperado": {"evaluable": true, "hay_interaccion": true, "interacciones": [["Melatonina", "cafeina"]]}
+      },
+      {
+        "id": "d05",
+        "usuario": "elena",
+        "fuente": "2 recetas en 1.png",
+        "por_que": "Vino y jerez de cocción. Dos medicamentos de Elena interactúan con alcohol.",
+        "esperado": {"evaluable": true, "hay_interaccion": true, "interacciones": [["Sertralina", "alcohol"], ["Melatonina", "alcohol"]]}
+      },
+      {
+        "id": "d06",
+        "usuario": "manuel",
+        "fuente": "receta7.jpeg",
+        "por_que": "El oporto es opcional ('si desea'). Cuenta, y la respuesta debería decir que es opcional.",
+        "esperado": {"evaluable": true, "hay_interaccion": true, "interacciones": [["Paracetamol", "alcohol"]]}
+      },
+      {
+        "id": "d07",
+        "usuario": "manuel",
+        "fuente": "arroz_con_leche.txt",
+        "por_que": "La otra receta de arroz con leche del recetario, sin oporto. Mismo nombre de plato, resultado distinto: depende de qué fuente recupere el RAG.",
+        "esperado": {"evaluable": true, "hay_interaccion": false, "interacciones": []}
+      },
+      {
+        "id": "d08",
+        "usuario": "jorge",
+        "fuente": "receta14.jpeg",
+        "por_que": "Cerveza de los cangrejos. Jorge toma naproxeno. Omeprazol no tiene interacción registrada.",
+        "esperado": {"evaluable": true, "hay_interaccion": true, "interacciones": [["Naproxeno", "alcohol"]]}
+      },
+      {
+        "id": "d09",
+        "usuario": "carmen",
+        "fuente": "receta13.jpeg",
+        "por_que": "Chicha o cerveza del hornado. Carmen toma furosemida. Amlodipino interactúa con pomelo, que no está.",
+        "esperado": {"evaluable": true, "hay_interaccion": true, "interacciones": [["Furosemida", "alcohol"]]}
+      },
+      {
+        "id": "d10",
+        "usuario": "jorge",
+        "fuente": "sopa_de_verduras.txt",
+        "por_que": "Receta sin ningún alimento que interactúe con naproxeno ni con omeprazol.",
+        "esperado": {"evaluable": true, "hay_interaccion": false, "interacciones": []}
+      },
+      {
+        "id": "d11",
+        "usuario": "luis",
+        "fuente": "receta5.jpeg",
+        "por_que": "Luis no tiene prescripción. El sistema no puede decir 'no hay problema': no sabe qué toma. Debe decir que no tiene su receta cargada.",
+        "esperado": {"evaluable": false, "hay_interaccion": false, "interacciones": []}
+      }
+    ]
+  },
+
+  "campana": {
+    "_para_que": "Las 4 frases de la tarea T6 en la campaña de medición (PLAN_CIERRE_SEMANA.md, sección 3). Cada frase se corre para los 5 usuarios con prescripción. El éxito exige: camino correcto, fuente recuperada dentro de 'fuentes_aceptadas' e interacciones iguales a las esperadas para ese usuario.",
+    "usuarios": ["rosa", "manuel", "carmen", "jorge", "elena"],
+    "frases": [
+      {
+        "id": "t6_f1",
+        "consulta": "¿Me puedo servir el come y bebe de badea con las pastillas que tomo?",
+        "fuentes_aceptadas": ["receta5.jpeg"],
+        "por_que": "Alcohol como bebida. Todos los usuarios toman al menos un medicamento que interactúa con alcohol.",
+        "esperado_por_usuario": {
+          "rosa":   {"hay_interaccion": true, "interacciones": [["Metformina", "alcohol"], ["Aspirina", "alcohol"]]},
+          "manuel": {"hay_interaccion": true, "interacciones": [["Paracetamol", "alcohol"]]},
+          "carmen": {"hay_interaccion": true, "interacciones": [["Furosemida", "alcohol"]]},
+          "jorge":  {"hay_interaccion": true, "interacciones": [["Naproxeno", "alcohol"]]},
+          "elena":  {"hay_interaccion": true, "interacciones": [["Sertralina", "alcohol"], ["Melatonina", "alcohol"]]}
+        }
+      },
+      {
+        "id": "t6_f2",
+        "consulta": "Quiero hacerme unas tortillas de verde con su cafecito, ¿no me hace daño con mi medicina?",
+        "fuentes_aceptadas": ["tortillas de verde.png"],
+        "por_que": "La única frase donde el resultado cambia entre usuarios: solo Elena (melatonina) interactúa con el café. Rosa toma losartán, pero con función renal normal el plátano no alerta.",
+        "esperado_por_usuario": {
+          "rosa":   {"hay_interaccion": false, "interacciones": []},
+          "manuel": {"hay_interaccion": false, "interacciones": []},
+          "carmen": {"hay_interaccion": false, "interacciones": []},
+          "jorge":  {"hay_interaccion": false, "interacciones": []},
+          "elena":  {"hay_interaccion": true, "interacciones": [["Melatonina", "cafeina"]]}
+        }
+      },
+      {
+        "id": "t6_f3",
+        "consulta": "Voy a preparar llapingachos, ¿me caen mal con lo que me recetó el doctor?",
+        "fuentes_aceptadas": ["llapingacho.jpg", "receta1.jpeg"],
+        "por_que": "Negativo para todos: papa y aguacate, sin alcohol ni café. Hay dos recetas de llapingacho en el índice y las dos dan el mismo resultado.",
+        "esperado_por_usuario": {
+          "rosa":   {"hay_interaccion": false, "interacciones": []},
+          "manuel": {"hay_interaccion": false, "interacciones": []},
+          "carmen": {"hay_interaccion": false, "interacciones": []},
+          "jorge":  {"hay_interaccion": false, "interacciones": []},
+          "elena":  {"hay_interaccion": false, "interacciones": []}
+        }
+      },
+      {
+        "id": "t6_f4",
+        "consulta": "Mi hija va a hacer hornado este domingo, ¿puedo comer tomando mis pastillas?",
+        "fuentes_aceptadas": ["receta13.jpeg"],
+        "por_que": "Alcohol como ingrediente de cocción (chicha o cerveza en el adobo), no como bebida.",
+        "esperado_por_usuario": {
+          "rosa":   {"hay_interaccion": true, "interacciones": [["Metformina", "alcohol"], ["Aspirina", "alcohol"]]},
+          "manuel": {"hay_interaccion": true, "interacciones": [["Paracetamol", "alcohol"]]},
+          "carmen": {"hay_interaccion": true, "interacciones": [["Furosemida", "alcohol"]]},
+          "jorge":  {"hay_interaccion": true, "interacciones": [["Naproxeno", "alcohol"]]},
+          "elena":  {"hay_interaccion": true, "interacciones": [["Sertralina", "alcohol"], ["Melatonina", "alcohol"]]}
+        }
+      }
+    ],
+    "_balance": "20 combinaciones usuario × frase: 11 con interacción y 9 sin interacción."
+  }
+}
