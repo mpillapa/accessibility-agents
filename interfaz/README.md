@@ -1,12 +1,17 @@
 # Interfaz web
 
-Interfaz de chat del sistema multiagente, en Streamlit.
+Interfaz de chat del sistema multiagente, en Streamlit, pensada para usarse
+hablando.
 
 ## Ejecutar
 
+Desde la **raíz del repositorio**, porque ahí está `.streamlit/config.toml`,
+que trae el tema. Si se lanza desde otra carpeta, la app funciona pero sin los
+colores ni la tipografía.
+
 ```bash
-streamlit run interfaz/app.py                          # solo local
-streamlit run interfaz/app.py --server.address 0.0.0.0 # accesible por IP
+.venv/bin/streamlit run interfaz/app.py                          # solo local
+.venv/bin/streamlit run interfaz/app.py --server.address 0.0.0.0 # accesible por IP
 ```
 
 Queda en `http://localhost:8501` y, con `--server.address 0.0.0.0`, en la IP de
@@ -15,56 +20,109 @@ la máquina dentro de la red (por ejemplo `http://172.28.230.10:8501`).
 Requiere VPN institucional activa: los modelos corren en los servidores de la
 Universidad.
 
-## Entrada por voz
+## La voz, de ida y de vuelta
 
-Tres vías, en el desplegable "Hablar en vez de escribir":
+**Hablarle.** El micrófono está a la vista, en la tarjeta "Hable con el
+asistente", debajo de la conversación. Después de enviar un audio el micrófono
+se vacía solo, listo para la siguiente pregunta.
 
-| Vía | Funciona por IP | Para qué |
-|---|---|---|
-| **Grabar** | no | Hablar en vivo |
-| **Subir un audio** | sí | Un `.wav`/`.mp3` cualquiera |
-| **Ejemplos** | sí | El audio de emergencia, limpio y degradado |
+Debajo, en "Enviar un audio ya grabado", hay dos vías más:
 
-**El micrófono necesita `localhost` o HTTPS.** La API del navegador que usa
-`st.audio_input` (`getUserMedia`) solo está disponible en contextos seguros: si
-abrís la app por `http://<IP>:8501`, el navegador bloquea la grabación y
-Streamlit lo reporta con un error genérico que no explica la causa.
+| Vía | Para qué |
+|---|---|
+| **Desde un archivo** | Un `.wav`, `.mp3`, `.m4a` u `.ogg` cualquiera |
+| **Audios de prueba** | El audio de emergencia del corpus, limpio y con ruido: muestra el guardrail del ASR en dos clics |
 
-Para grabar desde otra máquina, hacé un túnel y entrá por localhost:
+**Escuchar la respuesta.** Cada respuesta trae un botón "Escuchar la
+respuesta". Si la pregunta llegó por voz, la respuesta **se lee sola**: quien le
+habla al asistente espera que le contesten hablando. Se apaga con "Leer las
+respuestas en voz alta", en la barra lateral.
 
-```bash
-ssh -L 8501:localhost:8501 usuario@172.28.230.10
-# después, en el navegador: http://localhost:8501
-```
+La lectura la hace el navegador (`speechSynthesis`), no el servidor: no depende
+de los endpoints de la Universidad y funciona también por IP. Antes de leer, el
+texto pasa por `texto_para_leer()`, que saca asteriscos, títulos, emojis y el
+aviso de datos ficticios (que sigue visible). Ver `voz_salida.py`.
 
-Las otras dos vías no tienen esa restricción, y para una demo son preferibles:
-los ejemplos muestran el guardrail del ASR en dos clics, sin depender de que el
-micrófono funcione ni de hablar en el momento.
+### Dos limitaciones que hay que saber
+
+- **El micrófono solo funciona en `localhost` o HTTPS.** Es una regla del
+  navegador (`getUserMedia` exige contexto seguro), no de la app. Por
+  `http://<IP>:8501` el navegador bloquea la grabación. Para grabar desde otra
+  máquina:
+  ```bash
+  ssh -L 8501:localhost:8501 usuario@172.28.230.10
+  # después, en el navegador: http://localhost:8501
+  ```
+  Las otras dos vías de audio no tienen esa restricción. La página ya no lo
+  avisa en pantalla (se quitó el 2026-09-23 para no llenar la vista
+  principal de instrucciones técnicas); queda documentado acá.
+- **La voz que lee depende del sistema de quien mira.** Windows, macOS y
+  Android suelen traer voces en español; algunos Linux no traen ninguna, y ahí
+  el botón no suena.
 
 ## Qué muestra
 
-Un chat con historial. Bajo cada respuesta, plegado, el recorrido real por el
-grafo: a qué agente ruteó el orquestador, por qué, y —si intervino el RAG
-agéntico— los pasos del subgrafo, incluidos los ciclos de reformulación.
+- **Quién usa el asistente**, en la barra lateral. Cambia la receta médica que
+  lee el agente de medicación (`medicacion/datos/perfiles.json`). El valor
+  inicial sale de la variable `PERFIL_ACTIVO`, si está definida.
+- **Sugerencias** para empezar, mientras la conversación está vacía.
+- **La respuesta de emergencia enmarcada en rojo**, para que se vea aunque no se
+  lea nada más.
+- **Bajo cada respuesta**, el tema y el tiempo que tardó, y plegado en "Cómo se
+  llegó a esta respuesta": qué entendió Whisper del audio (incluso cuando se
+  descartó, que es el punto entero del guardrail), por qué el orquestador eligió
+  ese tema, y el recorrido por el grafo con los nombres de los nodos, para
+  cruzarlo con el diagrama o con LangSmith.
+- **Mientras trabaja**, el paso en que va ("Revisando su receta médica",
+  "Buscando en el recetario"...). Una consulta con RAG tarda entre 6 y 30
+  segundos; sin eso la pantalla parece colgada.
+- **Información técnica**, plegada en la barra lateral: con qué modelo se está
+  respondiendo, si el servidor cambió de modelo, y el enlace a LangSmith.
 
-Mientras trabaja muestra el avance nodo por nodo. Una consulta con RAG tarda
-entre 6 y 30 segundos y el 88% se va en redactar la respuesta final; sin
-retroalimentación la pantalla parece colgada.
+## Identidad visual
 
-La barra lateral indica con qué modelo se está respondiendo y avisa si el
-servidor cambió de modelo respecto a lo configurado en el `.env`. No es un
-adorno: el puerto 12559 rotó de modelo cuatro veces en trece días (ver
-`infraestructura/modelos.py` y la sección 11 de `BITACORA_HALLAZGOS.md`).
+Paleta y tipografía tomadas de la hoja de estilos pública de usfq.edu.ec
+(2026-09-23): rojo `#ED1C24`, casi negro `#231F20`, crema `#FAF3E9`, beige
+`#D8D4CB`; Baskerville para títulos y Helvetica para texto.
 
-## Separación de responsabilidades
+**El rojo institucional no se usa para texto ni botones**: sobre blanco da un
+contraste de 4.38:1, por debajo del 4.5:1 de WCAG AA. Para eso se usa `#B5121B`
+(6.85:1). En una interfaz para adultos mayores, el contraste no es un detalle.
 
-`app.py` solo presenta. No clasifica, no decide y no habla con los modelos: todo
-eso vive en `orquestacion_langgraph/`. Si aparece lógica de negocio en este
-paquete, está en el lugar equivocado.
+No se usa el logotipo de la Universidad: es un prototipo de tesis, no un
+producto institucional.
 
-El único punto de contacto con el sistema es `procesar_consulta_en_vivo()`, en
-`orquestacion_langgraph/grafo.py`, que entrega cada paso del grafo apenas
-ocurre.
+Textos en **usted**, igual que los agentes, sin emojis y sin fórmulas de
+chatbot. Los avatares son una inicial en un círculo (la de la persona elegida y
+una "A" para el asistente), en vez del robot y la silueta por defecto. Los
+emojis que a veces escriben los agentes se quitan al mostrar la respuesta.
+
+## Organización
+
+| Archivo | Qué hace |
+|---|---|
+| `app.py` | El flujo de la página |
+| `componentes.py` | Cómo se dibuja cada turno y su detalle |
+| `voz_salida.py` | Lectura en voz alta |
+| `estilo.py` | CSS, paleta y avatares |
+| `textos.py` | Todo el texto visible, en un solo lugar |
+| `../.streamlit/config.toml` | Tema: colores, tipografía, tamaño de letra |
+
+Este paquete solo presenta. No clasifica, no decide y no habla con los modelos:
+todo eso vive en `orquestacion_langgraph/` y `medicacion/`. El único punto de
+contacto con el sistema es `procesar_consulta_en_vivo()`, en
+`orquestacion_langgraph/grafo.py`.
+
+## Pruebas
+
+```bash
+python -m pruebas.prueba_interfaz_voz   # 8, la limpieza del texto que se lee
+```
+
+El resto se verificó a mano y con capturas de un navegador sin pantalla: texto,
+voz limpia (EMERGENCY en 5 s), voz a 0 dB (se pide repetir) y vista de celular.
+La lectura en voz alta en sí **no** se pudo escuchar desde el servidor, que no
+tiene parlantes ni voces instaladas: hay que probarla desde un navegador real.
 
 ## Estado
 

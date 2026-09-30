@@ -1,0 +1,42 @@
+# Tema de la interfaz web (interfaz/app.py).
+#
+# Streamlit lee este archivo desde el directorio en que se ejecuta el comando:
+# hay que lanzar la app desde la raíz del repositorio.
+#
+# Paleta tomada de la hoja de estilos de usfq.edu.ec (2026-09-23): rojo
+# #ED1C24, casi negro #231F20, crema #FAF3E9 y beige #D8D4CB.
+#
+# El rojo institucional puro NO se usa para texto ni botones: sobre blanco da un
+# contraste de 4.38:1, por debajo del 4.5:1 que exige WCAG AA para texto normal.
+# Para una interfaz pensada para adultos mayores eso importa, así que el color
+# primario es un rojo más oscuro de la misma familia (#B5121B, 6.85:1). El
+# #ED1C24 queda solo como acento decorativo, en interfaz/estilo.py.
+
+[theme]
+base = "light"
+primaryColor = "#B5121B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#FAF3E9"
+textColor = "#231F20"
+linkColor = "#B5121B"
+borderColor = "#D8D4CB"
+baseRadius = "0.5rem"
+# Tipografía del sitio de la USFQ: Helvetica para texto, Baskerville para
+# títulos. Libre Baskerville se carga desde Google Fonts en interfaz/estilo.py;
+# sin conexión cae a Georgia.
+font = "'Helvetica Neue', Helvetica, Arial, sans-serif"
+headingFont = "'Libre Baskerville', Baskerville, Georgia, serif"
+# Letra grande por defecto: el público son adultos mayores.
+baseFontSize = 18
+showWidgetBorder = true
+
+[theme.sidebar]
+backgroundColor = "#FAF3E9"
+secondaryBackgroundColor = "#FFFFFF"
+
+[client]
+# Oculta el menú de "Deploy" y demás opciones de desarrollador.
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false

@@ -1,8 +1,21 @@
 # Interfaz web del sistema multiagente de accesibilidad.
 #
-# Ejecutar:
-#   streamlit run interfaz/app.py
-#   streamlit run interfaz/app.py --server.address 0.0.0.0   # accesible por IP
+# Ejecutar, desde la RAÍZ del repositorio (ahí está .streamlit/config.toml, que
+# trae el tema):
+#   .venv/bin/streamlit run interfaz/app.py
+#   .venv/bin/streamlit run interfaz/app.py --server.address 0.0.0.0   # por IP
+#
+# QUÉ CAMBIÓ EN LA VERSIÓN DEL 2026-09-23
+# ---------------------------------------
+# - La voz pasó al frente: el micrófono está a la vista, junto al cuadro de
+#   texto, en vez de escondido en un desplegable.
+# - Las respuestas se pueden ESCUCHAR (voz_salida.py), y se leen solas cuando la
+#   pregunta llegó por voz. Para una persona mayor que habla con el asistente,
+#   tener que leer la respuesta rompe el propósito.
+# - La persona que usa el asistente se elige en la barra lateral (antes, con la
+#   variable de entorno PERFIL_ACTIVO, que sigue funcionando como valor inicial).
+# - Identidad visual con la paleta y tipografía de la USFQ (estilo.py) y textos
+#   en usted, sin emojis ni fórmulas de chatbot (textos.py).
 #
 # QUÉ MUESTRA Y POR QUÉ
 # ---------------------
@@ -11,24 +24,24 @@
 # decidiendo a qué agente va cada consulta, y que el RAG puede volver sobre sus
 # pasos. Por eso cada respuesta trae, plegado, el recorrido real por el grafo.
 #
-# La barra lateral muestra con qué modelo se está respondiendo. No es un adorno:
-# los endpoints de la Universidad rotaron de modelo cuatro veces en trece días
-# (ver infraestructura/modelos.py), así que saber qué modelo contestó es parte
-# de poder interpretar lo que se ve en pantalla.
-#
 # Esta capa no contiene lógica de negocio: importa el grafo y lo dibuja.
+#
+# Organización:
+#   app.py         flujo de la página
+#   componentes.py cómo se dibuja cada turno
+#   voz_salida.py  lectura en voz alta
+#   estilo.py      paleta, tipografía, avatares
+#   textos.py      todo el texto visible
 
 import hashlib
+import os
 import sys
 import tempfile
 from pathlib import Path
 
 # Streamlit ejecuta este archivo como script suelto, así que sys.path[0] es
 # interfaz/ y no la raíz del proyecto: sin esto, `import infraestructura` falla
-# con ModuleNotFoundError. El resto del proyecto se ejecuta con
-# `python -m paquete.modulo`, que sí deja la raíz en sys.path; por eso este
-# ajuste hace falta únicamente aquí, y tiene que ir ANTES de los imports del
-# proyecto.
+# con ModuleNotFoundError. Tiene que ir ANTES de los imports del proyecto.
 RAIZ_DEL_PROYECTO = Path(__file__).parent.parent
 if str(RAIZ_DEL_PROYECTO) not in sys.path:
     sys.path.insert(0, str(RAIZ_DEL_PROYECTO))
@@ -37,276 +50,256 @@ import streamlit as st
 
 from infraestructura.modelos import describir_resolucion
 from infraestructura.trazas import describir_trazas
+from interfaz import textos
+from interfaz.componentes import dibujar_turno_asistente, dibujar_turno_usuario
+from interfaz.estilo import CSS, encabezado_html, pie_html
+from medicacion.datos import cargar_perfiles
 from orquestacion_langgraph.grafo import procesar_consulta_en_vivo
 from orquestacion_langgraph.llm import VLLM_CHAT_BASE_URL, VLLM_CHAT_MODEL
 
-# Nombres legibles de los nodos del grafo. El usuario final no tiene por qué
-# leer identificadores de código.
-NOMBRES_DE_NODO = {
-    "transcribir_voz": "Escuchando el audio",
-    "no_se_entendio": "No se entendió lo que se dijo",
-    "orchestrator": "Decidiendo a qué agente corresponde",
-    "medicacion": "Agente de medicación",
-    "recetas": "Agente de recetas",
-    "familia": "Agente de comunicación familiar",
-    "emergencia": "Agente de emergencia",
-    "small_talk": "Conversación",
+st.set_page_config(page_title=textos.TITULO_PESTANA, page_icon=":material/home:", layout="centered")
+st.markdown(CSS, unsafe_allow_html=True)
+
+# Audios del corpus para mostrar el guardrail en vivo: el mismo audio de
+# emergencia, limpio y degradado. Ver orquestacion_langgraph/voz.py.
+CORPUS = RAIZ_DEL_PROYECTO / "corpus_audio" / "variantes"
+EJEMPLOS = {
+    "Emergencia, sin ruido": "f0006__limpio.wav",
+    "Emergencia, con mucho ruido (0 dB)": "f0006__blanco_0dB.wav",
+    "Emergencia, con ruido moderado (10 dB)": "f0006__blanco_10dB.wav",
+    "Medicinas, sin ruido": "f0000__limpio.wav",
 }
 
-# Nombres legibles de los nodos del subgrafo de RAG agéntico.
-NOMBRES_DE_NODO_RAG = {
-    "decidir_busqueda": "Decidiendo si hace falta el recetario",
-    "recuperar": "Buscando en el recetario",
-    "evaluar_relevancia": "Evaluando si lo encontrado sirve",
-    "reformular": "No servía: reformulando la búsqueda",
-    "expandir_contexto": "Trayendo la receta completa",
-    "generar": "Redactando la respuesta",
-    "sin_resultado": "No está en el recetario",
-    "responder_sin_recetario": "Respondiendo sin buscar",
-}
 
-st.set_page_config(page_title="Asistente de accesibilidad", page_icon="🏠", layout="centered")
+def _estado_inicial():
+    st.session_state.setdefault("historial", [])
+    # Cambiar la clave del micrófono lo vacía: así, después de enviar un audio,
+    # queda listo para grabar el siguiente en vez de mostrar el anterior.
+    st.session_state.setdefault("version_microfono", 0)
+    st.session_state.setdefault("ultimo_audio", None)
 
 
-def _barra_lateral():
-    """Estado de la infraestructura: con qué modelo se está respondiendo."""
+# --- Barra lateral ---------------------------------------------------------
+
+def _barra_lateral() -> tuple[dict, bool]:
+    """Devuelve (perfil elegido, si hay que leer en voz alta)."""
+    perfiles = cargar_perfiles()
+    ids = [p["id"] for p in perfiles]
+    inicial = os.getenv("PERFIL_ACTIVO", "rosa")
+
     with st.sidebar:
-        st.subheader("Sistema")
-        st.caption("Modelo de chat en uso")
-        st.code(VLLM_CHAT_MODEL, language=None)
-        st.caption(VLLM_CHAT_BASE_URL)
+        st.subheader(textos.TITULO_PERSONA)
+        id_elegido = st.selectbox(
+            textos.TITULO_PERSONA,
+            ids,
+            index=ids.index(inicial) if inicial in ids else 0,
+            format_func=lambda i: next(f"{p['nombre']}, {p['edad']} años" for p in perfiles if p["id"] == i),
+            label_visibility="collapsed",
+            help=textos.AYUDA_PERSONA,
+        )
+        leer = st.toggle(textos.LEER_EN_VOZ_ALTA, value=True)
 
-        resoluciones = describir_resolucion()
-        cambiados = [r for r in resoluciones.values() if r["hubo_cambio"] == "True"]
-        if cambiados:
-            st.warning(
-                "El servidor cambió de modelo respecto a lo configurado. "
-                "Las respuestas de ahora no son comparables con mediciones previas."
-            )
-
-        with st.expander("Endpoints"):
-            for url, datos in resoluciones.items():
-                st.caption(url)
-                st.text(datos["resuelto"])
-
-        st.divider()
-        trazas = describir_trazas()
-        if trazas["activo"] == "True":
-            st.caption("Trazas en LangSmith")
-            st.success(f"Activas · proyecto `{trazas['proyecto']}`")
-            st.link_button(
-                "Ver trazas", "https://smith.langchain.com", use_container_width=True
-            )
-        else:
-            st.caption("Trazas en LangSmith")
-            st.info("Desactivadas")
-
-        st.divider()
-        if st.button("Limpiar conversación", use_container_width=True):
+        st.space("small")
+        if st.button(textos.BOTON_NUEVA, use_container_width=True):
             st.session_state.historial = []
             st.rerun()
 
+        st.divider()
+        with st.expander(textos.TITULO_TECNICO):
+            st.caption(textos.TECNICO_MODELO)
+            st.code(VLLM_CHAT_MODEL, language=None)
+            st.caption(VLLM_CHAT_BASE_URL)
 
-def _dibujar_recorrido(pasos, traza_rag):
-    """Muestra por dónde pasó la consulta dentro del grafo."""
-    lineas = [f"- {NOMBRES_DE_NODO.get(n, n)}" for n in pasos]
-    if traza_rag:
-        for paso in traza_rag:
-            nodo = paso.get("nodo") if isinstance(paso, dict) else paso
-            lineas.append(f"    - {NOMBRES_DE_NODO_RAG.get(nodo, nodo)}")
-    st.markdown("\n".join(lineas))
+            resoluciones = describir_resolucion()
+            if any(r["hubo_cambio"] == "True" for r in resoluciones.values()):
+                st.warning(textos.TECNICO_CAMBIO)
 
+            trazas = describir_trazas()
+            if trazas["activo"] == "True":
+                st.caption(f"{textos.TECNICO_TRAZAS_ACTIVAS} `{trazas['proyecto']}`")
+                st.link_button(textos.TECNICO_VER_TRAZAS, "https://smith.langchain.com",
+                               use_container_width=True)
+            else:
+                st.caption(textos.TECNICO_TRAZAS_INACTIVAS)
 
-def _responder(consulta: str, ruta_audio: str | None = None) -> dict:
-    """Ejecuta el grafo mostrando el avance nodo por nodo.
+    perfil = next(p for p in perfiles if p["id"] == id_elegido)
+    return perfil, leer
 
-    Devuelve el estado final para guardarlo en el historial.
-    """
-    pasos = []
-    estado_final = {}
-    etiqueta_inicial = "Escuchando..." if ruta_audio else "Pensando..."
-
-    with st.status(etiqueta_inicial, expanded=True) as estado_visual:
-        for evento in procesar_consulta_en_vivo(consulta, ruta_audio):
-            if evento.get("estado_final"):
-                estado_final = evento["estado_final"]
-                break
-            nodo = evento["nodo"]
-            pasos.append(nodo)
-            estado_visual.update(label=NOMBRES_DE_NODO.get(nodo, nodo))
-            st.write(f"✓ {NOMBRES_DE_NODO.get(nodo, nodo)}")
-        estado_visual.update(label="Listo", state="complete", expanded=False)
-
-    estado_final["pasos"] = pasos
-    return estado_final
-
-
-def _dibujar_respuesta(mensaje: dict):
-    """Respuesta del asistente + el recorrido plegado debajo."""
-    st.markdown(mensaje["respuesta"])
-
-    intencion = mensaje.get("intencion") or "—"
-    latencia = mensaje.get("latencia_segundos")
-    resumen = f"Ruteado a **{intencion}**"
-    if latencia is not None:
-        resumen += f" · {latencia}s"
-
-    with st.expander(resumen):
-        transcripcion = mensaje.get("transcripcion")
-        if transcripcion:
-            # Se muestra aunque la transcripción se haya descartado —sobre todo
-            # en ese caso—: ver qué oyó Whisper y por qué no se le creyó es el
-            # punto entero del guardrail.
-            st.caption("Qué oyó Whisper")
-            st.code(transcripcion.get("texto") or "(nada)", language=None)
-            st.caption(
-                f"VAD detectó voz: {'no' if transcripcion.get('sin_voz') else 'sí'} · "
-                f"idioma {transcripcion.get('idioma')} "
-                f"(confianza {transcripcion.get('probabilidad_idioma')}) · "
-                f"{transcripcion.get('duracion_audio_s')}s de audio"
-            )
-            if mensaje.get("entrada_descartada"):
-                st.warning(f"Entrada descartada: {mensaje['entrada_descartada']}")
-            st.divider()
-
-        if mensaje.get("razonamiento"):
-            st.caption("Por qué el orquestador eligió ese agente")
-            st.write(mensaje["razonamiento"])
-        st.caption("Recorrido por el grafo")
-        _dibujar_recorrido(mensaje.get("pasos", []), mensaje.get("traza_rag"))
-
-
-st.title("Asistente de accesibilidad")
-st.caption(
-    "Sistema multiagente para adultos mayores: recetas, medicación y "
-    "acompañamiento. Prototipo académico."
-)
-
-_barra_lateral()
-
-if "historial" not in st.session_state:
-    st.session_state.historial = []
-
-for mensaje in st.session_state.historial:
-    with st.chat_message(mensaje["rol"]):
-        if mensaje["rol"] == "user":
-            st.markdown(mensaje["consulta"])
-        else:
-            _dibujar_respuesta(mensaje)
 
 # --- Entrada por voz -------------------------------------------------------
-#
-# Tres vías, y la razón de que sean tres: el micrófono del navegador SOLO
-# funciona sobre localhost o HTTPS. Al abrir la app por IP (que es como la va a
-# ver otra persona en la red) el navegador bloquea la grabación sin avisar de
-# forma clara. Subir un archivo y los ejemplos del corpus funcionan siempre.
-
-CORPUS = Path(__file__).parent.parent / "corpus_audio" / "variantes"
-
-# Ejemplos para mostrar el guardrail en vivo: el mismo audio de emergencia,
-# limpio y degradado. Ver orquestacion_langgraph/voz.py.
-EJEMPLOS = {
-    "Emergencia — audio limpio": "f0006__limpio.wav",
-    "Emergencia — con ruido (0 dB)": "f0006__blanco_0dB.wav",
-    "Emergencia — con ruido (10 dB)": "f0006__blanco_10dB.wav",
-    "Receta — audio limpio": "f0000__limpio.wav",
-}
-
 
 def _guardar_audio_temporal(datos: bytes, sufijo: str = ".wav") -> str:
-    """Escribe el audio a disco: transcribir() espera una ruta, no bytes."""
+    """transcribir() espera una ruta, no bytes."""
     with tempfile.NamedTemporaryFile(delete=False, suffix=sufijo) as f:
         f.write(datos)
         return f.name
 
 
-def _entrada_por_voz():
-    """Devuelve la ruta de un audio nuevo a procesar, o None.
+def _es_nuevo(huella: str) -> bool:
+    """Streamlit vuelve a ejecutar el script ante cualquier interacción: sin
+    esto, el mismo audio se procesaría otra vez con cada clic."""
+    if huella == st.session_state.ultimo_audio:
+        return False
+    st.session_state.ultimo_audio = huella
+    return True
 
-    Usa un hash del contenido para no reprocesar el mismo audio en cada rerun
-    de Streamlit, que vuelve a ejecutar el script entero ante cualquier
-    interacción.
+
+def _tarjeta_de_voz() -> str | None:
+    """El micrófono, a la vista, y las otras formas de mandar audio.
+
+    Devuelve la ruta de un audio nuevo a procesar, o None.
     """
-    with st.expander("Hablar en vez de escribir"):
-        tabs = st.tabs(["Grabar", "Subir un audio", "Ejemplos"])
+    with st.container(key="tarjeta_voz"):
+        st.markdown(f"### {textos.TITULO_VOZ}")
+        grabado = st.audio_input(
+            textos.INSTRUCCION_MICROFONO,
+            key=f"microfono_{st.session_state.version_microfono}",
+        )
+        if grabado is not None:
+            datos = grabado.getvalue()
+            if _es_nuevo(hashlib.sha256(datos).hexdigest()):
+                st.session_state.version_microfono += 1
+                return _guardar_audio_temporal(datos)
 
-        with tabs[0]:
-            # getUserMedia (la API del micrófono) solo está disponible en
-            # "contextos seguros": HTTPS o localhost. Sobre http:// y una IP, el
-            # navegador la bloquea y el widget falla con un error genérico, así
-            # que conviene decirlo antes de que la persona lo intente.
-            st.warning(
-                "**El micrófono necesita `localhost` o HTTPS.** Si abriste esta "
-                "página por IP (`172.28.230.10:8501`), tu navegador va a bloquear "
-                "la grabación.\n\n"
-                "Para grabar, abrí un túnel desde tu máquina:\n\n"
-                "```\nssh -L 8501:localhost:8501 mpillapa@172.28.230.10\n```\n\n"
-                "y entrá a `http://localhost:8501`. Si no, usá las otras dos "
-                "pestañas: funcionan igual y no dependen del micrófono."
-            )
-            grabado = st.audio_input("Grabá tu consulta", key="mic")
-            if grabado is not None:
-                datos = grabado.getvalue()
-                huella = hashlib.sha256(datos).hexdigest()
-                if huella != st.session_state.get("ultimo_audio"):
-                    st.session_state.ultimo_audio = huella
-                    return _guardar_audio_temporal(datos)
+        with st.expander(textos.OTRAS_FORMAS_DE_AUDIO):
+            archivo, ejemplos = st.tabs([textos.PESTANA_ARCHIVO, textos.PESTANA_EJEMPLOS])
 
-        with tabs[1]:
-            subido = st.file_uploader("Archivo de audio", type=["wav", "mp3", "m4a", "ogg"])
-            if subido is not None:
-                datos = subido.getvalue()
-                huella = hashlib.sha256(datos).hexdigest()
-                if huella != st.session_state.get("ultimo_audio"):
-                    st.session_state.ultimo_audio = huella
-                    return _guardar_audio_temporal(datos, Path(subido.name).suffix or ".wav")
+            with archivo:
+                subido = st.file_uploader(textos.ETIQUETA_ARCHIVO, type=["wav", "mp3", "m4a", "ogg"])
+                if subido is not None:
+                    datos = subido.getvalue()
+                    if _es_nuevo(hashlib.sha256(datos).hexdigest()):
+                        return _guardar_audio_temporal(datos, Path(subido.name).suffix or ".wav")
 
-        with tabs[2]:
-            disponibles = {n: a for n, a in EJEMPLOS.items() if (CORPUS / a).exists()}
-            if not disponibles:
-                st.caption(
-                    "No hay ejemplos: `corpus_audio/` no está en el repositorio "
-                    "(son cientos de MB). Se regenera con `demo_voz/`."
-                )
-            else:
-                st.caption(
-                    "El mismo audio de emergencia, limpio y degradado. Con ruido, "
-                    "el guardrail lo descarta en vez de clasificarlo mal."
-                )
-                elegido = st.selectbox("Ejemplo", list(disponibles), key="ejemplo")
-                ruta = CORPUS / disponibles[elegido]
-                st.audio(str(ruta))
-                if st.button("Procesar este audio", use_container_width=True):
-                    st.session_state.ultimo_audio = f"ejemplo:{elegido}"
-                    return str(ruta)
-
+            with ejemplos:
+                disponibles = {n: a for n, a in EJEMPLOS.items() if (CORPUS / a).exists()}
+                if not disponibles:
+                    st.caption(textos.SIN_EJEMPLOS)
+                else:
+                    st.caption(textos.EXPLICACION_EJEMPLOS)
+                    elegido = st.selectbox("Audio", list(disponibles), label_visibility="collapsed")
+                    ruta = CORPUS / disponibles[elegido]
+                    st.audio(str(ruta))
+                    if st.button(textos.BOTON_ENVIAR_EJEMPLO, use_container_width=True):
+                        # Sin _es_nuevo: enviar dos veces el mismo ejemplo es
+                        # legítimo en una demo.
+                        st.session_state.ultimo_audio = f"ejemplo:{elegido}"
+                        return str(ruta)
     return None
 
-audio_nuevo = _entrada_por_voz()
-consulta = st.chat_input("Escribí tu consulta...")
+
+def _elegir_sugerencia(texto: str) -> None:
+    st.session_state.pendiente = texto
+
+
+def _sugerencias() -> None:
+    """Preguntas de ejemplo, solo mientras la conversación está vacía.
+
+    El clic no responde en esta misma ejecución: deja la pregunta pendiente y
+    Streamlit vuelve a ejecutar el script. Así las sugerencias ya no se dibujan
+    mientras se procesa la elegida (antes quedaban a la vista encima de la
+    conversación).
+    """
+    st.caption(textos.TITULO_SUGERENCIAS)
+    columnas = st.columns(2)
+    for i, sugerencia in enumerate(textos.SUGERENCIAS):
+        columnas[i % 2].button(sugerencia, key=f"sugerencia_{i}", use_container_width=True,
+                               on_click=_elegir_sugerencia, args=(sugerencia,))
+
+
+# --- Ejecución del grafo ---------------------------------------------------
+
+def _responder(consulta: str, ruta_audio: str | None, id_perfil: str) -> dict:
+    """Corre el grafo mostrando por dónde va. Devuelve el estado final."""
+    pasos, estado_final = [], {}
+    inicial = textos.TRABAJANDO_VOZ if ruta_audio else textos.TRABAJANDO_TEXTO
+
+    with st.status(inicial, expanded=False) as estado_visual:
+        for evento in procesar_consulta_en_vivo(consulta, ruta_audio, id_perfil=id_perfil):
+            if evento.get("estado_final"):
+                estado_final = evento["estado_final"]
+                break
+            nodo = evento["nodo"]
+            pasos.append(nodo)
+            estado_visual.update(label=textos.PASOS.get(nodo, nodo))
+            st.caption(textos.PASOS.get(nodo, nodo))
+        estado_visual.update(label=textos.LISTO, state="complete", expanded=False)
+
+    estado_final["pasos"] = pasos
+    return estado_final
+
+
+# --- Página ----------------------------------------------------------------
+
+_estado_inicial()
+perfil, leer_en_voz_alta = _barra_lateral()
+
+st.markdown(encabezado_html(textos.TITULO, textos.BAJADA), unsafe_allow_html=True)
+
+consulta = st.session_state.pop("pendiente", None)
+# Las sugerencias van en un lugar que se puede vaciar: si llega un audio o un
+# texto en esta misma ejecución, desaparecen antes de mostrar el progreso.
+zona_sugerencias = st.empty()
+if not st.session_state.historial and not consulta:
+    with zona_sugerencias.container():
+        _sugerencias()
+
+for i, mensaje in enumerate(st.session_state.historial):
+    if mensaje["rol"] == "user":
+        dibujar_turno_usuario(mensaje)
+    else:
+        dibujar_turno_asistente(mensaje, i, leer_habilitado=leer_en_voz_alta)
+
+# El turno nuevo se dibuja ACÁ, arriba del micrófono, aunque se procese
+# después: así la conversación queda en orden y el micrófono siempre debajo de
+# lo último que se dijo.
+zona_turno_nuevo = st.container()
+
+audio_nuevo = _tarjeta_de_voz()
+st.markdown(pie_html(textos.PIE), unsafe_allow_html=True)
+
+escrito = st.chat_input(textos.PLACEHOLDER_CHAT)
+consulta = escrito or consulta
 
 if audio_nuevo or consulta:
-    etiqueta_usuario = consulta if consulta else "(mensaje de voz)"
-    st.session_state.historial.append({"rol": "user", "consulta": etiqueta_usuario})
-    with st.chat_message("user"):
-        st.markdown(etiqueta_usuario)
+    zona_sugerencias.empty()
+    turno_usuario = {
+        "rol": "user",
+        "consulta": consulta if not audio_nuevo else None,
+        "por_voz": bool(audio_nuevo),
+        "nombre": perfil["nombre"],
+    }
+    st.session_state.historial.append(turno_usuario)
 
-    with st.chat_message("assistant"):
+    with zona_turno_nuevo:
+        # Con voz, todavía no se sabe qué dijo la persona: se reserva su lugar
+        # para que su mensaje quede ARRIBA del progreso y de la respuesta, y se
+        # completa cuando llega la transcripción.
+        lugar_usuario = st.empty()
+        with lugar_usuario.container():
+            dibujar_turno_usuario(turno_usuario if not audio_nuevo
+                                  else {**turno_usuario, "consulta": f"{textos.TRABAJANDO_VOZ}…"})
         try:
-            resultado = _responder(consulta or "", audio_nuevo)
+            resultado = _responder(consulta or "", audio_nuevo, perfil["id"])
             resultado["rol"] = "assistant"
-            # Con entrada por voz, lo que dijo la persona lo escribe el ASR:
-            # se corrige el turno del usuario en el historial para que quede la
-            # transcripción y no el marcador genérico.
-            if audio_nuevo and resultado.get("consulta"):
-                st.session_state.historial[-1]["consulta"] = resultado["consulta"]
-            _dibujar_respuesta(resultado)
+            if audio_nuevo:
+                # Lo que dijo la persona lo escribe el ASR. Si se descartó,
+                # queda vacío y se muestra "(no se entendió el audio)".
+                turno_usuario["consulta"] = None if resultado.get("entrada_descartada") else resultado.get("consulta")
+                with lugar_usuario.container():
+                    dibujar_turno_usuario(turno_usuario)
             st.session_state.historial.append(resultado)
+            dibujar_turno_asistente(
+                resultado,
+                len(st.session_state.historial) - 1,
+                # Se lee sola si la pregunta llegó por voz: quien habla espera
+                # que le contesten hablando.
+                leer_al_cargar=bool(audio_nuevo) and leer_en_voz_alta,
+                leer_habilitado=leer_en_voz_alta,
+            )
         except Exception as error:
             # Con los endpoints rotando de modelo, la caída es un estado
-            # esperable: hay que decirlo claro en vez de mostrar un stacktrace.
-            st.error(
-                "No se pudo responder. El servidor de modelos de la Universidad "
-                "puede estar reiniciándose o la VPN caída.\n\n"
-                f"Detalle: {error}"
-            )
+            # esperable: se dice claro, y el detalle queda plegado.
+            st.error(textos.ERROR_SIN_SERVIDOR)
+            with st.expander(textos.ERROR_DETALLE):
+                st.code(str(error), language=None)
