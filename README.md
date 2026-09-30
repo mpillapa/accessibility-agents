@@ -1,8 +1,29 @@
 # Sistema Multiagente de Accesibilidad para Adultos Mayores
 
-Comparación de frameworks de orquestación multiagente (CrewAI vs LangGraph) aplicada a un asistente de accesibilidad para adultos mayores.
+Asistente multiagente en LangGraph para adultos mayores: entiende español coloquial ecuatoriano, por texto o por voz, y rutea cada consulta al especialista correcto (medicación, recetas con RAG agéntico, emergencia, familia, conversación).
 
 Mini tesis de maestría. Manuel Pillapa. 2026.
+
+---
+
+## Alcance actual (2026-09-30)
+
+El proyecto empezó como una comparación de frameworks (CrewAI vs LangGraph). **El 24-09, de acuerdo con el tutor, CrewAI salió del alcance**: el sistema se construyó y evalúa en LangGraph, y `orquestacion_crewai/` queda en el repo como antecedente exploratorio, sin cambios desde agosto. Las secciones de este README anteriores a esa fecha se conservan como registro.
+
+| Componente | Estado |
+|---|---|
+| Orchestrator + 5 especialistas en LangGraph | Hecho |
+| Entrada por voz (Whisper local) con guardrail | Hecho |
+| RAG agéntico sobre el recetario (OCR + BGE-M3 + ChromaDB) | Hecho |
+| Medicación sobre la prescripción médica | Hecho |
+| Emergencia sin LLM (responde con el 911) | Hecho |
+| Interfaz Streamlit y trazas en LangSmith | Hecho |
+| **Tarea medicamento × comida** (`interacciones/`) | Datos hechos; cruce e integrador en el grafo pendientes |
+| Campaña de medición: tokens, tiempos, tasa de éxito y caminos por tarea y usuario | Pendiente |
+
+**Fuera del alcance:** la integración con Signal o cualquier API de mensajería para avisar a familiares o servicios de emergencia. Queda como trabajo futuro.
+
+**Todos los datos personales y clínicos son ficticios** (perfiles, prescripciones, vademécum, interacciones alimentarias). No están validados clínicamente.
 
 ---
 
@@ -26,9 +47,11 @@ Un Orchestrator identifica la intención de la consulta y la rutea al agente esp
 
 En esta fase el ruteo lo decide directamente el LLM (no hay clasificador ML dedicado — esa línea de trabajo perteneció a otro proyecto y se descartó aquí).
 
-## 3. Resumen del trabajo
+## 3. Primera etapa: comparación CrewAI vs LangGraph (julio–septiembre 2026)
 
-La pregunta de investigación de esta fase: **¿cómo se compara CrewAI contra LangGraph para orquestar el mismo sistema multiagente?**
+> **Registro histórico.** Esta comparación quedó fuera del alcance el 2026-09-24 (ver "Alcance actual").
+
+La pregunta de investigación de esa etapa era: **¿cómo se compara CrewAI contra LangGraph para orquestar el mismo sistema multiagente?**
 
 Mismo alcance de agentes implementado en ambos frameworks, para que la comparación no mezcle variables:
 
@@ -149,7 +172,14 @@ accessibility-agents/
 │       ├── medicamentos.json     62 medicamentos ficticios: material de CONSULTA, no un menu
 │       ├── perfiles.json         6 personas con condiciones, alergias y funcion renal
 │       └── prescripciones.json   6 recetas medicas ficticias: LA FUENTE DE VERDAD
-├── orquestacion_crewai/
+├── interacciones/                 TAREA MEDICAMENTO × COMIDA (cruce e integrador pendientes)
+│   ├── datos.py                  Carga los JSON; no decide nada
+│   ├── README.md                 Diseño, decisiones y limitaciones
+│   └── datos/
+│       ├── interacciones_alimentarias.json  Catálogo: 4 categorías de alimento, 10 interacciones
+│       ├── ingredientes_recetas.json        Alimentos marcados de las 31 recetas del índice, con cita literal
+│       └── casos_prueba.json                Verdad de referencia escrita a mano (desarrollo + campaña)
+├── orquestacion_crewai/           ANTECEDENTE: primera etapa, fuera del alcance desde el 2026-09-24
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
 │   └── demo.py                   Demo en vivo (verbose=True: muestra razonamiento y delegación)
 ├── orquestacion_langgraph/
@@ -175,10 +205,9 @@ accessibility-agents/
 │   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
 │   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
-│   ├── prueba_ciclo_rag.py       Los 4 caminos del subgrafo de RAG, con dobles (no requiere VPN)
-│   ├── prueba_calidad_ingesta.py Detección de OCR degenerado y troceado (no requiere VPN)
-│   ├── prueba_guardrail_voz.py   El guardrail del ASR: qué transcripciones NO entran (no requiere GPU)
-│   └── prueba_emergencia.py      El camino crítico: número correcto, sin LLM, sin promesas falsas
+│   ├── prueba_*.py               10 suites, 98 casos, sin VPN ni LLM (ver "Cómo ejecutar")
+│   ├── prueba_datos_interacciones.py  Coherencia de los datos de medicamento × comida
+│   └── evaluar_*.py              Evaluadores con el modelo real (requieren VPN o GPU)
 ├── notebooks/
 │   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
@@ -189,7 +218,7 @@ accessibility-agents/
 └── README.md
 ```
 
-> **`notebooks/comparativa.ipynb`** es el artefacto central de esta entrega: para una frase, muestra lado a lado el cruce de información entre agentes en ambos frameworks (estado compartido inspeccionable en LangGraph vs delegación en CrewAI, con la decisión del Orchestrator como objeto Pydantic serializado a JSON), y calcula la accuracy de ruteo de cada framework contra `dataset.csv`. Reemplaza a los notebooks de la fase del clasificador ML (`01/02/03`, retirados; git conserva el historial). Requiere VPN institucional para ejecutarse — no se corrió en el entorno de desarrollo.
+> **`notebooks/comparativa.ipynb`** fue el artefacto central de la primera etapa (hoy fuera del alcance): para una frase, muestra lado a lado el cruce de información entre agentes en ambos frameworks (estado compartido inspeccionable en LangGraph vs delegación en CrewAI, con la decisión del Orchestrator como objeto Pydantic serializado a JSON), y calcula la accuracy de ruteo de cada framework contra `dataset.csv`. Reemplaza a los notebooks de la fase del clasificador ML (`01/02/03`, retirados; git conserva el historial). Requiere VPN institucional para ejecutarse — no se corrió en el entorno de desarrollo.
 
 ---
 
@@ -233,7 +262,7 @@ Bajo cada respuesta muestra, plegado, el recorrido real por el grafo: a qué
 agente ruteó el orquestador, por qué, y los ciclos del RAG agéntico. Ver
 `interfaz/README.md`.
 
-Demo de CrewAI:
+Demo de CrewAI (primera etapa, fuera del alcance):
 ```bash
 python -m orquestacion_crewai.demo                 # frases de ejemplo
 python -m orquestacion_crewai.demo "tu frase aquí" # una frase propia
@@ -250,17 +279,26 @@ Ver el diagrama del grafo de LangGraph:
 python -m orquestacion_langgraph.visualizar
 ```
 
-Comparativa (cruce de información entre agentes + ciclo del RAG + accuracy de ruteo):
+Comparativa de la primera etapa (cruce de información entre agentes + ciclo del RAG + accuracy de ruteo):
 ```bash
 jupyter notebook notebooks/comparativa.ipynb
 ```
 
-Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras):
+Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 10 suites, 98 casos al 2026-09-30:
 ```bash
-python -m pruebas.prueba_ciclo_rag         # los caminos del subgrafo de RAG
-python -m pruebas.prueba_calidad_ingesta   # deteccion de OCR degenerado y troceado
-python -m pruebas.prueba_guardrail_voz     # el guardrail de la entrada por voz
-python -m pruebas.prueba_emergencia        # el camino critico de emergencias
+# Todas de una vez
+for f in pruebas/prueba_*.py; do python -m pruebas.$(basename $f .py) | tail -1; done
+
+python -m pruebas.prueba_ciclo_rag            # los caminos del subgrafo de RAG
+python -m pruebas.prueba_calidad_ingesta      # deteccion de OCR degenerado y troceado
+python -m pruebas.prueba_guardrail_voz        # el guardrail de la entrada por voz
+python -m pruebas.prueba_interfaz_voz         # la lectura en voz alta de la interfaz
+python -m pruebas.prueba_emergencia           # el camino critico de emergencias
+python -m pruebas.prueba_prescripciones       # la prescripcion como fuente de verdad
+python -m pruebas.prueba_reglas_medicacion    # criterios de exclusion y tope ajustado
+python -m pruebas.prueba_datos_interacciones  # coherencia de los datos de medicamento x comida
+python -m pruebas.prueba_metricas             # WER y CER
+python -m pruebas.prueba_ruido                # matriz de ruido con SNR controlado
 ```
 
 Evaluación del comportamiento real (**sí** requiere VPN y el recetario ingerido).
@@ -407,10 +445,16 @@ respondió, y toda medición debe anotarlo.
 
 ## Stack técnico
 
-- Orquestación: CrewAI y LangGraph (comparación de frameworks)
-- Salida estructurada: Pydantic
-- Modelo de lenguaje: `google/gemma-4-12B-it`, servido por vLLM (OpenAI-compatible) en el servidor H200 de la universidad
-- RAG de recetas: `BAAI/bge-m3` (embeddings) + `zai-org/GLM-OCR` (OCR/visión para recetas manuscritas) vía vLLM, ChromaDB local
+Modelos acordados con el tutor el 2026-09-30:
+
+- Orquestación: LangGraph (CrewAI solo en la etapa inicial)
+- Modelo de lenguaje: `zai-org/GLM-5.3-Flash`, servido por vLLM (OpenAI-compatible) en el servidor H200 de la universidad. Hasta el 2026-09-08 fue `google/gemma-4-12B-it`: los resultados de esa etapa se midieron con ese modelo
+- Embeddings: `bge-m3` vía Ollama (1024 dimensiones, vectores normalizados)
+- OCR: `qwen2.5vl:7b` vía Ollama. **El índice actual del recetario se generó con `zai-org/GLM-OCR`** y no se reingirió, porque sobre él se midió el RAG
+- Vector store: ChromaDB local
+- Voz: Whisper (`faster-whisper`) local en GPU
+- Trazas: LangSmith. Interfaz: Streamlit
+- Visualización del grafo: Mermaid (vía LangGraph) y `grandalf` (ASCII local)
 - Visualización del grafo: Mermaid (vía LangGraph) y `grandalf` (ASCII local)
 
 ## Reestructuración del repo (2026-08-19)

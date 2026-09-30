@@ -142,8 +142,10 @@ Dos cosas de este subgrafo son material directo para el paper:
 2. **El reducer de estado.** El campo `traza` usa
    `Annotated[list[dict], operator.add]` para que cada nodo concatene en vez de
    sobreescribir. Es exactamente el manejo de estado acumulado que los tutores
-   señalaron como limitación de CrewAI. Cuando se replique este subgrafo en
-   CrewAI (Fase 8), la limitación queda demostrada y no citada.
+   señalaron como limitación de CrewAI. La réplica en CrewAI quedó fuera del
+   alcance el 2026-09-24. Matiz verificado el 23-09: `Flow` de CrewAI 1.15 sí
+   expresa este ciclo; la limitación es de `Crew` (ver
+   `pruebas/evidencia_crewai_flow_ciclo.py`).
 
 ## Pruebas
 

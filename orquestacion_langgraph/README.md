@@ -1,5 +1,10 @@
 # Réplica en LangGraph
 
+> **Desde el 2026-09-24 este es EL sistema.** La comparación con
+> `../orquestacion_crewai/` salió del alcance de la tesis; las referencias a
+> CrewAI de este documento son de la primera etapa y se conservan como registro.
+> Estado actual en `../README.md`, sección "Alcance actual".
+
 Misma arquitectura de agentes que `../orquestacion_crewai/`, reimplementada en LangGraph para
 la comparación de frameworks que pidieron los tutores (correo del 2026-07-21).
 La diferencia central: en CrewAI el Orchestrator **delega** a otro agente
@@ -91,9 +96,11 @@ pequeños servidos localmente.
 - **Family y Emergency son stubs**: respuestas fijas, sin LLM y sin integración real.
 - **Small talk** responde fijo, sin llamar al LLM (mismo atajo que CrewAI).
 
-## Pendiente
+## Pendiente (actualizado 2026-09-30)
 
-- **Replicar el subgrafo de RAG agéntico en CrewAI.** Es la prueba de fuego de la comparación: el ciclo `reformular -> recuperar` y el reducer de estado acumulado (`Annotated[list, operator.add]`) son justo lo que los tutores señalaron como limitación de CrewAI. Si no se puede replicar, la limitación queda demostrada en vez de citada.
-- Comparar formalmente contra `../orquestacion_crewai/` — ya arrancado en `../notebooks/comparativa.ipynb` (accuracy de ruteo con `../dataset.csv`); falta cerrar latencia, líneas de código y legibilidad del flujo de datos.
+- **Tarea medicamento × comida:** intención nueva en el Orchestrator, medicación y recetas en paralelo (fan-out) y un nodo integrador que cruza sus salidas en código determinista. Datos listos en `../interacciones/`.
+- **Bug de ruteo de emergencias:** `_extraer_decision` cae a `SMALL_TALK` cuando la respuesta del modelo no trae `CATEGORIA:`; una emergencia mal formateada termina como small talk.
+- **Campaña de medición:** tokens y tiempo por nodo y por sistema, tasa de éxito y caminos correctos, por tarea y usuario.
+- ~~Replicar el subgrafo de RAG agéntico en CrewAI y comparar formalmente contra `../orquestacion_crewai/`~~: fuera del alcance desde el 2026-09-24.
 - Medir con el LLM real cuántas veces el evaluador de relevancia acierta y cuántas la reformulación rescata una búsqueda fallida (celdas ya escritas en el notebook, sin ejecutar por falta de VPN).
 - **Repetir el hallazgo de salida estructurada con el modelo actual.** El hallazgo de arriba se probó con `llama3.1:8b`/`qwen3.6` en Ollama, no con `google/gemma-4-12B-it` en vLLM. La solución actual (texto libre + regex + validación posterior) se dejó igual como precaución y el ruteo funciona al 100% en la muestra evaluada (`../notebooks/comparativa.ipynb`), pero falta confirmar si `with_structured_output` (JSON forzado) seguiría fallando con este modelo/servidor.
