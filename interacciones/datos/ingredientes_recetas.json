@@ -1,5 +1,5 @@
 {
-  "_aviso": "Datos DERIVADOS del recetario indexado. Cada entrada se construyó leyendo el texto que el OCR dejó en ChromaDB (colección 'recetas', 152 fragmentos al 2026-09-30), NO la foto original ni el conocimiento general del plato. Si el OCR no leyó un ingrediente, aquí no está, aunque el plato real lo lleve.",
+  "_aviso": "Datos DERIVADOS del recetario indexado. Cada entrada se construyó leyendo el texto que el OCR dejó en ChromaDB, NO la foto original ni el conocimiento general del plato. Índice actual: qwen2.5vl:7b, reingerido el 2026-09-30 desde resultados/ocr_qwen2.5vl-7b_2026-09-30.json (124 fragmentos, 29 fuentes). La versión anterior, sobre el índice de GLM-OCR, está en el historial de git (commit 1ee8a80). Si el OCR no leyó un ingrediente, aquí no está, aunque el plato real lo lleve.",
   "_para_que_sirve": "Permite cruzar una receta de cocina con los medicamentos de una persona en código determinista. Sin este archivo el cruce tendría que salir del texto libre del OCR, y la decisión de si un plato lleva alcohol quedaría en manos del LLM.",
   "_campos": {
     "clave de 'fuentes'": "El nombre de archivo tal como aparece en el metadato 'fuente' de ChromaDB. Es lo que devuelve la traza del RAG y es la llave del cruce.",
@@ -17,7 +17,9 @@
     "Los nombres de los platos vienen del OCR y conservan sus errores cuando no afectan al cruce."
   ],
   "_fuentes_excluidas": {
-    "2 recetas mas.jpg": "Rechazada por rag/calidad.py en la ingesta (bucle del OCR, bitácora 2.3). No está en el índice, así que el RAG nunca la puede devolver."
+    "2 recetas mas.jpg": "Rechazada por rag/calidad.py con los dos OCR. GLM-OCR (agosto): una frase repetida 888 veces. qwen2.5vl:7b (2026-09-30): 'Calienta con el calor que' 242 veces, agotando el tope de 4.096 tokens.",
+    "aguado de gallina.jpg": "Rechazada con qwen2.5vl:7b (2026-09-30): '- 1 cucharada de aceite' 43 veces, agotando el tope. Con GLM-OCR había entrado al índice con texto degradado.",
+    "alachofa.jpg": "Rechazada con qwen2.5vl:7b (2026-09-30): 'o hemizar el ajo, picar' 165 veces, agotando el tope. Con GLM-OCR se había leído bien."
   },
   "fuentes": {
     "2 recetas en 1.png": {
@@ -25,39 +27,54 @@
       "platos": [
         {
           "nombre": "Pollo de la tía Juanita",
-          "ingredientes": ["pollo", "champiñones", "crema de leche", "cebolla perla", "mantequilla", "ajo", "vino", "caldo"],
+          "ingredientes": [
+            "pollo",
+            "champiñones",
+            "crema de leche",
+            "cebolla perla",
+            "mantequilla",
+            "ajo",
+            "vino",
+            "caldo"
+          ],
           "alimentos_marcados": [
-            {"alimento": "vino", "categoria": "alcohol", "parte": "principal", "evidencia": "1/2 vaso de vino"}
+            {
+              "alimento": "vino",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "1/2 vaso de vino"
+            }
           ]
         },
         {
           "nombre": "Pollo en salsa de pimientos morrones y yemas",
-          "ingredientes": ["pollo", "vino blanco", "cebolla perla", "ajo", "harina", "mantequilla", "caldo de pollo", "crema de leche", "pimiento morrón", "yemas", "jerez", "perejil"],
+          "ingredientes": [
+            "pollo",
+            "vino blanco",
+            "cebolla perla",
+            "ajo",
+            "harina",
+            "mantequilla",
+            "caldo de pollo",
+            "crema de leche",
+            "pimiento morrón",
+            "yemas",
+            "jerez",
+            "perejil"
+          ],
           "alimentos_marcados": [
-            {"alimento": "vino blanco", "categoria": "alcohol", "parte": "principal", "evidencia": "1 taza de vino blanco"},
-            {"alimento": "jerez", "categoria": "alcohol", "parte": "principal", "evidencia": "1 copa de jerez"}
-          ]
-        }
-      ]
-    },
-    "aguado de gallina.jpg": {
-      "calidad_ocr": "baja",
-      "platos": [
-        {
-          "nombre": "Aguado de gallina o pollo",
-          "ingredientes": ["gallina o pollo", "cebolla", "ajo"],
-          "alimentos_marcados": []
-        }
-      ]
-    },
-    "alachofa.jpg": {
-      "calidad_ocr": "buena",
-      "platos": [
-        {
-          "nombre": "Carciofi alla romana (alcachofas a la romana)",
-          "ingredientes": ["alcachofas", "ajo", "mentuccia", "aceite de oliva", "limón", "sal"],
-          "alimentos_marcados": [
-            {"alimento": "vino blanco", "categoria": "alcohol", "parte": "opcional", "evidencia": "Algunas recetas utilizan vino blanco para sustituir la mitad del agua de cocción"}
+            {
+              "alimento": "vino blanco",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "1 taza de vino blanco"
+            },
+            {
+              "alimento": "jerez",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "1 copa de jerez"
+            }
           ]
         }
       ]
@@ -67,7 +84,13 @@
       "platos": [
         {
           "nombre": "Arroz con leche",
-          "ingredientes": ["arroz", "leche", "azúcar", "canela", "cáscara de limón"],
+          "ingredientes": [
+            "arroz",
+            "leche",
+            "azúcar",
+            "canela",
+            "cáscara de limón"
+          ],
           "alimentos_marcados": []
         }
       ]
@@ -77,19 +100,39 @@
       "platos": [
         {
           "nombre": "Berenjena en 4 minutos",
-          "ingredientes": ["berenjena", "tomate", "ajo", "queso", "aceite de oliva", "orégano"],
+          "ingredientes": [
+            "berenjena",
+            "tomate",
+            "ajo",
+            "queso",
+            "aceite de oliva",
+            "orégano"
+          ],
           "alimentos_marcados": []
         }
-      ]
+      ],
+      "nota_ocr": "Con qwen2.5vl:7b el texto es fluido pero NO fiel (verificado contra la foto el 2026-09-30): omite la lista de ingredientes, cambia 'haciendo un cuadriculado' por 'haciendo un cubo de hielo' e inventa la frase final ('Este es mi plato favorito...'). Pasa el control de calidad porque no repite nada. Con GLM-OCR el texto era ilegible."
     },
     "bolon de verde.png": {
       "calidad_ocr": "buena",
       "platos": [
         {
           "nombre": "Bolón de verde",
-          "ingredientes": ["plátano verde", "queso manaba", "chicharrón", "manteca o mantequilla", "sal", "aceite"],
+          "ingredientes": [
+            "plátano verde",
+            "queso manaba",
+            "chicharrón",
+            "manteca o mantequilla",
+            "sal",
+            "aceite"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "principal", "evidencia": "INGREDIENTES: Plátanos verdes"}
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "INGREDIENTES: Plátanos verdes"
+            }
           ]
         }
       ]
@@ -99,9 +142,21 @@
       "platos": [
         {
           "nombre": "Corviche",
-          "ingredientes": ["plátano verde rallado", "maní molido", "pescado", "cebolla", "ajo", "aceite"],
+          "ingredientes": [
+            "plátano verde rallado",
+            "maní molido",
+            "pescado",
+            "cebolla",
+            "ajo",
+            "aceite"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "principal", "evidencia": "Plátano rallado ... Pela y ralla el verde crudo"}
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "Plátano rallado ... Pela y ralla el verde crudo"
+            }
           ]
         }
       ]
@@ -111,10 +166,25 @@
       "platos": [
         {
           "nombre": "Empanadas de verde",
-          "ingredientes": ["plátano verde", "queso manaba", "mantequilla", "sal"],
+          "ingredientes": [
+            "plátano verde",
+            "queso manaba",
+            "mantequilla",
+            "sal"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "principal", "evidencia": "Masa • Plátanos Verdes"},
-            {"alimento": "café pasado", "categoria": "cafeina", "parte": "acompanamiento", "evidencia": "Café Pasado Aji Ecuatoriano Encurtido"}
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "- Plátanos Verdes"
+            },
+            {
+              "alimento": "café pasado",
+              "categoria": "cafeina",
+              "parte": "acompanamiento",
+              "evidencia": "Café Pasado Aji Ecuatoriano Encurtido"
+            }
           ]
         }
       ]
@@ -124,7 +194,20 @@
       "platos": [
         {
           "nombre": "Ensalada griega",
-          "ingredientes": ["ajo", "pimiento verde", "cebolla", "pepino", "tomate", "limón", "azúcar", "aceite de oliva", "queso feta", "aceitunas negras", "orégano", "albahaca"],
+          "ingredientes": [
+            "ajo",
+            "pimiento verde",
+            "cebolla",
+            "pepino",
+            "tomate",
+            "limón",
+            "azúcar",
+            "aceite de oliva",
+            "queso feta",
+            "aceitunas negras",
+            "orégano",
+            "albahaca"
+          ],
           "alimentos_marcados": []
         }
       ]
@@ -134,10 +217,29 @@
       "platos": [
         {
           "nombre": "Llapingachos",
-          "ingredientes": ["papa chola", "queso fresco", "huevos", "mantequilla", "chorizo", "aguacate", "lechuga", "tomate"],
+          "ingredientes": [
+            "papa chola",
+            "queso fresco",
+            "huevos",
+            "mantequilla",
+            "chorizo",
+            "aguacate",
+            "lechuga",
+            "tomate"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "1 kg de papa chola"},
-            {"alimento": "aguacate", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "2 aguacates cortados en tajadas"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "1 kg de papa chola"
+            },
+            {
+              "alimento": "aguacate",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "Ingredientes acompañantes: aguacate"
+            }
           ]
         }
       ]
@@ -147,9 +249,18 @@
       "platos": [
         {
           "nombre": "Patacones",
-          "ingredientes": ["plátano verde", "sal", "aceite"],
+          "ingredientes": [
+            "plátano verde",
+            "sal",
+            "aceite"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "principal", "evidencia": "Pela y corta el verde"}
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "Pela y corta el verde"
+            }
           ]
         }
       ]
@@ -159,10 +270,30 @@
       "platos": [
         {
           "nombre": "Llapingachos al estilo de Ambato",
-          "ingredientes": ["papas", "queso fresco", "cebolla blanca", "manteca de color", "manteca de chancho", "huevos fritos", "chorizo de Ambato", "lechuga", "aguacate"],
+          "ingredientes": [
+            "papas",
+            "queso fresco",
+            "cebolla blanca",
+            "manteca de color",
+            "manteca de chancho",
+            "huevos fritos",
+            "chorizo de Ambato",
+            "lechuga",
+            "aguacate"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "3 libras de papas"},
-            {"alimento": "aguacate", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "3 aguacates grandes"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "3 libras de papas"
+            },
+            {
+              "alimento": "aguacate",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "3 aguacates grandes"
+            }
           ]
         }
       ]
@@ -172,9 +303,25 @@
       "platos": [
         {
           "nombre": "Cuy al carbón",
-          "ingredientes": ["cuy", "achiote", "comino", "ajo", "sal", "pimienta", "manteca de cerdo", "lechuga", "papas", "huevo duro"],
+          "ingredientes": [
+            "cuy",
+            "achiote",
+            "comino",
+            "ajo",
+            "sal",
+            "pimienta",
+            "manteca de cerdo",
+            "lechuga",
+            "papas",
+            "huevo duro"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "Servir con hojas de lechuga y papas cocidas enteras"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "Servir con hojas de lechuga y papas cocidas enteras"
+            }
           ]
         }
       ]
@@ -184,10 +331,33 @@
       "platos": [
         {
           "nombre": "Yaguarlocro",
-          "ingredientes": ["menudo de borrego", "papas", "crema de leche", "leche", "maní", "sangre de borrego", "cebolla", "ajo", "hierbabuena", "cilantro", "lechuga", "aguacate"],
+          "ingredientes": [
+            "menudo de borrego",
+            "papas",
+            "crema de leche",
+            "leche",
+            "maní",
+            "sangre de borrego",
+            "cebolla",
+            "ajo",
+            "hierbabuena",
+            "cilantro",
+            "lechuga",
+            "aguacate"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "4 libras de papas peladas"},
-            {"alimento": "aguacate", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "2 aguacates"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "Añadir las papas picadas en trozos pequeños y medianos"
+            },
+            {
+              "alimento": "aguacate",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "2 aguacates"
+            }
           ]
         }
       ]
@@ -197,9 +367,25 @@
       "platos": [
         {
           "nombre": "Locro de ayuno",
-          "ingredientes": ["manteca de color", "cebolla blanca", "ajo", "choclo", "fréjol tierno", "papas", "arvejas", "habas", "cilantro", "ají"],
+          "ingredientes": [
+            "manteca de color",
+            "cebolla blanca",
+            "ajo",
+            "choclo",
+            "fréjol tierno",
+            "papas",
+            "arvejas",
+            "habas",
+            "cilantro",
+            "ají"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "3 libras de papas"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "3 libras de papas"
+            }
           ]
         }
       ]
@@ -209,50 +395,211 @@
       "platos": [
         {
           "nombre": "Hornado",
-          "ingredientes": ["pierna de cerdo", "ajo", "sal", "pimienta", "comino", "chicha o cerveza", "achiote"],
+          "ingredientes": [
+            "pierna de cerdo",
+            "ajo",
+            "sal",
+            "pimienta",
+            "comino",
+            "chicha o cerveza",
+            "achiote"
+          ],
           "alimentos_marcados": [
-            {"alimento": "chicha fermentada", "categoria": "alcohol", "parte": "principal", "evidencia": "luego agregue un litro de chicha o cerveza"},
-            {"alimento": "cerveza", "categoria": "alcohol", "parte": "principal", "evidencia": "luego agregue un litro de chicha o cerveza"}
+            {
+              "alimento": "chicha fermentada",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "luego agregue un libro de chicha o cerveza"
+            },
+            {
+              "alimento": "cerveza",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "luego agregue un libro de chicha o cerveza"
+            }
           ]
         },
         {
           "nombre": "Pavo relleno",
-          "ingredientes": ["pavo", "manteca de cerdo", "brandy", "carne molida", "jamón", "salchichas", "pan de molde", "leche", "huevos duros", "vino blanco", "manzana", "duraznos", "pasas"],
+          "ingredientes": [
+            "pavo",
+            "manteca de cerdo",
+            "brandy",
+            "carne molida",
+            "jamón",
+            "salchichas",
+            "pan de molde",
+            "leche",
+            "huevos duros",
+            "vino blanco",
+            "manzana",
+            "duraznos",
+            "pasas"
+          ],
           "alimentos_marcados": [
-            {"alimento": "brandy", "categoria": "alcohol", "parte": "principal", "evidencia": "1 copa de brandy"},
-            {"alimento": "vino blanco", "categoria": "alcohol", "parte": "principal", "evidencia": "1 copa de vino blanco"}
+            {
+              "alimento": "brandy",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "1 copa de brandy"
+            },
+            {
+              "alimento": "vino blanco",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "1 copa de vino blanco"
+            }
+          ]
+        },
+        {
+          "nombre": "Fritada",
+          "ingredientes": [
+            "carne de cerdo",
+            "cebolla blanca",
+            "cerveza",
+            "ajo",
+            "sal",
+            "comino",
+            "choclos",
+            "mote",
+            "maduros",
+            "papas"
+          ],
+          "alimentos_marcados": [
+            {
+              "alimento": "cerveza",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "- 1 taza de cerveza."
+            },
+            {
+              "alimento": "cerveza",
+              "categoria": "alcohol",
+              "parte": "acompanamiento",
+              "evidencia": "acompañado con cerveza preferiblemente"
+            },
+            {
+              "alimento": "plátano maduro",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "mote cocido, maduros y papas"
+            },
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "mote cocido, maduros y papas"
+            }
+          ]
+        },
+        {
+          "nombre": "Ají de librillo",
+          "ingredientes": [
+            "papa",
+            "leche",
+            "maní",
+            "librillo",
+            "raspadura",
+            "clavos de olor",
+            "cebolla blanca",
+            "ají"
+          ],
+          "alimentos_marcados": [
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "- 4 lbs. Papa"
+            }
           ]
         }
-      ]
+      ],
+      "nota_ocr": "qwen2.5vl:7b leyó los cuatro platos de la página (verificado contra la foto el 2026-09-30); GLM-OCR solo leía hornado y pavo relleno. Error de OCR conservado en la cita: 'un libro de chicha' (la foto dice 'litro')."
     },
     "receta14.jpeg": {
       "calidad_ocr": "buena",
       "platos": [
         {
           "nombre": "Cangrejos",
-          "ingredientes": ["cangrejos", "ají", "cerveza", "cebolla blanca", "pimienta", "perejil", "comino"],
+          "ingredientes": [
+            "cangrejos",
+            "ají",
+            "cerveza",
+            "cebolla blanca",
+            "pimienta",
+            "perejil",
+            "comino"
+          ],
           "alimentos_marcados": [
-            {"alimento": "cerveza", "categoria": "alcohol", "parte": "principal", "evidencia": "Ponga agua hirviendo y la cerveza hasta cubrir los cangrejos"},
-            {"alimento": "cerveza", "categoria": "alcohol", "parte": "acompanamiento", "evidencia": "Se sirve con ají y un caso de cerveza"}
+            {
+              "alimento": "cerveza",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "Ponga agua hirviendo y la cerveza hasta cubrir los cangrejos"
+            },
+            {
+              "alimento": "cerveza",
+              "categoria": "alcohol",
+              "parte": "acompanamiento",
+              "evidencia": "Se sirve con ají y un caso de cerveza"
+            }
           ]
         },
         {
           "nombre": "Camarones en salsa de tomate",
-          "ingredientes": ["camarones", "cebolla", "aceite", "salsa de tomate"],
+          "ingredientes": [
+            "camarones",
+            "cebolla",
+            "aceite",
+            "salsa de tomate"
+          ],
           "alimentos_marcados": []
         },
         {
           "nombre": "Plato de cerdo con mote, maduros y empanadas de viento",
-          "ingredientes": ["carne de cerdo", "camote", "cuero reventado", "papas fritas", "empanadas de viento", "mote", "maduros", "tostado", "lechuga"],
+          "ingredientes": [
+            "carne de cerdo",
+            "camote",
+            "cuero reventado",
+            "papas fritas",
+            "empanadas de viento",
+            "mote",
+            "maduros",
+            "tostado",
+            "lechuga"
+          ],
           "alimentos_marcados": [
-            {"alimento": "camote", "categoria": "alto_potasio", "parte": "principal", "evidencia": "1 lb. Camote"},
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "1 lb. Papas fritas"},
-            {"alimento": "plátano maduro", "categoria": "alto_potasio", "parte": "principal", "evidencia": "3 maduros cortados en rodajas y fritos"}
+            {
+              "alimento": "camote",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "1 lb. Camote"
+            },
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "1 lb. Papas fritas"
+            },
+            {
+              "alimento": "plátano maduro",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "3 maduros cortados en rodajas y fritos"
+            }
           ]
         },
         {
           "nombre": "Calamares fritos",
-          "ingredientes": ["calamares", "ajo", "comino", "pimienta", "salsa de soya", "limón", "aceite"],
+          "ingredientes": [
+            "calamares",
+            "ajo",
+            "comino",
+            "pimienta",
+            "salsa de soya",
+            "limón",
+            "aceite"
+          ],
           "alimentos_marcados": []
         }
       ]
@@ -262,9 +609,25 @@
       "platos": [
         {
           "nombre": "Papa rellena",
-          "ingredientes": ["papa", "carne molida", "huevos cocidos", "paiteña", "ajo", "pasas", "aceitunas", "perejil", "aceite", "harina"],
+          "ingredientes": [
+            "papa",
+            "carne molida",
+            "huevos cocidos",
+            "paiteña",
+            "ajo",
+            "pasas",
+            "aceitunas",
+            "perejil",
+            "aceite",
+            "harina"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "2 1/2 libras de papa"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "2 1/2 libras de papa"
+            }
           ]
         }
       ]
@@ -274,10 +637,33 @@
       "platos": [
         {
           "nombre": "Pollo al curry",
-          "ingredientes": ["pechugas de pollo", "tomates", "crema de leche", "curry", "mantequilla", "paiteñas", "manzanas verdes", "caldo de pollo", "agua de coco", "salvia", "orégano", "canela"],
+          "ingredientes": [
+            "pechugas de pollo",
+            "tomates",
+            "crema de leche",
+            "curry",
+            "mantequilla",
+            "paiteñas",
+            "manzanas verdes",
+            "caldo de pollo",
+            "agua de coco",
+            "salvia",
+            "orégano",
+            "canela"
+          ],
           "alimentos_marcados": [
-            {"alimento": "agua de coco", "categoria": "alto_potasio", "parte": "principal", "evidencia": "Agua de un coco"},
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "Acompañantes ... Patacones"}
+            {
+              "alimento": "agua de coco",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "Agua de un coco"
+            },
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "Acompañantes ... Patacones"
+            }
           ]
         }
       ]
@@ -287,7 +673,19 @@
       "platos": [
         {
           "nombre": "Torta de chocolate",
-          "ingredientes": ["harina", "huevos", "bicarbonato", "cocoa", "leche", "aceite", "azúcar", "vainilla", "leche evaporada", "leche condensada", "mantequilla"],
+          "ingredientes": [
+            "harina",
+            "huevos",
+            "bicarbonato",
+            "cocoa",
+            "leche",
+            "aceite",
+            "azúcar",
+            "vainilla",
+            "leche evaporada",
+            "leche condensada",
+            "mantequilla"
+          ],
           "alimentos_marcados": []
         }
       ]
@@ -297,9 +695,21 @@
       "platos": [
         {
           "nombre": "Come y bebe de badea y guanábana",
-          "ingredientes": ["badea", "pulpa de guanábana", "azúcar", "ron blanco", "jarabe de guindas", "crema batida"],
+          "ingredientes": [
+            "badea",
+            "pulpa de guanábana",
+            "azúcar",
+            "ron blanco",
+            "jarabe de guindas",
+            "crema batida"
+          ],
           "alimentos_marcados": [
-            {"alimento": "ron", "categoria": "alcohol", "parte": "principal", "evidencia": "1/4 de taza de ron blanco"}
+            {
+              "alimento": "ron",
+              "categoria": "alcohol",
+              "parte": "principal",
+              "evidencia": "1/4 de taza de ron blanco"
+            }
           ]
         }
       ]
@@ -309,10 +719,32 @@
       "platos": [
         {
           "nombre": "Menestra de lenteja",
-          "ingredientes": ["lentejas", "manteca de color", "cebolla blanca", "ajo", "cilantro", "tomates", "pimiento rojo", "maicena", "crema de leche", "filetes de lomo", "arroz blanco"],
+          "ingredientes": [
+            "lentejas",
+            "manteca de color",
+            "cebolla blanca",
+            "ajo",
+            "cilantro",
+            "tomates",
+            "pimiento rojo",
+            "maicena",
+            "crema de leche",
+            "filetes de lomo",
+            "arroz blanco"
+          ],
           "alimentos_marcados": [
-            {"alimento": "lenteja", "categoria": "alto_potasio", "parte": "principal", "evidencia": "1 libra de lentejas"},
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "Servir la menestra con la carne, arroz blanco y patacones"}
+            {
+              "alimento": "lenteja",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "1 libra de lentejas"
+            },
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "Servir la menestra con la carne, arroz blanco y patacones"
+            }
           ]
         }
       ]
@@ -322,9 +754,25 @@
       "platos": [
         {
           "nombre": "Arroz con leche",
-          "ingredientes": ["arroz", "leche", "canela", "azúcar", "vainilla", "yemas", "mantequilla", "pasas", "leche condensada", "ralladura de limón"],
+          "ingredientes": [
+            "arroz",
+            "leche",
+            "canela",
+            "azúcar",
+            "vainilla",
+            "yemas",
+            "mantequilla",
+            "pasas",
+            "leche condensada",
+            "ralladura de limón"
+          ],
           "alimentos_marcados": [
-            {"alimento": "oporto", "categoria": "alcohol", "parte": "opcional", "evidencia": "Si desea, agregar una copita de oporto"}
+            {
+              "alimento": "oporto",
+              "categoria": "alcohol",
+              "parte": "opcional",
+              "evidencia": "Si desea, agregar una copita de oporto"
+            }
           ]
         }
       ]
@@ -334,7 +782,14 @@
       "platos": [
         {
           "nombre": "Mote pillo",
-          "ingredientes": ["cebolla larga", "achiote", "manteca de cerdo", "huevos", "mote", "sal"],
+          "ingredientes": [
+            "cebolla larga",
+            "achiote",
+            "manteca de cerdo",
+            "huevos",
+            "mote",
+            "sal"
+          ],
           "alimentos_marcados": []
         }
       ]
@@ -344,9 +799,23 @@
       "platos": [
         {
           "nombre": "Consomé de pollo",
-          "ingredientes": ["pollo", "menudencia de pollo", "papas", "zanahoria", "apio", "cebolla puerro", "arroz", "fideos"],
+          "ingredientes": [
+            "pollo",
+            "menudencia de pollo",
+            "papas",
+            "zanahoria",
+            "apio",
+            "cebolla puerro",
+            "arroz",
+            "fideos"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "2 papas"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "2 papas"
+            }
           ]
         }
       ]
@@ -356,9 +825,21 @@
       "platos": [
         {
           "nombre": "Torta de plátano de la abuela",
-          "ingredientes": ["plátanos maduros", "huevos", "azúcar", "aceite", "harina", "polvo de hornear"],
+          "ingredientes": [
+            "plátanos maduros",
+            "huevos",
+            "azúcar",
+            "aceite",
+            "harina",
+            "polvo de hornear"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano maduro", "categoria": "alto_potasio", "parte": "principal", "evidencia": "3 platanos maduros bien machacados"}
+            {
+              "alimento": "plátano maduro",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "3 platanos maduros bien machacados"
+            }
           ]
         }
       ]
@@ -368,9 +849,20 @@
       "platos": [
         {
           "nombre": "Repe lojano",
-          "ingredientes": ["guineos verdes", "leche", "queso blanco", "cilantro", "sal"],
+          "ingredientes": [
+            "guineos verdes",
+            "leche",
+            "queso blanco",
+            "cilantro",
+            "sal"
+          ],
           "alimentos_marcados": [
-            {"alimento": "guineo", "categoria": "alto_potasio", "parte": "principal", "evidencia": "6 guineos medianos (plátanos de seda) verdes"}
+            {
+              "alimento": "guineo",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "6 guineos medianos (plátanos de seda) verdes"
+            }
           ]
         }
       ]
@@ -380,9 +872,21 @@
       "platos": [
         {
           "nombre": "Sopa de verduras",
-          "ingredientes": ["zanahorias", "papa", "arveja", "apio", "caldo de pollo o agua", "sal"],
+          "ingredientes": [
+            "zanahorias",
+            "papa",
+            "arveja",
+            "apio",
+            "caldo de pollo o agua",
+            "sal"
+          ],
           "alimentos_marcados": [
-            {"alimento": "papa", "categoria": "alto_potasio", "parte": "principal", "evidencia": "1 papa grande"}
+            {
+              "alimento": "papa",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "1 papa grande"
+            }
           ]
         }
       ]
@@ -392,11 +896,34 @@
       "platos": [
         {
           "nombre": "Tigrillo",
-          "ingredientes": ["plátano verde", "huevos", "queso manaba", "cebolla", "mantequilla o manteca", "aceite con achiote", "cilantro"],
+          "ingredientes": [
+            "plátano verde",
+            "huevos",
+            "queso manaba",
+            "cebolla",
+            "mantequilla o manteca",
+            "aceite con achiote",
+            "cilantro"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "principal", "evidencia": "Platanos verdes"},
-            {"alimento": "aguacate", "categoria": "alto_potasio", "parte": "acompanamiento", "evidencia": "Acompañamientos Chicharrón Huevo Frito Aguacate"},
-            {"alimento": "café pasado", "categoria": "cafeina", "parte": "acompanamiento", "evidencia": "Acompañamientos ... Café Pasado"}
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "Platanos verdes"
+            },
+            {
+              "alimento": "aguacate",
+              "categoria": "alto_potasio",
+              "parte": "acompanamiento",
+              "evidencia": "- Aguacate"
+            },
+            {
+              "alimento": "café pasado",
+              "categoria": "cafeina",
+              "parte": "acompanamiento",
+              "evidencia": "Acompañamientos ... Café Pasado"
+            }
           ]
         }
       ]
@@ -406,7 +933,13 @@
       "platos": [
         {
           "nombre": "Tomatitos asados",
-          "ingredientes": ["tomates cherry", "sal", "aceite de oliva", "albahaca", "orégano"],
+          "ingredientes": [
+            "tomates cherry",
+            "sal",
+            "aceite de oliva",
+            "albahaca",
+            "orégano"
+          ],
           "alimentos_marcados": []
         }
       ]
@@ -416,10 +949,25 @@
       "platos": [
         {
           "nombre": "Tortillas de verde",
-          "ingredientes": ["plátano verde", "sal", "manteca", "queso manaba"],
+          "ingredientes": [
+            "plátano verde",
+            "sal",
+            "manteca",
+            "queso manaba"
+          ],
           "alimentos_marcados": [
-            {"alimento": "plátano verde", "categoria": "alto_potasio", "parte": "principal", "evidencia": "Plátanos verdes"},
-            {"alimento": "café pasado", "categoria": "cafeina", "parte": "acompanamiento", "evidencia": "Acompañamientos Café pasado"}
+            {
+              "alimento": "plátano verde",
+              "categoria": "alto_potasio",
+              "parte": "principal",
+              "evidencia": "Plátanos verdes"
+            },
+            {
+              "alimento": "café pasado",
+              "categoria": "cafeina",
+              "parte": "acompanamiento",
+              "evidencia": "- Café pasado"
+            }
           ]
         }
       ]

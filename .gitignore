@@ -16,6 +16,8 @@ __pycache__/
 
 # Base vectorial local del RAG de recetas (se regenera con rag/ingesta.py)
 rag/chroma_db/
+# Respaldos del índice (p. ej. el de GLM-OCR, que ya no se puede regenerar)
+rag/chroma_db_*/
 
 # Sistema operativo
 Thumbs.db

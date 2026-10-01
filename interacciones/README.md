@@ -58,10 +58,16 @@ todo el proyecto: lo que puede hacer daño no lo decide el modelo (ver
 
 ### `ingredientes_recetas.json`: qué lleva cada receta
 
-Tiene una entrada por cada una de las **31 fuentes del índice** de ChromaDB y
+Tiene una entrada por cada una de las **29 fuentes del índice** de ChromaDB (reingerido con qwen2.5vl:7b el 2026-09-30) y
 usa como llave el mismo nombre de archivo que devuelve la traza del RAG. Cada
 alimento marcado cita la **evidencia literal** del texto indexado. La prueba de
-integridad verifica que las 42 citas estén de verdad en el índice.
+integridad verifica que las 46 citas estén de verdad en el índice.
+
+Al reingerir con Qwen la prueba detectó dos fuentes que ya no estaban y 7 citas
+con otra redacción. Se corrigieron sobre el texto nuevo y se agregaron dos
+platos de `receta13.jpeg` que GLM-OCR no había leído (fritada y ají de
+librillo), verificados contra la foto. La versión sobre GLM-OCR está en el
+historial de git (commit `1ee8a80`).
 
 Se construyó leyendo **lo que el OCR dejó en el índice**, no la foto ni lo que
 el plato "suele llevar". Si el OCR no leyó un ingrediente, aquí tampoco está: el
@@ -106,8 +112,11 @@ independiente y descartable, hecho el 2026-09-30, coincidió en los 31 casos.
 - **Una foto con varios platos es una sola fuente.** El cruce une las
   categorías de todos sus platos: preguntar por los calamares de `receta14.jpeg`
   alerta por la cerveza de los cangrejos de la misma página.
-- **Las recetas con OCR degradado** (`aguado de gallina.jpg` y `berenjena.jpg`,
-  marcadas `calidad_ocr: baja`) tienen listas de ingredientes incompletas.
+- **`berenjena.jpg`** (`calidad_ocr: baja`): con Qwen el texto es fluido pero
+  no fiel. Omite los ingredientes e inventa frases, y pasa el control de
+  calidad porque no repite nada (ver su `nota_ocr`).
+- **Tres fotos no están en el índice** (`_fuentes_excluidas`): Qwen entró en
+  bucle con ellas.
 - **La variedad entre usuarios es baja:** todos toman algún medicamento que
   interactúa con alcohol, así que en las recetas con alcohol todos reciben
   aviso. Solo el café separa a un usuario (Elena) de los demás.

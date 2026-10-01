@@ -1,11 +1,20 @@
 # Ingesta del recetario: lee rag/recetas_data/ (texto e imágenes), pasa las
-# imágenes por OCR (glm-ocr), trocea el texto resultante, descarta lo que no
-# pasa el control de calidad, lo embebe (BGE-M3) y lo guarda en una colección
-# local de ChromaDB persistida en rag/chroma_db/.
+# imágenes por OCR (el modelo del .env; hoy qwen2.5vl:7b), trocea el texto
+# resultante, descarta lo que no pasa el control de calidad, lo embebe (BGE-M3)
+# y lo guarda en una colección local de ChromaDB persistida en rag/chroma_db/.
 #
 # Uso (desde la raíz del repo):
-#   python -m rag.ingesta
+#   python -m rag.ingesta                                # llama al OCR
+#   python -m rag.ingesta --desde-ocr resultados/X.json  # usa un OCR guardado
+#
+# --desde-ocr toma el texto que guardó pruebas/evaluar_ocr.py en vez de volver a
+# llamar al modelo. Existe porque el servidor rota de modelo sin aviso: con el
+# OCR guardado, el índice se puede reconstruir aunque el modelo ya no exista, y
+# se sabe exactamente de qué texto salió. Es lo que no se pudo hacer con el
+# índice de GLM-OCR (bitácora 11).
 
+import argparse
+import json
 from pathlib import Path
 
 import chromadb
@@ -148,17 +157,35 @@ def _trocear(texto: str, maximo: int = MAXIMO_CARACTERES_FRAGMENTO) -> list[str]
     return _fusionar_cortos(fragmentos, MINIMO_CARACTERES_FRAGMENTO, maximo)
 
 
-def _leer_archivo(archivo: Path) -> str | None:
+def _leer_archivo(archivo: Path, textos_ocr: dict[str, str] | None = None) -> str | None:
     extension = archivo.suffix.lower()
     if extension in EXTENSIONES_TEXTO:
         return archivo.read_text(encoding="utf-8")
     if extension in EXTENSIONES_IMAGEN:
+        if textos_ocr is not None:
+            if archivo.name not in textos_ocr:
+                # Sin texto guardado no se inventa ni se llama al OCR a
+                # escondidas: el índice tiene que salir entero del archivo dado.
+                raise ValueError(f"El OCR guardado no tiene texto para {archivo.name}")
+            return textos_ocr[archivo.name]
         print(f"  OCR: {archivo.name}...")
         return extraer_texto_de_imagen(archivo)
     return None
 
 
-def cargar_fragmentos() -> tuple[list[tuple[str, str, str, int]], list[dict]]:
+def cargar_ocr_guardado(ruta: Path) -> dict[str, str]:
+    """Texto por imagen de un archivo de pruebas/evaluar_ocr.py. Falla si
+    alguna imagen quedó con error: un índice construido a medias no sirve para
+    medir."""
+    datos = json.loads(Path(ruta).read_text(encoding="utf-8"))
+    con_error = [n for n, r in datos["imagenes"].items() if r["error"]]
+    if con_error:
+        raise ValueError(f"El OCR guardado tiene imágenes con error: {con_error}. Completalo con --reanudar.")
+    print(f"Usando OCR guardado de {datos['modelo_ocr']} ({ruta})")
+    return {nombre: r["texto"] for nombre, r in datos["imagenes"].items()}
+
+
+def cargar_fragmentos(textos_ocr: dict[str, str] | None = None) -> tuple[list[tuple[str, str, str, int]], list[dict]]:
     """Devuelve (fragmentos, rechazos).
 
     Cada fragmento es una tupla (id, texto, archivo_fuente, orden). El `orden`
@@ -175,7 +202,7 @@ def cargar_fragmentos() -> tuple[list[tuple[str, str, str, int]], list[dict]]:
     for archivo in sorted(RECETAS_DATA_DIR.iterdir()):
         if not archivo.is_file():
             continue
-        texto = _leer_archivo(archivo)
+        texto = _leer_archivo(archivo, textos_ocr)
         if texto is None:
             continue
 
@@ -211,8 +238,8 @@ def cargar_fragmentos() -> tuple[list[tuple[str, str, str, int]], list[dict]]:
     return fragmentos, rechazos
 
 
-def ingestar():
-    fragmentos, rechazos = cargar_fragmentos()
+def ingestar(textos_ocr: dict[str, str] | None = None):
+    fragmentos, rechazos = cargar_fragmentos(textos_ocr)
 
     if not fragmentos:
         print(f"No se pudo indexar nada de {RECETAS_DATA_DIR}")
@@ -261,4 +288,7 @@ def ingestar():
 
 
 if __name__ == "__main__":
-    ingestar()
+    parser = argparse.ArgumentParser(description="Ingesta del recetario a ChromaDB.")
+    parser.add_argument("--desde-ocr", type=Path, help="archivo de pruebas/evaluar_ocr.py a usar en vez de llamar al OCR")
+    args = parser.parse_args()
+    ingestar(cargar_ocr_guardado(args.desde_ocr) if args.desde_ocr else None)

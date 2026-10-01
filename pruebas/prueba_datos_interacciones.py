@@ -165,6 +165,8 @@ def prueba_la_evidencia_esta_en_el_texto_indexado():
         return "OMITIDA: no hay índice local (correr `python -m rag.ingesta`)"
     revisadas = 0
     for fuente, entrada in cargar_ingredientes().items():
+        if fuente not in indice:
+            continue  # lo reporta prueba_las_fuentes_son_exactamente_las_del_indice
         for plato in entrada["platos"]:
             for a in plato["alimentos_marcados"]:
                 # "A ... B" cita dos trozos no contiguos del mismo texto.

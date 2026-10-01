@@ -1,0 +1,140 @@
+[
+  {
+    "id": "acierto_directo",
+    "consulta": "léeme la receta del bolón de verde",
+    "nota": "el usuario nombra el plato tal como está en el recetario",
+    "hubo_resultado": true,
+    "espera_resultado": true,
+    "resultado_correcto": true,
+    "fuentes_usadas": [
+      "bolon de verde.png"
+    ],
+    "fuentes_aceptables": [
+      "bolon de verde.png"
+    ],
+    "fuente_correcta": true,
+    "consulto_recetario": true,
+    "intentos": 1,
+    "caracteres_respuesta": 1085,
+    "minimo_caracteres": 300,
+    "respuesta_completa": true,
+    "camino": [
+      "decidir_busqueda",
+      "recuperar",
+      "evaluar_relevancia",
+      "expandir_contexto",
+      "generar"
+    ],
+    "latencia_s": 11.14,
+    "respuesta": "¡Claro que sí! Aquí te leo la receta del **Bolón de Verde**, un plato auténtico ecuatoriano. Te la voy despacito.\n\n## Ingredientes\n\n- Plátanos verdes\n- Queso Manaba\n- Chicharrón\n- Manteca o mantequilla\n- Sal\n- Aceite\n\n## Preparación, paso a paso\n\n1. **Pelar los plátanos.**\n2. **Hervir en agua con sal.**\n3. **Majar el verde** (esto es aplastarlo bien hasta que quede como una masa suave).\n4. **Añadir manteca o mantequilla.**\n5. **Poner queso y chicharrón.**\n6. **Formar los bolones** (hacer bolitas con las manos).\n\n## Consejo de la receta\n\n> \"Maja el verde cuando aún esté caliente; así el bolón queda compacto y no se desarma.\"\n\n## Una aclaración importante\n\nEsta receta **no indica las cantidades** de cada ingrediente (cuántos plátanos, cuánto queso, cuánta manteca), ni tampoco los **tiempos de cocción**. Prefiero decírtelo con franqueza antes que inventarte medidas que no están en el recetario.\n\nTambién noto que el aceite aparece en la lista de ingredientes, pero los pasos no dicen en qué momento se usa.\n\n¿Quieres que te repita algún paso o te lo explique con más detalle?"
+  },
+  {
+    "id": "descripcion_sin_nombrar_plato",
+    "consulta": "quiero hacer eso de plátano verde majado con chicharrón adentro",
+    "nota": "describe el plato sin nombrarlo, con un ingrediente que lo distingue",
+    "hubo_resultado": true,
+    "espera_resultado": true,
+    "resultado_correcto": true,
+    "fuentes_usadas": [
+      "bolon de verde.png"
+    ],
+    "fuentes_aceptables": [
+      "bolon de verde.png"
+    ],
+    "fuente_correcta": true,
+    "consulto_recetario": true,
+    "intentos": 1,
+    "caracteres_respuesta": 1306,
+    "minimo_caracteres": 300,
+    "respuesta_completa": true,
+    "camino": [
+      "decidir_busqueda",
+      "recuperar",
+      "evaluar_relevancia",
+      "expandir_contexto",
+      "generar"
+    ],
+    "latencia_s": 12.45,
+    "respuesta": "¡Muy bien! Eso que quiere preparar se llama **Bolón de Verde**, una receta auténtica ecuatoriana. Le explico todo paso a paso:\n\n## Lo que va a necesitar\n\n- Plátanos verdes\n- Queso Manaba\n- Chicharrón\n- Manteca o mantequilla\n- Sal\n- Aceite\n\n## Preparación, paso a paso\n\n1. **Pele los plátanos verdes.**\n2. **Póngalos a hervir en agua con sal.**\n3. **Maje el verde** (es decir, aplástelo hasta formar una masa). ⚠️ *Consejo importante del recetario:* haga esto **cuando el verde aún esté caliente**, así el bolón queda compacto y no se desarma.\n4. **Añada la manteca o mantequilla** a esa masa.\n5. **Ponga el queso y el chicharrón** dentro.\n6. **Forme los bolones** con las manos.\n\n## Cosas que debo decirle con honestidad\n\nEl recetario que tengo a la vista es bastante breve, así que hay cosas que **no indica** y no quiero inventar:\n\n- **No dice las cantidades** (cuántos plátanos, cuánto queso o cuánto chicharrón usar).\n- **No indica el tiempo de cocción** del hervido.\n- El **aceite** aparece en la lista de ingredientes, pero los pasos no explican en qué momento ni cómo se usa.\n\nSi tiene dudas sobre alguna de esas partes, lo mejor es consultar con alguien de confianza que conozca la receta completa, o buscar la fuente original: *Las Rutas de Andre*.\n\n¿Quiere que le repita algún paso con más calma?"
+  },
+  {
+    "id": "no_esta_en_recetario",
+    "consulta": "quiero preparar sushi",
+    "nota": "no está en el recetario: debe admitirlo, no apoyarse en una receta de arroz",
+    "hubo_resultado": false,
+    "espera_resultado": false,
+    "resultado_correcto": true,
+    "fuentes_usadas": [],
+    "fuentes_aceptables": null,
+    "fuente_correcta": true,
+    "consulto_recetario": true,
+    "intentos": 2,
+    "caracteres_respuesta": 170,
+    "minimo_caracteres": 0,
+    "respuesta_completa": true,
+    "camino": [
+      "decidir_busqueda",
+      "recuperar",
+      "evaluar_relevancia",
+      "reformular",
+      "recuperar",
+      "evaluar_relevancia",
+      "sin_resultado"
+    ],
+    "latencia_s": 6.98,
+    "respuesta": "No encontré esa receta en tu recetario. Puedo ayudarte con otra, o si tienes la receta escrita en papel, pídele a alguien de tu familia que le tome una foto y la agregue."
+  },
+  {
+    "id": "receta_multi_paso",
+    "consulta": "como hago el llapingacho",
+    "nota": "la receta está repartida en varios fragmentos: debe responder completa",
+    "hubo_resultado": true,
+    "espera_resultado": true,
+    "resultado_correcto": true,
+    "fuentes_usadas": [
+      "llapingacho.jpg",
+      "receta1.jpeg"
+    ],
+    "fuentes_aceptables": [
+      "llapingacho.jpg",
+      "receta1.jpeg"
+    ],
+    "fuente_correcta": true,
+    "consulto_recetario": true,
+    "intentos": 1,
+    "caracteres_respuesta": 2576,
+    "minimo_caracteres": 500,
+    "respuesta_completa": true,
+    "camino": [
+      "decidir_busqueda",
+      "recuperar",
+      "evaluar_relevancia",
+      "expandir_contexto",
+      "generar"
+    ],
+    "latencia_s": 29.66,
+    "respuesta": "¡Con gusto! Le explico paso a paso. El recetario trae **dos versiones**: la básica y la del estilo de Ambato. Le muestro las dos para que elija.\n\n---\n\n## 1) Llapingachos (receta básica)\n\n**Ingredientes:**\n- 1 kilo de papa chola (unas 7 u 8 papas medianas, aproximadamente)\n- Medio kilo de queso (un bloque mediano)\n- 2 huevos\n- 2 hojas de manteca\n- 2 cucharadas soperas de mantequilla\n- Sal al gusto\n\n**Paso a paso:**\n1. Pele las papas y cocínelas en agua hirviendo con sal.\n2. Cuando estén bien suaves, escúrralas y aplástelas hasta hacer un puré (puede ayudarse con un tenedor o prensapuré).\n3. Agregue la mantequilla y el queso previamente rallado. Mezcle bien. *Si prefiere, el queso puede ir solamente como relleno.*\n4. Añada los 2 huevos y amase con las manos hasta que todo se integre.\n5. Forme tortillas pequeñas y déjelas reposar **15 minutos** (un cuarto de hora).\n6. Caliente una plancha o una sartén plana y áselas con poca grasa.\n7. Cada vez que sea necesario, agregue un chorrito pequeño de aceite.\n8. Si quiere darles más sabor, puede usar manteca de cerdo derretida.\n\n---\n\n## 2) Llapingachos al estilo de Ambato (elaboración fácil, salen 14 unidades medianas)\n\n**Ingredientes:**\n- 3 libras de papas (casi un kilo y medio, pesadas ya peladas)\n- 4 onzas de queso fresco rallado (casi un cuarto de kilo)\n- Media taza de cebolla blanca larga picada finamente (un vaso común lleno hasta la mitad)\n- 1 cucharadita de manteca de color (la cuchara pequeña)\n- 2 onzas de manteca de chancho (unas 4 cucharadas soperas)\n- Sal al gusto\n- 7 huevos fritos\n- Media libra de chorizo de Ambato (un cuarto de kilo)\n- 1 lechuga\n- 3 aguacates grandes\n\n**Paso a paso:**\n1. Cocine las papas con sal y un tallo de cebolla. Escúrralas y páselas por el prensapuré. Sazone con sal, amasando bien la mezcla.\n2. Forme cazuelitas del tamaño que desee y rellénelas con un poco de queso mezclado con la cebolla refrita en la manteca de color.\n3. Fría los llapingachos en manteca de chancho, a fuego medio.\n4. Sirva con los huevos y el chorizo fritos, la lechuga y el aguacate.\n\n---\n\n## Cómo servirlos\n\nEl plato ambateño tradicional se sirve con: **aguacate, salsa de maní, ensalada fresca, huevos fritos, chorizos, extra Don Diego y fritos**. También son una excelente guarnición para el hornado y la fritada.\n\n**Una aclaración:** el recetario menciona la salsa de maní, el extra Don Diego y los fritos como acompañantes, pero **no incluye cómo prepararlos**, así que no puedo indicarle esos pasos.\n\n¿Quiere que le repita alguna de las dos versiones más despacio, o que le explique solo una?"
+  },
+  {
+    "id": "sin_necesidad_de_buscar",
+    "consulta": "gracias mijito, ya me salio rico",
+    "nota": "un agradecimiento no necesita el recetario",
+    "hubo_resultado": true,
+    "espera_resultado": true,
+    "resultado_correcto": true,
+    "fuentes_usadas": [],
+    "fuentes_aceptables": null,
+    "fuente_correcta": true,
+    "consulto_recetario": false,
+    "intentos": 0,
+    "caracteres_respuesta": 102,
+    "minimo_caracteres": 0,
+    "respuesta_completa": true,
+    "camino": [
+      "decidir_busqueda",
+      "responder_sin_recetario"
+    ],
+    "latencia_s": 1.67,
+    "respuesta": "¡Qué alegría me da, doña! Nada sabe mejor que un platito hecho con cariño. ¡Buen provecho y un abrazo!"
+  }
+]

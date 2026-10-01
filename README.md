@@ -177,7 +177,7 @@ accessibility-agents/
 │   ├── README.md                 Diseño, decisiones y limitaciones
 │   └── datos/
 │       ├── interacciones_alimentarias.json  Catálogo: 4 categorías de alimento, 10 interacciones
-│       ├── ingredientes_recetas.json        Alimentos marcados de las 31 recetas del índice, con cita literal
+│       ├── ingredientes_recetas.json        Alimentos marcados de las 29 recetas del índice, con cita literal
 │       └── casos_prueba.json                Verdad de referencia escrita a mano (desarrollo + campaña)
 ├── orquestacion_crewai/           ANTECEDENTE: primera etapa, fuera del alcance desde el 2026-09-24
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
