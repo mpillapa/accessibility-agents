@@ -19,13 +19,26 @@ cinco siguen el camino orquestador → un agente → fin. Cristian la pidió el
 2026-09-30 por dos motivos: tener un flujo con varios agentes y poder medir si
 el camino recorrido fue el correcto.
 
-## Diseño (la parte del grafo todavía no está implementada)
+## Diseño (implementado el 2026-09-30)
 
 ```
-orchestrator ──(intención nueva)──► medicacion ─┐
-                                               ├─► integrador ─► fin
-                              └──► recetas ────┘
+                        ┌─► medicacion_cruce ─┐
+orchestrator ──(MEDICATION_FOOD_CHECK)──┤                     ├─► integrador ─► fin
+                        └─► recetas_cruce ────┘
 ```
+
+Diagrama generado: `../orquestacion_langgraph/grafo.png`.
+
+| Nodo | Qué hace | ¿LLM? |
+|---|---|---|
+| `orchestrator` | Clasifica la intención. Para esta tarea devuelve **dos** ramas y LangGraph las corre en paralelo | Sí, 1 llamada |
+| `medicacion_cruce` | Lee los medicamentos de la prescripción vigente (`reglas.medicamentos_vigentes`) | No |
+| `recetas_cruce` | Subgrafo de RAG agéntico **sin generación**: solo averigua qué receta es. Se le pregunta por los ingredientes del plato, no por las pastillas, porque el evaluador de relevancia juzga si el fragmento responde la consulta | Sí, 2 o más llamadas |
+| `integrador` | Espera a las dos ramas, cruza en código (`reglas.cruzar`) y el LLM redacta (`agente.redactar`). Si no es evaluable, responde con texto fijo y sin LLM | Sí, 1 llamada (0 si no es evaluable) |
+
+Cada rama escribe su propio campo del estado (`medicamentos_vigentes`,
+`recetas_encontradas`): si las dos escribieran el mismo, LangGraph no sabría cuál
+conservar.
 
 **El cruce es código determinista; el LLM solo redacta.** Es la regla que sigue
 todo el proyecto: lo que puede hacer daño no lo decide el modelo (ver
@@ -40,8 +53,11 @@ todo el proyecto: lo que puede hacer daño no lo decide el modelo (ver
 | `datos/casos_prueba.json` | Hecho (2026-09-30) |
 | `datos.py`: acceso a los datos | Hecho (2026-09-30) |
 | `pruebas/prueba_datos_interacciones.py` | Hecho: 9/9 pasan |
-| `reglas.py`: el cruce | Pendiente |
-| Intención nueva, fan-out y nodo integrador en el grafo | Pendiente |
+| `reglas.py`: el cruce determinista, con veredicto (evitar / precaución / sin interacción / no evaluable) | Hecho (2026-09-30) |
+| `agente.py`: la redacción; texto fijo si no es evaluable | Hecho (2026-09-30) |
+| Intención nueva, fan-out y nodo integrador en el grafo | Hecho (2026-09-30) |
+| `pruebas/prueba_interacciones.py`: cruce + camino del grafo con dobles | Hecho: 12/12 |
+| `pruebas/evaluar_interacciones_real.py`: las 20 combinaciones con modelos reales | Hecho (resultados en la bitácora, sección 20) |
 
 ## Los datos
 

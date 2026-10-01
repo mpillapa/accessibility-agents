@@ -18,7 +18,8 @@ El proyecto empezó como una comparación de frameworks (CrewAI vs LangGraph). *
 | Medicación sobre la prescripción médica | Hecho |
 | Emergencia sin LLM (responde con el 911) | Hecho |
 | Interfaz Streamlit y trazas en LangSmith | Hecho |
-| **Tarea medicamento × comida** (`interacciones/`) | Datos hechos; cruce e integrador en el grafo pendientes |
+| **Tarea medicamento × comida** (`interacciones/`): intención nueva, dos ramas en paralelo e integrador | Hecho (2026-09-30) |
+| Red de seguridad determinista para emergencias antes del LLM | Hecho (2026-09-30) |
 | Campaña de medición: tokens, tiempos, tasa de éxito y caminos por tarea y usuario | Pendiente |
 
 **Fuera del alcance:** la integración con Signal o cualquier API de mensajería para avisar a familiares o servicios de emergencia. Queda como trabajo futuro.
@@ -172,8 +173,10 @@ accessibility-agents/
 │       ├── medicamentos.json     62 medicamentos ficticios: material de CONSULTA, no un menu
 │       ├── perfiles.json         6 personas con condiciones, alergias y funcion renal
 │       └── prescripciones.json   6 recetas medicas ficticias: LA FUENTE DE VERDAD
-├── interacciones/                 TAREA MEDICAMENTO × COMIDA (cruce e integrador pendientes)
+├── interacciones/                 TAREA MEDICAMENTO × COMIDA
 │   ├── datos.py                  Carga los JSON; no decide nada
+│   ├── reglas.py                 REGLA DE NEGOCIO: el cruce determinista y el veredicto
+│   ├── agente.py                 Redacción: texto fijo si no es evaluable; el LLM solo redacta el cruce
 │   ├── README.md                 Diseño, decisiones y limitaciones
 │   └── datos/
 │       ├── interacciones_alimentarias.json  Catálogo: 4 categorías de alimento, 10 interacciones
@@ -205,9 +208,13 @@ accessibility-agents/
 │   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
 │   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
-│   ├── prueba_*.py               10 suites, 98 casos, sin VPN ni LLM (ver "Cómo ejecutar")
+│   ├── prueba_*.py               11 suites, 114 casos, sin VPN ni LLM (ver "Cómo ejecutar")
 │   ├── prueba_datos_interacciones.py  Coherencia de los datos de medicamento × comida
-│   └── evaluar_*.py              Evaluadores con el modelo real (requieren VPN o GPU)
+│   ├── prueba_interacciones.py   El cruce y el camino del grafo con dobles
+│   ├── evaluar_ruteo_texto.py    Ruteo del Orchestrator sobre las 415 frases (recall de EMERGENCY, matriz de confusión)
+│   ├── evaluar_interacciones_real.py  Tarea medicamento × comida con modelos reales
+│   ├── evaluar_ocr.py            OCR sin texto de referencia; compara dos OCR
+│   └── evaluar_*.py              Los demás evaluadores con el modelo real (requieren VPN o GPU)
 ├── notebooks/
 │   └── comparativa.ipynb         Cruce de información entre agentes + ciclo del RAG + accuracy de ruteo
 ├── dataset.csv                    415 frases etiquetadas (83 × 5 intenciones), base simulada para evaluar ruteo
@@ -284,7 +291,7 @@ Comparativa de la primera etapa (cruce de información entre agentes + ciclo del
 jupyter notebook notebooks/comparativa.ipynb
 ```
 
-Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 10 suites, 98 casos al 2026-09-30:
+Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 11 suites, 114 casos al 2026-09-30:
 ```bash
 # Todas de una vez
 for f in pruebas/prueba_*.py; do python -m pruebas.$(basename $f .py) | tail -1; done
@@ -297,6 +304,7 @@ python -m pruebas.prueba_emergencia           # el camino critico de emergencias
 python -m pruebas.prueba_prescripciones       # la prescripcion como fuente de verdad
 python -m pruebas.prueba_reglas_medicacion    # criterios de exclusion y tope ajustado
 python -m pruebas.prueba_datos_interacciones  # coherencia de los datos de medicamento x comida
+python -m pruebas.prueba_interacciones        # el cruce y el camino del grafo (fan-out + integrador)
 python -m pruebas.prueba_metricas             # WER y CER
 python -m pruebas.prueba_ruido                # matriz de ruido con SNR controlado
 ```

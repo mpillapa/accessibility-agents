@@ -96,7 +96,7 @@ def _recorrido(pasos: list[str], traza_rag) -> str:
     lineas = []
     for nodo in pasos:
         lineas.append(f"1. {textos.PASOS.get(nodo, nodo)} `({nodo})`")
-        if nodo == "recetas" and traza_rag:
+        if nodo in ("recetas", "recetas_cruce") and traza_rag:
             for paso in traza_rag:
                 sub = paso.get("nodo") if isinstance(paso, dict) else paso
                 lineas.append(f"    - {textos.PASOS_RECETARIO.get(sub, sub)} `({sub})`")

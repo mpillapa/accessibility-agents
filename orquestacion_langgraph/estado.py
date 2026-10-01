@@ -42,3 +42,18 @@ class EstadoConversacion(TypedDict):
     # (demo y notebook comparativo); ningún nodo del grafo principal la lee para
     # tomar decisiones. Es None para las demás intenciones.
     traza_rag: Optional[list[dict]]
+
+    # --- Tarea medicamento × comida (None en las demás intenciones) ---
+    #
+    # Las dos ramas corren EN PARALELO y cada una escribe su propio campo:
+    # si escribieran el mismo, LangGraph no sabría cuál conservar. El
+    # integrador lee los dos cuando ambas terminaron.
+
+    # Lo que escribe la rama de medicación: los medicamentos vigentes.
+    medicamentos_vigentes: Optional[list[str]]
+
+    # Lo que escribe la rama de recetas: qué recetas encontró el RAG.
+    recetas_encontradas: Optional[dict]
+
+    # El resultado del cruce determinista (interacciones/reglas.py).
+    cruce: Optional[dict]

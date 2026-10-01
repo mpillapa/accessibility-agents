@@ -8,7 +8,8 @@
 #   - el subgrafo de RAG agéntico (con su ciclo), en grafo_rag.png
 #
 # Los PNG salen vía la API pública de mermaid.ink (requiere internet). La
-# versión ASCII se imprime 100% local.
+# versión ASCII se imprime 100% local, y el código mermaid se guarda junto a
+# cada PNG (grafo.mmd, grafo_rag.mmd).
 
 from pathlib import Path
 
@@ -28,6 +29,10 @@ def dibujar(app, titulo: str, ruta_png: Path):
     g = app.get_graph()
     print("\n--- Vista ASCII (local) ---\n")
     print(g.draw_ascii())
+
+    # El código mermaid se guarda siempre, aunque falle el PNG: es la fuente
+    # editable del diagrama (sirve para el documento en LaTeX o para mermaid.live).
+    ruta_png.with_suffix(".mmd").write_text(g.draw_mermaid(), encoding="utf-8")
 
     try:
         ruta_png.write_bytes(g.draw_mermaid_png())

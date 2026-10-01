@@ -1,0 +1,822 @@
+{
+ "fecha": "2026-09-30T20:00:39",
+ "resolucion_de_modelos": {
+  "http://172.28.230.10:12559/v1": {
+   "preferido": "zai-org/GLM-5.3-Flash",
+   "resuelto": "zai-org/GLM-5.3-Flash",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.28.230.10:11434/v1": {
+   "preferido": "bge-m3:latest",
+   "resuelto": "bge-m3:latest",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.21.230.33:11434/v1": {
+   "preferido": "qwen2.5vl:7b",
+   "resuelto": "qwen2.5vl:7b",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  }
+ },
+ "resultados": [
+  {
+   "frase": "t6_f1",
+   "usuario": "rosa",
+   "consulta": "¿Me puedo servir el come y bebe de badea con las pastillas que tomo?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 37.61,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta5.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta5.jpeg"
+   ],
+   "veredicto": "evitar",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Aspirina",
+     "alcohol"
+    ],
+    [
+     "Metformina",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Aspirina",
+     "alcohol"
+    ],
+    [
+     "Metformina",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "**Mejor evitarlo.** El problema es el ron, que es parte del come y bebe.\n\n- **Con la metformina:** el alcohol puede bajarle demasiado el azúcar y causar una complicación rara pero grave. Es mejor no comer ni beber cosas con alcohol.\n- **Con la aspirina:** el alcohol junto con la aspirina irrita el estómago y puede causar sangrado. Si igual lo prueba, que sea muy poco y no todos los días.\n\nSi prepara el come y bebe **sin ron**, no hay problema con sus pastillas según esta revisión.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f1",
+   "usuario": "manuel",
+   "consulta": "¿Me puedo servir el come y bebe de badea con las pastillas que tomo?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 23.37,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta5.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta5.jpeg"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Paracetamol",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Paracetamol",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Sí puede comerlo, pero con cuidado.\n\nEste postre lleva ron, y el ron es alcohol. Si usted toma paracetamol todos los días y también toma alcohol, los dos juntos cansan al hígado. Por eso, si lo come, que sea una porción pequeña y no todos los días.\n\nCon el omeprazol no se encontró ningún problema con este postre.\n\nEn resumen: una porción pequeña, de vez en cuando, está bien. Si come el postre ese día, trate de no tomar otras cosas con alcohol.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f1",
+   "usuario": "carmen",
+   "consulta": "¿Me puedo servir el come y bebe de badea con las pastillas que tomo?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 19.36,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta5.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta5.jpeg"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Furosemida",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Furosemida",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Sí puede comerlo, pero con cuidado.\n\nEl come y bebe de badea lleva ron, y el ron tiene alcohol. El alcohol junto con la furosemida puede bajarle mucho la presión. Eso puede darle mareo y riesgo de caídas.\n\nQué hacer: si lo come, que sea poca cantidad. Levántese despacio, por ejemplo al pararse de la mesa.\n\nEl ron es parte del plato, no un acompañamiento que se pueda quitar. Por eso, mejor una porción pequeña.\n\nNo cambie ni deje sus pastillas por su cuenta. Si siente mareo fuerte o se siente mal, avise a su médico o enfermera.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f1",
+   "usuario": "jorge",
+   "consulta": "¿Me puedo servir el come y bebe de badea con las pastillas que tomo?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 25.05,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta5.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta5.jpeg"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Naproxeno",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Naproxeno",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Sí, puede comerlo, pero con cuidado.\n\nEl come y bebe de badea lleva ron. El ron junto con el naproxeno puede irritar el estómago y aumentar el riesgo de sangrado. Por eso, si lo come, que sea poco y no todos los días.\n\nNo se encontró ninguna otra advertencia con sus medicamentos o los ingredientes del plato.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f1",
+   "usuario": "elena",
+   "consulta": "¿Me puedo servir el come y bebe de badea con las pastillas que tomo?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 37.56,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta5.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta5.jpeg"
+   ],
+   "veredicto": "evitar",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Melatonina",
+     "alcohol"
+    ],
+    [
+     "Sertralina",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Melatonina",
+     "alcohol"
+    ],
+    [
+     "Sertralina",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Mejor evitarlo tal como viene, pero hay una solución fácil.\n\nEl problema no es la badea ni la fruta: es el ron que lleva ese plato.\n\n**Con la sertralina:** el alcohol puede darle más sueño y mareo. Por eso conviene evitar comidas o bebidas con alcohol.\n\n**Con la melatonina:** el alcohol también aumenta la somnolencia y empeora el sueño. No lo combine cerca de la hora de su pastilla, sobre todo en la noche.\n\n**Qué hacer:** pida o prepare el come y bebe sin ron. Así puede disfrutar la fruta con tranquilidad. El plato sin alcohol no tiene inconveniente según su receta.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f2",
+   "usuario": "rosa",
+   "consulta": "Quiero hacerme unas tortillas de verde con su cafecito, ¿no me hace daño con mi medicina?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 23.68,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "tortillas de verde.png"
+   ],
+   "fuentes_aceptadas": [
+    "tortillas de verde.png"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "Sí, puede comerse sus tortillas de verde con tranquilidad.\n\nRevisamos la receta contra sus medicamentos: Metformina, Losartan y Aspirina. No se encontró ninguna interacción con los ingredientes del plato. Eso quiere decir que nada de lo que lleva la receta choca con sus medicinas.\n\nNo necesita quitar ningún ingrediente ni cambiar nada en el plato.\n\nSiga tomando sus medicinas tal como se las recetó su doctor, sin cambiar nada.\n\n¡Buen provecho con su cafecito!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f2",
+   "usuario": "manuel",
+   "consulta": "Quiero hacerme unas tortillas de verde con su cafecito, ¿no me hace daño con mi medicina?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 15.19,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "tortillas de verde.png"
+   ],
+   "fuentes_aceptadas": [
+    "tortillas de verde.png"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "**Sí, puede comerlas con tranquilidad.**\n\nRevisamos su receta y no encontramos ninguna interacción entre sus medicamentos (Paracetamol y Omeprazol) y los ingredientes de las tortillas de verde ni el cafecito.\n\nEso significa que el plato no afecta cómo funcionan sus medicinas. No hay ningún ingrediente que deba quitar.\n\nDisfrute su desayuno con calma. Si más adelante tiene alguna duda, consulte a su médico o farmacéutico.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f2",
+   "usuario": "carmen",
+   "consulta": "Quiero hacerme unas tortillas de verde con su cafecito, ¿no me hace daño con mi medicina?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 18.28,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "tortillas de verde.png"
+   ],
+   "fuentes_aceptadas": [
+    "tortillas de verde.png"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "Sí, puede comer sus tortillas de verde con tranquilidad.\n\nRevisamos su receta y no encontramos ninguna interacción entre sus medicamentos (amlodipino y furosemida) y los ingredientes del plato. Eso significa que nada en las tortillas le hace daño con su medicina.\n\nEl cafecito no estaba en la receta revisada. Si tiene duda sobre el café, pregúntele a su médico o farmacéutico.\n\nTome sus pastillas igual que siempre, como se las recetaron. No cambie nada.\n\n¡Buen provecho!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f2",
+   "usuario": "jorge",
+   "consulta": "Quiero hacerme unas tortillas de verde con su cafecito, ¿no me hace daño con mi medicina?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 19.14,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "tortillas de verde.png"
+   ],
+   "fuentes_aceptadas": [
+    "tortillas de verde.png"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "Sí, puede comerse sus tortillas de verde con tranquilidad.\n\nRevisamos la receta de tortillas de verde junto con sus medicamentos: Naproxeno y Omeprazol. No se encontró ninguna interacción. Eso quiere decir que los ingredientes del plato no le quitan efecto a sus medicinas ni le hacen daño.\n\nNo tiene que quitar ningún ingrediente. Puede comer el plato completo, tal como es.\n\nSolo le recuerdo lo de siempre: tome sus medicinas a su hora, igual que cada día. Si después de comer siente algo diferente, avísele a su médico.\n\n¡Buen provecho con su cafecito!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f2",
+   "usuario": "elena",
+   "consulta": "Quiero hacerme unas tortillas de verde con su cafecito, ¿no me hace daño con mi medicina?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 14.72,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "tortillas de verde.png"
+   ],
+   "fuentes_aceptadas": [
+    "tortillas de verde.png"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Melatonina",
+     "cafeina"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Melatonina",
+     "cafeina"
+    ]
+   ],
+   "respuesta": "**Sí puede comerse sus tortillas de verde, con un cuidado con el cafecito.**\n\nEl cruce encontró una sola cosa: el café con la melatonina. El café le quita efecto a la melatonina, que le ayuda a dormir. Qué hacer: tome el café solo en la mañana. En la tarde o en la noche, mejor no lo tome.\n\nEl café es solo un acompañamiento. Si es de tarde o de noche, puede comer sus tortillas sin el cafecito, o tomar otra bebida.\n\nCon la sertralina no se encontró ningún problema con estos alimentos.\n\n¡Buen provecho!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f3",
+   "usuario": "rosa",
+   "consulta": "Voy a preparar llapingachos, ¿me caen mal con lo que me recetó el doctor?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 16.43,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "Sí, puede comer los llapingachos con tranquilidad.\n\nRevisamos sus medicamentos: Metformina, Losartan y Aspirina. También revisamos los ingredientes del plato. El cruce no encontró ninguna interacción entre ellos. Eso quiere decir que la comida no afecta cómo funcionan sus medicinas.\n\nNo hay nada que quitar del plato. Puede disfrutarlo completo.\n\nSi después le queda alguna duda, pregúntele a su doctor.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f3",
+   "usuario": "manuel",
+   "consulta": "Voy a preparar llapingachos, ¿me caen mal con lo que me recetó el doctor?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 12.02,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "**Sí, puede comerlos con tranquilidad.**\n\nRevisamos sus medicamentos (Paracetamol y Omeprazol) contra los ingredientes de los llapingachos. El cruce no encontró ninguna interacción. Eso significa que ningún ingrediente del plato choca con lo que usted toma.\n\nNo necesita quitar nada al plato ni hacer cambios especiales en su comida.\n\nUn consejo amable: si después de comer siente algo diferente, avise a su doctor. Pero según la revisión, todo está bien.\n\n¡Buen provecho y que disfrute sus llapingachos!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f3",
+   "usuario": "carmen",
+   "consulta": "Voy a preparar llapingachos, ¿me caen mal con lo que me recetó el doctor?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 13.8,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "**Sí, puede comer los llapingachos con tranquilidad.**\n\nRevisamos sus medicamentos (Amlodipino y Furosemida) contra los ingredientes del plato. **No se encontró ninguna interacción.** Eso significa que ningún ingrediente del llapingacho estorba la acción de sus pastillas.\n\nNo hay nada que quitar del plato ni ninguna precaución especial por esta comida.\n\nDos recordatorios amables: tome sus medicamentos igual que siempre, y si después de comer siente algo diferente, cuéntele a su doctor.\n\n¡Que disfrute mucho sus llapingachos!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f3",
+   "usuario": "jorge",
+   "consulta": "Voy a preparar llapingachos, ¿me caen mal con lo que me recetó el doctor?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 10.89,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "**Sí, puede comer los llapingachos con tranquilidad.**\n\nRevisamos su receta: usted toma Naproxeno y Omeprazol. Comparamos esos medicamentos con los ingredientes del plato, según las recetas que nos enseñó.\n\n**Resultado:** no encontramos ninguna interacción. Ningún ingrediente de los llapingachos le caerá mal por sus medicinas.\n\nNo hay nada que quitar ni evitar en este caso. Puede disfrutar el plato completo, con el queso y todos sus acompañamientos.\n\nSi después de comer siente alguna molestia, avise a su doctor. Él conoce su salud mejor que nadie.\n\n¡Buen provecho!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f3",
+   "usuario": "elena",
+   "consulta": "Voy a preparar llapingachos, ¿me caen mal con lo que me recetó el doctor?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 7.72,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "llapingacho.jpg",
+    "receta1.jpeg"
+   ],
+   "veredicto": "sin_interaccion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [],
+   "interacciones_esperadas": [],
+   "respuesta": "**Sí, puede comer los llapingachos con tranquilidad.**\n\nRevisamos los ingredientes del plato contra sus medicamentos (sertralina y melatonina). El cruce no encontró ninguna interacción. Eso significa que ninguno de los ingredientes del llapingacho afecta a sus medicinas.\n\nNo hay nada que quitar del plato ni ninguna precaución especial por esta receta.\n\nSolo un consejo general: si después de comer siente algo diferente, avísele a su doctor.\n\n¡Que disfrute sus llapingachos!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f4",
+   "usuario": "rosa",
+   "consulta": "Mi hija va a hacer hornado este domingo, ¿puedo comer tomando mis pastillas?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 16.12,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta13.jpeg",
+    "receta14.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta13.jpeg"
+   ],
+   "veredicto": "evitar",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Aspirina",
+     "alcohol"
+    ],
+    [
+     "Metformina",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Aspirina",
+     "alcohol"
+    ],
+    [
+     "Metformina",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Sí puede comerlo, con cuidado.\n\nEl hornado a veces se prepara con chicha fermentada o cerveza. Esas tienen alcohol, y el alcohol es el problema:\n\n- **Con la metformina:** puede bajarle mucho el azúcar y causar una complicación grave, aunque rara. Mejor evitarlo.\n- **Con la aspirina:** puede irritarle el estómago y aumentar el riesgo de sangrado. Si lo come, que sea poco y no todos los días.\n\n**Qué hacer:** pídale a su hija que prepare el hornado sin chicha ni cerveza, o coma solo la parte del plato que no las lleve. Y no tome cerveza con la comida.\n\nAsí puede disfrutar el domingo con tranquilidad.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f4",
+   "usuario": "manuel",
+   "consulta": "Mi hija va a hacer hornado este domingo, ¿puedo comer tomando mis pastillas?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 18.38,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta13.jpeg",
+    "receta14.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta13.jpeg"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Paracetamol",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Paracetamol",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Sí, puede comer hornado este domingo, pero con cuidado.\n\nEl hornado lleva chicha fermentada y cerveza; son parte del plato. Usted toma paracetamol todos los días. Mezclar paracetamol con alcohol cansa el hígado.\n\nQué hacer: coma una porción pequeña y no repita este plato todos los días. Así protege su hígado.\n\nSu omeprazol no tuvo avisos en esta revisión.\n\nSi queda con dudas, consulte a su médico o farmacéutico.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f4",
+   "usuario": "carmen",
+   "consulta": "Mi hija va a hacer hornado este domingo, ¿puedo comer tomando mis pastillas?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 19.52,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta14.jpeg",
+    "receta13.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta13.jpeg"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Furosemida",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Furosemida",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "Sí, puede comer hornado este domingo, con cuidado.\n\nSu pastilla Furosemida puede reaccionar con el alcohol. El hornado lleva chicha fermentada y cerveza en su preparación. Ese alcohol puede bajarle la presión: puede sentir mareo y tener riesgo de caídas.\n\nQué hacer: coma poca porción y levántese despacio, por ejemplo al pararse de la mesa.\n\nNo se encontró ninguna otra precaución entre sus pastillas y este plato.\n\n¡Que disfrute mucho el almuerzo con su hija!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f4",
+   "usuario": "jorge",
+   "consulta": "Mi hija va a hacer hornado este domingo, ¿puedo comer tomando mis pastillas?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 14.98,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta13.jpeg",
+    "receta14.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta13.jpeg"
+   ],
+   "veredicto": "precaucion",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Naproxeno",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Naproxeno",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "**Sí, puede comer hornado este domingo, pero con cuidado.**\n\nSus pastillas de naproxeno pueden interactuar con el alcohol. El hornado lleva chicha fermentada y cerveza en su preparación. El alcohol junto con el naproxeno puede irritar el estómago y aumentar el riesgo de sangrado.\n\n**Qué hacer:** si come hornado, que sea una porción pequeña y no todos los días. Así cuida su estómago.\n\nNo se encontró ninguna otra advertencia entre sus medicamentos y este plato.\n\n¡Disfrute el domingo con su hija!\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  },
+  {
+   "frase": "t6_f4",
+   "usuario": "elena",
+   "consulta": "Mi hija va a hacer hornado este domingo, ¿puedo comer tomando mis pastillas?",
+   "exito": true,
+   "chequeos": {
+    "intencion": true,
+    "camino": true,
+    "fuente": true,
+    "interacciones": true
+   },
+   "error": null,
+   "segundos": 15.78,
+   "intencion": "MEDICATION_FOOD_CHECK",
+   "camino": [
+    "orchestrator",
+    "medicacion_cruce",
+    "recetas_cruce",
+    "integrador"
+   ],
+   "fuentes": [
+    "receta13.jpeg",
+    "receta14.jpeg"
+   ],
+   "fuentes_aceptadas": [
+    "receta13.jpeg"
+   ],
+   "veredicto": "evitar",
+   "motivo_no_evaluable": null,
+   "interacciones_obtenidas": [
+    [
+     "Melatonina",
+     "alcohol"
+    ],
+    [
+     "Sertralina",
+     "alcohol"
+    ]
+   ],
+   "interacciones_esperadas": [
+    [
+     "Melatonina",
+     "alcohol"
+    ],
+    [
+     "Sertralina",
+     "alcohol"
+    ]
+   ],
+   "respuesta": "**Sí puede comer hornado este domingo, con un cuidado: evite lo que tenga alcohol.**\n\nLa sertralina no se lleva bien con el alcohol. El hornado a veces se prepara con chicha fermentada o cerveza. Eso puede darle más sueño y mareo. Pida el hornado sin chicha ni cerveza.\n\nLa melatonina también suma sueño con el alcohol. Si come algo con alcohol, no lo haga en la noche, cerca de la hora de su pastilla.\n\nEn resumen: coma el hornado sin chicha ni cerveza y tome sus pastillas como siempre.\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: consulte siempre antes de cambiar su medicación._"
+  }
+ ]
+}

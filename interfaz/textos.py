@@ -62,6 +62,9 @@ PASOS = {
     "familia": "Preparando el mensaje para su familia",
     "emergencia": "Atendiendo la emergencia",
     "small_talk": "Preparando la respuesta",
+    "medicacion_cruce": "Revisando qué medicinas toma",
+    "recetas_cruce": "Buscando el plato en el recetario",
+    "integrador": "Comparando el plato con sus medicinas",
 }
 
 # Los pasos internos del RAG agéntico, para el panel de detalles.
@@ -82,6 +85,7 @@ TEMAS = {
     "FAMILY_COMMUNICATION": "Mensajes a la familia",
     "EMERGENCY": "Emergencia",
     "SMALL_TALK": "Conversación",
+    "MEDICATION_FOOD_CHECK": "Comida y medicinas",
     "NO_SE_ENTENDIO": "No se entendió el audio",
 }
 

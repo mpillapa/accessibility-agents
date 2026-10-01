@@ -14,6 +14,7 @@ from orquestacion_langgraph.llm import (
     llm,
 )
 from orquestacion_langgraph.rag_agentico.subgrafo import consultar_recetario
+from orquestacion_langgraph.red_emergencia import detectar_emergencia
 
 INTENCIONES = [
     "MEDICATION_HEALTH",
@@ -21,6 +22,9 @@ INTENCIONES = [
     "FAMILY_COMMUNICATION",
     "EMERGENCY",
     "SMALL_TALK",
+    # Agregada el 2026-09-30 (pedido de Cristian): ¿este plato es compatible
+    # con mis medicamentos? Es la única intención que activa dos especialistas.
+    "MEDICATION_FOOD_CHECK",
 ]
 
 
@@ -33,6 +37,7 @@ class DecisionIntencion(BaseModel):
         "FAMILY_COMMUNICATION",
         "EMERGENCY",
         "SMALL_TALK",
+        "MEDICATION_FOOD_CHECK",
     ]
 
 
@@ -46,23 +51,81 @@ def _extraer_decision(texto: str) -> DecisionIntencion:
     return DecisionIntencion(intencion=intencion, razonamiento=razonamiento)
 
 
-def nodo_orchestrator(estado: EstadoConversacion) -> dict:
-    respuesta = llm.invoke(
+def _como_se_decidio(texto: str) -> str:
+    """Cómo salió la intención del texto del modelo. Existe para poder medir
+    el fallo del valor por defecto: si el modelo no cierra con `CATEGORIA:`,
+    _extraer_decision busca un nombre suelto y, si no hay, cae a SMALL_TALK.
+    Una emergencia mal formateada termina así como conversación trivial."""
+    match = re.search(r"CATEGORIA:\s*([A-Z_]+)", texto)
+    if match and match.group(1) in INTENCIONES:
+        return "formato"
+    if any(o in texto for o in INTENCIONES):
+        return "nombre_suelto"
+    return "por_defecto"
+
+
+def clasificar_detallado(consulta: str) -> dict:
+    """La decisión del Orchestrator con todo lo necesario para medirla: la
+    respuesta cruda del modelo, cómo se extrajo la intención y los tokens."""
+    mensaje = llm.invoke(
         "Eres el primer punto de contacto de un asistente para adultos mayores. "
         "Hablan español coloquial ecuatoriano. Analiza brevemente (1-2 líneas) la "
-        f"intención detrás de esta consulta: '{estado['consulta']}'. Las categorías "
-        f"posibles son: {', '.join(INTENCIONES)}. Termina tu respuesta en una última "
+        f"intención detrás de esta consulta: '{consulta}'. Las categorías "
+        f"posibles son: {', '.join(INTENCIONES)}. "
+        # Única categoría con descripción: es la nueva y la que más se puede
+        # confundir con MEDICATION_HEALTH y RECIPE_MULTIMEDIA.
+        "Usa MEDICATION_FOOD_CHECK cuando pregunte si puede comer o preparar una "
+        "comida o receta con los medicamentos que toma. "
+        "Termina tu respuesta en una última "
         "línea con el formato exacto: CATEGORIA: <una de esas categorías>"
-    ).content
-    decision = _extraer_decision(respuesta)
-    return {"intencion": decision.intencion, "razonamiento": decision.razonamiento}
+    )
+    decision = _extraer_decision(mensaje.content)
+    return {
+        "intencion": decision.intencion,
+        "razonamiento": decision.razonamiento,
+        "como_se_decidio": _como_se_decidio(mensaje.content),
+        "crudo": mensaje.content,
+        "tokens": getattr(mensaje, "usage_metadata", None),
+    }
+
+
+def decidir_intencion(consulta: str) -> dict:
+    """La decisión completa del Orchestrator: primero la red de seguridad
+    determinista para emergencias y, si no coincide, el LLM.
+
+    Con la red, una emergencia con palabras inequívocas ("me caí", "auxilio")
+    no depende del LLM ni de que la transcripción de voz haya salido bien. Ver
+    red_emergencia.py para el caso que la motiva y su límite."""
+    patron = detectar_emergencia(consulta)
+    if patron:
+        return {
+            "intencion": "EMERGENCY",
+            "razonamiento": f"Red de seguridad: la consulta coincide con el patrón '{patron}'. No se consultó al LLM.",
+            "como_se_decidio": "red_emergencia",
+            "crudo": None,
+            "tokens": None,
+        }
+    return clasificar_detallado(consulta)
+
+
+def nodo_orchestrator(estado: EstadoConversacion) -> dict:
+    decision = decidir_intencion(estado["consulta"])
+    return {"intencion": decision["intencion"], "razonamiento": decision["razonamiento"]}
 
 
 # Edge condicional: devuelve la INTENCIÓN detectada, y el grafo la traduce a
 # nodo (ver construir_grafo). Devolver la intención en vez del nombre del nodo
 # mantiene la decisión en el vocabulario del dominio y deja que el diagrama
 # etiquete cada flecha con la intención que la dispara.
-def ruta_siguiente_nodo(estado: EstadoConversacion) -> str:
+#
+# MEDICATION_FOOD_CHECK devuelve DOS etiquetas: LangGraph ejecuta las dos ramas
+# en paralelo (fan-out) y el integrador espera a ambas.
+RAMAS_CRUCE = ["MEDICATION_FOOD_CHECK: medicación", "MEDICATION_FOOD_CHECK: receta"]
+
+
+def ruta_siguiente_nodo(estado: EstadoConversacion) -> str | list[str]:
+    if estado["intencion"] == "MEDICATION_FOOD_CHECK":
+        return RAMAS_CRUCE
     return estado["intencion"]
 
 
@@ -110,6 +173,55 @@ def nodo_recetas(estado: EstadoConversacion) -> dict:
         "respuesta": resultado["respuesta"],
         "traza_rag": resultado["traza"],
     }
+
+
+# --- Tarea medicamento × comida ---------------------------------------------
+#
+# Dos ramas en paralelo y un integrador. Ver interacciones/README.md.
+
+# Rama de medicación: qué toma la persona. Determinista, sin LLM: es la misma
+# lectura de la prescripción vigente que usa el agente de medicación.
+def nodo_medicacion_cruce(estado: EstadoConversacion) -> dict:
+    from interacciones.reglas import medicamentos_vigentes
+
+    return {"medicamentos_vigentes": medicamentos_vigentes(estado.get("id_perfil") or PERFIL_POR_DEFECTO)}
+
+
+# Cómo se le pregunta al RAG por el plato. La consulta original es sobre
+# pastillas ("¿puedo comer hornado con mis pastillas?") y el evaluador de
+# relevancia del RAG juzga si un fragmento RESPONDE la consulta: un fragmento
+# de la receta del hornado no responde nada sobre pastillas. Se le pide lo que
+# esta rama necesita, los ingredientes del plato, sin llamada extra al LLM.
+CONSULTA_RAG_CRUCE = "¿Qué ingredientes lleva el plato que menciona esta persona? Lo que dijo: '{consulta}'"
+
+
+# Rama de recetas: de qué plato se habla. Usa el subgrafo de RAG agéntico SIN
+# generación: solo hace falta saber qué receta es, no redactarla.
+def nodo_recetas_cruce(estado: EstadoConversacion) -> dict:
+    resultado = consultar_recetario(CONSULTA_RAG_CRUCE.format(consulta=estado["consulta"]), con_generacion=False)
+    return {
+        "recetas_encontradas": {
+            "fuentes": resultado["fuentes"],
+            "hubo_resultado": resultado["hubo_resultado"],
+            "intentos": resultado["intentos"],
+        },
+        "traza_rag": resultado["traza"],
+    }
+
+
+# Integrador: espera a las dos ramas, cruza en código y el LLM solo redacta.
+def nodo_integrador(estado: EstadoConversacion) -> dict:
+    from interacciones.agente import redactar
+    from interacciones.reglas import cruzar
+
+    recetas = estado.get("recetas_encontradas") or {}
+    cruce = cruzar(
+        estado.get("id_perfil") or PERFIL_POR_DEFECTO,
+        recetas.get("fuentes") or [],
+        medicamentos=estado.get("medicamentos_vigentes"),
+    )
+    salida = redactar(estado["consulta"], cruce, llm)
+    return {"respuesta": salida["respuesta"], "cruce": cruce}
 
 
 # Stub de comunicación con familia: no ejecuta acción real, solo confirma.

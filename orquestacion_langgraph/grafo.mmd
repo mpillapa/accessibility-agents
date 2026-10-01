@@ -1,0 +1,42 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	transcribir_voz(transcribir_voz)
+	no_se_entendio(no_se_entendio)
+	orchestrator(orchestrator)
+	medicacion(medicacion)
+	recetas(recetas)
+	familia(familia)
+	emergencia(emergencia)
+	small_talk(small_talk)
+	medicacion_cruce(medicacion_cruce)
+	recetas_cruce(recetas_cruce)
+	integrador(integrador)
+	__end__([<p>__end__</p>]):::last
+	__start__ -. &nbsp;entra por texto&nbsp; .-> orchestrator;
+	__start__ -. &nbsp;entra por voz&nbsp; .-> transcribir_voz;
+	medicacion_cruce --> integrador;
+	orchestrator -. &nbsp;EMERGENCY&nbsp; .-> emergencia;
+	orchestrator -. &nbsp;FAMILY_COMMUNICATION&nbsp; .-> familia;
+	orchestrator -. &nbsp;MEDICATION_HEALTH&nbsp; .-> medicacion;
+	orchestrator -. &nbsp;MEDICATION_FOOD_CHECK: medicación&nbsp; .-> medicacion_cruce;
+	orchestrator -. &nbsp;RECIPE_MULTIMEDIA&nbsp; .-> recetas;
+	orchestrator -. &nbsp;MEDICATION_FOOD_CHECK: receta&nbsp; .-> recetas_cruce;
+	orchestrator -. &nbsp;SMALL_TALK&nbsp; .-> small_talk;
+	recetas_cruce --> integrador;
+	transcribir_voz -. &nbsp;no se entendio&nbsp; .-> no_se_entendio;
+	transcribir_voz -. &nbsp;transcripcion confiable&nbsp; .-> orchestrator;
+	emergencia --> __end__;
+	familia --> __end__;
+	integrador --> __end__;
+	medicacion --> __end__;
+	no_se_entendio --> __end__;
+	recetas --> __end__;
+	small_talk --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

@@ -55,11 +55,12 @@ entre los agentes" (ver `../notebooks/comparativa.ipynb`).
 
 - `estado.py` — el `State` (`TypedDict`) que viaja entre nodos: `consulta` (entrada, no cambia), `intencion` y `razonamiento` (los escribe el orchestrator), `respuesta` (la escribe el especialista) y `traza_rag` (solo si pasó por recetas). Cada nodo devuelve un `dict` parcial y LangGraph lo mergea sobre el estado acumulado.
 - `llm.py` — cliente `ChatOpenAI` compartido y la config de endpoints. Está separado de `agentes.py` porque el subgrafo de RAG también lo necesita, y `agentes.py` importa el subgrafo: dejarlo ahí sería un import circular.
-- `agentes.py` — las funciones de cada nodo. Incluye `clasificar_consulta()` (solo la decisión del orchestrator, para medir accuracy de ruteo). Re-exporta la config de `llm.py` por compatibilidad con la demo y el notebook.
+- `agentes.py` — las funciones de cada nodo. `decidir_intencion()` es la decisión completa del orchestrator (red de seguridad + LLM) y `clasificar_detallado()` solo la del LLM, con la respuesta cruda y cómo se extrajo la categoría; las usa `../pruebas/evaluar_ruteo_texto.py`. Incluye también los nodos de la tarea medicamento × comida. Re-exporta la config de `llm.py` por compatibilidad con la demo y el notebook.
+- `red_emergencia.py` — patrones deterministas de emergencia ("me caí", "auxilio", "olor a gas"…) que deciden EMERGENCY **antes** del LLM. Motivo, criterio y límites en el propio archivo.
 - `grafo.py` — construye el `StateGraph` (`add_node`, `add_edge`, `add_conditional_edges`, `compile`) y expone `procesar_consulta()`, `procesar_consulta_verbose()`, `traza_por_nodo()` y `clasificar_consulta()`.
 - `rag_agentico/` — el subgrafo del especialista en recetas: decide si buscar, evalúa relevancia, reformula y reintenta, o admite que no encontró. Tiene su propio README con las reglas del ciclo.
 - `demo.py` — demo en vivo (mismo formato que `../orquestacion_crewai/demo.py`): intención detectada, razonamiento y respuesta, con traza nodo por nodo. En consultas de receta imprime además el ciclo interno del RAG.
-- `visualizar.py` — dibuja el grafo principal (`grafo.png`) y el subgrafo de RAG (`grafo_rag.png`): `draw_ascii` local vía `grandalf`, `draw_mermaid`, o PNG vía `mermaid.ink`.
+- `visualizar.py` — dibuja el grafo principal (`grafo.png`) y el subgrafo de RAG (`grafo_rag.png`): `draw_ascii` local vía `grandalf`, PNG vía `mermaid.ink`, y guarda el código mermaid al lado (`grafo.mmd`, `grafo_rag.mmd`). Regenerado el 2026-09-30 con la tarea nueva.
 
 Uso (desde la raíz del repo):
 ```bash
@@ -98,8 +99,8 @@ pequeños servidos localmente.
 
 ## Pendiente (actualizado 2026-09-30)
 
-- **Tarea medicamento × comida:** intención nueva en el Orchestrator, medicación y recetas en paralelo (fan-out) y un nodo integrador que cruza sus salidas en código determinista. Datos listos en `../interacciones/`.
-- **Bug de ruteo de emergencias:** `_extraer_decision` cae a `SMALL_TALK` cuando la respuesta del modelo no trae `CATEGORIA:`; una emergencia mal formateada termina como small talk.
+- ~~Tarea medicamento × comida~~: **hecha el 2026-09-30**. Intención `MEDICATION_FOOD_CHECK`, dos ramas en paralelo (`medicacion_cruce`, `recetas_cruce`) y un `integrador`. Ver `../interacciones/README.md`.
+- ~~Bug de ruteo de emergencias~~: **diagnosticado y mitigado el 2026-09-30**. No era el valor por defecto de `_extraer_decision`: Whisper transcribió "Acabé de caerme" como "A través de Caerme" y el LLM lo leyó como small talk. Se agregó `red_emergencia.py`, una red de seguridad determinista antes del LLM.
 - **Campaña de medición:** tokens y tiempo por nodo y por sistema, tasa de éxito y caminos correctos, por tarea y usuario.
 - ~~Replicar el subgrafo de RAG agéntico en CrewAI y comparar formalmente contra `../orquestacion_crewai/`~~: fuera del alcance desde el 2026-09-24.
 - Medir con el LLM real cuántas veces el evaluador de relevancia acierta y cuántas la reformulación rescata una búsqueda fallida (celdas ya escritas en el notebook, sin ejecutar por falta de VPN).

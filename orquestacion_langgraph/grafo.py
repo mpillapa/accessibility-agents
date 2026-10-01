@@ -13,6 +13,10 @@ from orquestacion_langgraph.agentes import (
     nodo_familia_stub,
     nodo_emergencia,
     nodo_small_talk,
+    nodo_medicacion_cruce,
+    nodo_recetas_cruce,
+    nodo_integrador,
+    RAMAS_CRUCE,
 )
 from orquestacion_langgraph.voz import (
     RAMA_CONTINUAR,
@@ -35,6 +39,9 @@ def _estado_inicial(consulta: str, ruta_audio: str | None = None,
         "ruta_audio": ruta_audio,
         "transcripcion": None,
         "entrada_descartada": None,
+        "medicamentos_vigentes": None,
+        "recetas_encontradas": None,
+        "cruce": None,
     }
 
 
@@ -56,6 +63,9 @@ def construir_grafo():
     grafo.add_node("familia", nodo_familia_stub)
     grafo.add_node("emergencia", nodo_emergencia)
     grafo.add_node("small_talk", nodo_small_talk)
+    grafo.add_node("medicacion_cruce", nodo_medicacion_cruce)
+    grafo.add_node("recetas_cruce", nodo_recetas_cruce)
+    grafo.add_node("integrador", nodo_integrador)
 
     # Las claves de estos mapas son las etiquetas que aparecen en el diagrama:
     # describen POR QUÉ se toma cada rama, no a dónde va.
@@ -78,7 +88,13 @@ def construir_grafo():
         "FAMILY_COMMUNICATION": "familia",
         "EMERGENCY": "emergencia",
         "SMALL_TALK": "small_talk",
+        # Fan-out: las dos ramas corren en paralelo.
+        RAMAS_CRUCE[0]: "medicacion_cruce",
+        RAMAS_CRUCE[1]: "recetas_cruce",
     })
+    # El integrador espera a que terminen LAS DOS ramas.
+    grafo.add_edge(["medicacion_cruce", "recetas_cruce"], "integrador")
+    grafo.add_edge("integrador", END)
     grafo.add_edge("medicacion", END)
     grafo.add_edge("recetas", END)
     grafo.add_edge("familia", END)
@@ -107,6 +123,7 @@ def procesar_consulta(consulta: str, ruta_audio: str | None = None,
         "traza_rag": resultado.get("traza_rag"),
         "transcripcion": resultado.get("transcripcion"),
         "entrada_descartada": resultado.get("entrada_descartada"),
+        "cruce": resultado.get("cruce"),
         "latencia_segundos": round(latencia, 2),
     }
 
@@ -189,6 +206,7 @@ def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None,
             "traza_rag": estado_acumulado.get("traza_rag"),
             "transcripcion": estado_acumulado.get("transcripcion"),
             "entrada_descartada": estado_acumulado.get("entrada_descartada"),
+            "cruce": estado_acumulado.get("cruce"),
             "latencia_segundos": round(time.time() - inicio, 2),
         },
     }

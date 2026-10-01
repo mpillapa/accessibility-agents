@@ -93,6 +93,55 @@ def prueba_el_numero_es_configurable():
     return "el número de emergencias es configurable, no está fijado por código"
 
 
+# --- Red de seguridad antes del LLM (orquestacion_langgraph/red_emergencia.py) ---
+
+def prueba_red_atrapa_el_caso_de_la_demo():
+    """La transcripción real de Whisper en la demo del 2026-09-24."""
+    from orquestacion_langgraph.red_emergencia import detectar_emergencia
+    assert detectar_emergencia("A través de Caerme, ¿me puedes ayudar?") == "caida"
+    assert detectar_emergencia("Me caí en el baño") == "caida"
+    assert detectar_emergencia("no me puedo levantar") == "no_puede_levantarse"
+    return "la red atrapa 'A través de Caerme' (la transcripción que se perdió en la demo)"
+
+
+def prueba_red_no_alarma_con_frases_parecidas():
+    from orquestacion_langgraph.red_emergencia import detectar_emergencia
+    for frase in ["se me cayó el vaso", "cocinar a fuego lento", "ayúdame con la receta",
+                  "¿puedo comer hornado con mis pastillas?", "avísale a mi hija que ya comí"]:
+        assert detectar_emergencia(frase) is None, frase
+    return "la red no alarma con 'se me cayó el vaso', 'a fuego lento' ni 'ayúdame con la receta'"
+
+
+def prueba_red_sin_falsas_alarmas_en_el_dataset():
+    """Cero falsas alarmas en las 332 frases que NO son emergencias. Ojo: los
+    patrones se diseñaron mirando este mismo dataset, así que el 0 es optimista;
+    sobre 2.957 transcripciones de Whisper con ruido hubo 1 (bitácora 20)."""
+    import csv
+    from pathlib import Path
+    from orquestacion_langgraph.red_emergencia import detectar_emergencia
+    with (Path(__file__).parent.parent / "dataset.csv").open(encoding="utf-8-sig") as f:
+        filas = list(csv.DictReader(f))
+    falsas = [f["text"] for f in filas if f["intent"] != "EMERGENCY" and detectar_emergencia(f["text"])]
+    atrapadas = sum(1 for f in filas if f["intent"] == "EMERGENCY" and detectar_emergencia(f["text"]))
+    assert not falsas, f"falsas alarmas: {falsas}"
+    return f"0 falsas alarmas en 332 frases; atrapa {atrapadas}/83 emergencias sin LLM"
+
+
+def prueba_red_decide_sin_llm():
+    original = agentes.llm
+
+    class LLMQueNoDebeLlamarse:
+        def invoke(self, prompt):
+            raise AssertionError("la red debía decidir sin LLM")
+    try:
+        agentes.llm = LLMQueNoDebeLlamarse()
+        d = agentes.decidir_intencion("Auxilio, me caí")
+    finally:
+        agentes.llm = original
+    assert d["intencion"] == "EMERGENCY" and d["como_se_decidio"] == "red_emergencia"
+    return "con un patrón de emergencia el Orchestrator decide sin llamar al LLM"
+
+
 CASOS = [
     prueba_da_el_numero_de_emergencias,
     prueba_no_llama_al_llm,
@@ -101,6 +150,10 @@ CASOS = [
     prueba_no_da_instrucciones_fisicas,
     prueba_la_respuesta_es_identica_para_cualquier_emergencia,
     prueba_el_numero_es_configurable,
+    prueba_red_atrapa_el_caso_de_la_demo,
+    prueba_red_no_alarma_con_frases_parecidas,
+    prueba_red_sin_falsas_alarmas_en_el_dataset,
+    prueba_red_decide_sin_llm,
 ]
 
 

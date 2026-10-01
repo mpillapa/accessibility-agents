@@ -1,0 +1,31 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	decidir_busqueda(decidir_busqueda)
+	recuperar(recuperar)
+	evaluar_relevancia(evaluar_relevancia)
+	reformular(reformular)
+	expandir_contexto(expandir_contexto)
+	generar(generar)
+	sin_resultado(sin_resultado)
+	responder_sin_recetario(responder_sin_recetario)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> decidir_busqueda;
+	decidir_busqueda -.-> recuperar;
+	decidir_busqueda -.-> responder_sin_recetario;
+	evaluar_relevancia -. &nbsp;generar&nbsp; .-> expandir_contexto;
+	evaluar_relevancia -.-> reformular;
+	evaluar_relevancia -.-> sin_resultado;
+	expandir_contexto --> generar;
+	recuperar --> evaluar_relevancia;
+	reformular --> recuperar;
+	generar --> __end__;
+	responder_sin_recetario --> __end__;
+	sin_resultado --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

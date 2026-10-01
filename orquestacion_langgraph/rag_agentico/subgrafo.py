@@ -47,7 +47,12 @@ from orquestacion_langgraph.rag_agentico.nodos import (
 )
 
 
-def construir_subgrafo_rag():
+def construir_subgrafo_rag(con_generacion: bool = True):
+    """Con `con_generacion=False` el subgrafo termina después de expandir el
+    contexto: devuelve QUÉ recetas encontró, sin redactar la respuesta. Lo usa
+    la tarea medicamento × comida, que solo necesita saber de qué plato se
+    habla para cruzarlo con la medicación. Se salta `generar`, que es ~88% del
+    tiempo del RAG (bitácora 11)."""
     grafo = StateGraph(EstadoRAG)
 
     grafo.add_node("decidir_busqueda", nodo_decidir_busqueda)
@@ -75,8 +80,11 @@ def construir_subgrafo_rag():
     # El arco que cierra el ciclo.
     grafo.add_edge("reformular", "recuperar")
 
-    grafo.add_edge("expandir_contexto", "generar")
-    grafo.add_edge("generar", END)
+    if con_generacion:
+        grafo.add_edge("expandir_contexto", "generar")
+        grafo.add_edge("generar", END)
+    else:
+        grafo.add_edge("expandir_contexto", END)
     grafo.add_edge("sin_resultado", END)
     grafo.add_edge("responder_sin_recetario", END)
 
@@ -98,15 +106,24 @@ def _estado_inicial(consulta: str) -> dict:
     }
 
 
-def consultar_recetario(consulta: str) -> dict:
+def consultar_recetario(consulta: str, con_generacion: bool = True) -> dict:
     """Punto de entrada del subgrafo. Devuelve la respuesta más la traza del
     ciclo, para que el grafo principal pueda pasarla hacia arriba y el
-    notebook comparativo pueda mostrar qué hizo el RAG paso a paso."""
-    resultado = construir_subgrafo_rag().invoke(_estado_inicial(consulta))
+    notebook comparativo pueda mostrar qué hizo el RAG paso a paso.
+
+    `fuentes` son las recetas cuyos fragmentos aprobó el evaluador de
+    relevancia. Con `con_generacion=False`, `respuesta` es None."""
+    resultado = construir_subgrafo_rag(con_generacion).invoke(_estado_inicial(consulta))
+    utiles = resultado.get("fragmentos_utiles") or []
+    hubo_resultado = resultado["hubo_resultado"]
+    if hubo_resultado is None and resultado.get("necesita_recetario"):
+        # Sin generación nadie escribe hubo_resultado: se deduce del filtro.
+        hubo_resultado = bool(utiles)
 
     return {
         "respuesta": resultado["respuesta"],
-        "hubo_resultado": resultado["hubo_resultado"],
+        "hubo_resultado": hubo_resultado,
         "intentos": resultado["intentos"],
+        "fuentes": list(dict.fromkeys(f["fuente"] for f in utiles)),
         "traza": resultado["traza"],
     }
