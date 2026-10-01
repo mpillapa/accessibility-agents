@@ -17,8 +17,6 @@ BAJADA = (
 )
 
 # --- Voz -------------------------------------------------------------------
-TITULO_VOZ = "Hable con el asistente"
-INSTRUCCION_MICROFONO = "Toque el micrófono, diga lo que necesita y vuelva a tocarlo al terminar."
 OTRAS_FORMAS_DE_AUDIO = "Enviar un audio ya grabado"
 PESTANA_ARCHIVO = "Desde un archivo"
 PESTANA_EJEMPLOS = "Audios de prueba"
@@ -37,7 +35,7 @@ ETIQUETA_POR_VOZ = "Por voz"
 NO_SE_ENTENDIO_EL_AUDIO = "(no se entendió el audio)"
 
 # --- Escritura -------------------------------------------------------------
-PLACEHOLDER_CHAT = "Escriba su pregunta aquí"
+PLACEHOLDER_CHAT = "Escriba su pregunta o toque el micrófono para hablar"
 TITULO_SUGERENCIAS = "Puede empezar por aquí"
 SUGERENCIAS = [
     "¿Qué pastillas me tocan hoy?",

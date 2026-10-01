@@ -53,21 +53,8 @@ h1, h2, h3 {{ color: {CASI_NEGRO}; letter-spacing: -0.01em; }}
 .encabezado h1.encabezado-titulo {{ font-size: 2.3rem !important; font-weight: 700; margin: 0; padding: 0 !important; line-height: 1.15; }}
 .encabezado-bajada {{ color: {GRIS_TEXTO}; font-size: 1.05rem; margin: 0.45rem 0 0 0; }}
 
-/* --- Tarjeta del micrófono ---------------------------------------------- */
-.st-key-tarjeta_voz {{
-    background: {CREMA};
-    border: 1px solid {BEIGE};
-    border-left: 6px solid {ROJO_USFQ};
-    border-radius: 0.6rem;
-    padding: 1.1rem 1.2rem 0.6rem 1.2rem;
-}}
-.st-key-tarjeta_voz h3 {{ font-size: 1.35rem; margin: 0 0 0.2rem 0; }}
-.st-key-tarjeta_voz [data-testid="stAudioInput"] > div {{
-    min-height: 4.2rem;
-    background: #FFFFFF;
-    border-radius: 0.6rem;
-}}
-.st-key-tarjeta_voz [data-testid="stAudioInput"] button {{ transform: scale(1.35); }}
+/* --- Micrófono de la barra del chat: más grande, para dedos y vista cansados --- */
+[data-testid="stChatInput"] button {{ transform: scale(1.2); }}
 
 /* --- Conversación ------------------------------------------------------- */
 [data-testid="stChatMessage"] {{

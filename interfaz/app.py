@@ -5,6 +5,14 @@
 #   .venv/bin/streamlit run interfaz/app.py
 #   .venv/bin/streamlit run interfaz/app.py --server.address 0.0.0.0   # por IP
 #
+# QUÉ CAMBIÓ EL 2026-09-30
+# -------------------------
+# - La voz se graba en la MISMA barra del chat (st.chat_input con
+#   accept_audio). El micrófono aparte fallaba al grabar: ver entrada.py.
+# - La barra queda bloqueada mientras el asistente responde (submit_mode
+#   "disable"): un toque ya no corta la respuesta a la mitad.
+# - Whisper se precarga en segundo plano al abrir la página.
+#
 # QUÉ CAMBIÓ EN LA VERSIÓN DEL 2026-09-23
 # ---------------------------------------
 # - La voz pasó al frente: el micrófono está a la vista, junto al cuadro de
@@ -37,6 +45,7 @@ import hashlib
 import os
 import sys
 import tempfile
+import threading
 from pathlib import Path
 
 # Streamlit ejecuta este archivo como script suelto, así que sys.path[0] es
@@ -52,6 +61,7 @@ from infraestructura.modelos import describir_resolucion
 from infraestructura.trazas import describir_trazas
 from interfaz import textos
 from interfaz.componentes import dibujar_turno_asistente, dibujar_turno_usuario
+from interfaz.entrada import leer_mensaje
 from interfaz.estilo import CSS, encabezado_html, pie_html
 from medicacion.datos import cargar_perfiles
 from orquestacion_langgraph.grafo import procesar_consulta_en_vivo
@@ -73,10 +83,29 @@ EJEMPLOS = {
 
 def _estado_inicial():
     st.session_state.setdefault("historial", [])
-    # Cambiar la clave del micrófono lo vacía: así, después de enviar un audio,
-    # queda listo para grabar el siguiente en vez de mostrar el anterior.
-    st.session_state.setdefault("version_microfono", 0)
+    # Huella del último audio enviado por archivo o ejemplo (ver _es_nuevo).
     st.session_state.setdefault("ultimo_audio", None)
+
+
+@st.cache_resource(show_spinner=False)
+def _precargar_whisper() -> threading.Thread:
+    """Carga Whisper en un hilo, una sola vez por proceso de Streamlit.
+
+    Sin esto, la primera grabación espera ~37 s a que cargue el modelo y parece
+    que la página se colgó. En un hilo, la página abre al instante; si la
+    persona graba antes de que termine, asr/transcribir.py espera a la carga en
+    curso en vez de empezar otra.
+    """
+    def cargar():
+        try:
+            from asr.transcribir import obtener_modelo
+            obtener_modelo()
+        except Exception as error:  # sin GPU o sin faster-whisper: la voz fallará al usarla
+            print(f"No se pudo precargar Whisper: {error}")
+
+    hilo = threading.Thread(target=cargar, daemon=True, name="precarga-whisper")
+    hilo.start()
+    return hilo
 
 
 # --- Barra lateral ---------------------------------------------------------
@@ -144,47 +173,37 @@ def _es_nuevo(huella: str) -> bool:
     return True
 
 
-def _tarjeta_de_voz() -> str | None:
-    """El micrófono, a la vista, y las otras formas de mandar audio.
+def _otras_formas_de_audio() -> str | None:
+    """Audio que no se graba en el momento: un archivo o los ejemplos del
+    corpus (para mostrar el guardrail con ruido). La grabación en vivo está en
+    la barra del chat.
 
     Devuelve la ruta de un audio nuevo a procesar, o None.
     """
-    with st.container(key="tarjeta_voz"):
-        st.markdown(f"### {textos.TITULO_VOZ}")
-        grabado = st.audio_input(
-            textos.INSTRUCCION_MICROFONO,
-            key=f"microfono_{st.session_state.version_microfono}",
-        )
-        if grabado is not None:
-            datos = grabado.getvalue()
-            if _es_nuevo(hashlib.sha256(datos).hexdigest()):
-                st.session_state.version_microfono += 1
-                return _guardar_audio_temporal(datos)
+    with st.expander(textos.OTRAS_FORMAS_DE_AUDIO):
+        archivo, ejemplos = st.tabs([textos.PESTANA_ARCHIVO, textos.PESTANA_EJEMPLOS])
 
-        with st.expander(textos.OTRAS_FORMAS_DE_AUDIO):
-            archivo, ejemplos = st.tabs([textos.PESTANA_ARCHIVO, textos.PESTANA_EJEMPLOS])
+        with archivo:
+            subido = st.file_uploader(textos.ETIQUETA_ARCHIVO, type=["wav", "mp3", "m4a", "ogg"])
+            if subido is not None:
+                datos = subido.getvalue()
+                if _es_nuevo(hashlib.sha256(datos).hexdigest()):
+                    return _guardar_audio_temporal(datos, Path(subido.name).suffix or ".wav")
 
-            with archivo:
-                subido = st.file_uploader(textos.ETIQUETA_ARCHIVO, type=["wav", "mp3", "m4a", "ogg"])
-                if subido is not None:
-                    datos = subido.getvalue()
-                    if _es_nuevo(hashlib.sha256(datos).hexdigest()):
-                        return _guardar_audio_temporal(datos, Path(subido.name).suffix or ".wav")
-
-            with ejemplos:
-                disponibles = {n: a for n, a in EJEMPLOS.items() if (CORPUS / a).exists()}
-                if not disponibles:
-                    st.caption(textos.SIN_EJEMPLOS)
-                else:
-                    st.caption(textos.EXPLICACION_EJEMPLOS)
-                    elegido = st.selectbox("Audio", list(disponibles), label_visibility="collapsed")
-                    ruta = CORPUS / disponibles[elegido]
-                    st.audio(str(ruta))
-                    if st.button(textos.BOTON_ENVIAR_EJEMPLO, use_container_width=True):
-                        # Sin _es_nuevo: enviar dos veces el mismo ejemplo es
-                        # legítimo en una demo.
-                        st.session_state.ultimo_audio = f"ejemplo:{elegido}"
-                        return str(ruta)
+        with ejemplos:
+            disponibles = {n: a for n, a in EJEMPLOS.items() if (CORPUS / a).exists()}
+            if not disponibles:
+                st.caption(textos.SIN_EJEMPLOS)
+            else:
+                st.caption(textos.EXPLICACION_EJEMPLOS)
+                elegido = st.selectbox("Audio", list(disponibles), label_visibility="collapsed")
+                ruta = CORPUS / disponibles[elegido]
+                st.audio(str(ruta))
+                if st.button(textos.BOTON_ENVIAR_EJEMPLO, use_container_width=True):
+                    # Sin _es_nuevo: enviar dos veces el mismo ejemplo es
+                    # legítimo en una demo.
+                    st.session_state.ultimo_audio = f"ejemplo:{elegido}"
+                    return str(ruta)
     return None
 
 
@@ -232,6 +251,7 @@ def _responder(consulta: str, ruta_audio: str | None, id_perfil: str) -> dict:
 # --- Página ----------------------------------------------------------------
 
 _estado_inicial()
+_precargar_whisper()
 perfil, leer_en_voz_alta = _barra_lateral()
 
 st.markdown(encabezado_html(textos.TITULO, textos.BAJADA), unsafe_allow_html=True)
@@ -250,16 +270,25 @@ for i, mensaje in enumerate(st.session_state.historial):
     else:
         dibujar_turno_asistente(mensaje, i, leer_habilitado=leer_en_voz_alta)
 
-# El turno nuevo se dibuja ACÁ, arriba del micrófono, aunque se procese
-# después: así la conversación queda en orden y el micrófono siempre debajo de
-# lo último que se dijo.
+# El turno nuevo se dibuja ACÁ, debajo de lo ya conversado, aunque se procese
+# después: así la conversación queda en orden.
 zona_turno_nuevo = st.container()
 
-audio_nuevo = _tarjeta_de_voz()
+audio_nuevo = _otras_formas_de_audio()
 st.markdown(pie_html(textos.PIE), unsafe_allow_html=True)
 
-escrito = st.chat_input(textos.PLACEHOLDER_CHAT)
-consulta = escrito or consulta
+# Texto y voz en la misma barra. Se bloquea mientras el asistente responde y se
+# vacía sola al enviar: ver entrada.py para el porqué.
+mensaje = leer_mensaje(st.chat_input(
+    textos.PLACEHOLDER_CHAT,
+    accept_audio=True,
+    submit_mode="disable",
+))
+if mensaje and mensaje["audio"]:
+    audio_nuevo = _guardar_audio_temporal(mensaje["audio"])
+    consulta = None
+elif mensaje:
+    consulta = mensaje["texto"]
 
 if audio_nuevo or consulta:
     zona_sugerencias.empty()

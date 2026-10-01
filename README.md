@@ -208,7 +208,7 @@ accessibility-agents/
 │   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
 │   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
-│   ├── prueba_*.py               11 suites, 114 casos, sin VPN ni LLM (ver "Cómo ejecutar")
+│   ├── prueba_*.py               12 suites, 118 casos, sin VPN ni LLM (ver "Cómo ejecutar")
 │   ├── prueba_datos_interacciones.py  Coherencia de los datos de medicamento × comida
 │   ├── prueba_interacciones.py   El cruce y el camino del grafo con dobles
 │   ├── evaluar_ruteo_texto.py    Ruteo del Orchestrator sobre las 415 frases (recall de EMERGENCY, matriz de confusión)
@@ -291,7 +291,7 @@ Comparativa de la primera etapa (cruce de información entre agentes + ciclo del
 jupyter notebook notebooks/comparativa.ipynb
 ```
 
-Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 11 suites, 114 casos al 2026-09-30:
+Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 12 suites, 118 casos al 2026-09-30:
 ```bash
 # Todas de una vez
 for f in pruebas/prueba_*.py; do python -m pruebas.$(basename $f .py) | tail -1; done
@@ -300,6 +300,7 @@ python -m pruebas.prueba_ciclo_rag            # los caminos del subgrafo de RAG
 python -m pruebas.prueba_calidad_ingesta      # deteccion de OCR degenerado y troceado
 python -m pruebas.prueba_guardrail_voz        # el guardrail de la entrada por voz
 python -m pruebas.prueba_interfaz_voz         # la lectura en voz alta de la interfaz
+python -m pruebas.prueba_interfaz_entrada     # la barra del chat: texto, voz o nada
 python -m pruebas.prueba_emergencia           # el camino critico de emergencias
 python -m pruebas.prueba_prescripciones       # la prescripcion como fuente de verdad
 python -m pruebas.prueba_reglas_medicacion    # criterios de exclusion y tope ajustado

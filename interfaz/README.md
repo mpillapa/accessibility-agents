@@ -22,9 +22,20 @@ Universidad.
 
 ## La voz, de ida y de vuelta
 
-**Hablarle.** El micrófono está a la vista, en la tarjeta "Hable con el
-asistente", debajo de la conversación. Después de enviar un audio el micrófono
-se vacía solo, listo para la siguiente pregunta.
+**Hablarle.** El micrófono está en la misma barra del chat, al lado del cuadro
+de texto, como en cualquier aplicación de mensajes. Se graba, se envía y la
+barra se vacía sola. **Mientras el asistente responde, la barra queda
+bloqueada**, así que un toque no corta la respuesta.
+
+> **Por qué cambió (2026-09-30).** Antes había un micrófono aparte
+> (`st.audio_input`) y fallaba al grabar. La segunda grabación se perdía,
+> porque el micrófono se vaciaba cambiándole la clave a mitad del proceso. Y
+> cualquier toque mientras el asistente trabajaba cortaba la respuesta.
+> `st.chat_input(accept_audio=True, submit_mode="disable")` resuelve las dos
+> cosas. Detalle en `entrada.py`.
+>
+> **Whisper se precarga en segundo plano al abrir la página.** Antes, la
+> primera grabación esperaba ~37 s a que cargara el modelo.
 
 Debajo, en "Enviar un audio ya grabado", hay dos vías más:
 

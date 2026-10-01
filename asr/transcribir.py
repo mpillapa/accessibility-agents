@@ -9,6 +9,7 @@
 #   python -m asr.transcribir ruta/al/audio.wav
 
 import sys
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,8 +27,20 @@ from asr.config import (
 # importar este módulo (por ejemplo, en las pruebas) no cueste nada.
 _modelo = None
 
+# La interfaz precarga el modelo en un hilo al abrir la página (interfaz/app.py)
+# para que la primera grabación no espere ~37 s. Si la persona graba antes de
+# que termine, el candado hace que la segunda llamada espere a la primera en vez
+# de cargar otro modelo en paralelo en la GPU.
+_candado_carga = threading.Lock()
+
 
 def obtener_modelo():
+    global _modelo
+    with _candado_carga:
+        return _cargar_si_hace_falta()
+
+
+def _cargar_si_hace_falta():
     global _modelo
     if _modelo is None:
         from faster_whisper import WhisperModel
