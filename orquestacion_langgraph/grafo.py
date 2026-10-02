@@ -1,6 +1,5 @@
-# Construye el StateGraph: Orchestrator -> (edge condicional) -> especialista -> END.
-# Esto es lo que en CrewAI se resolvía con allow_delegation/tools; aquí el flujo
-# de datos entre nodos y las transiciones quedan explícitas en el grafo.
+# Construye el StateGraph: Orchestrator -> (edge condicional) -> especialista -> END,
+# y expone las formas de ejecutarlo (invoke, stream, traza por nodo).
 
 from langgraph.graph import StateGraph, START, END
 
@@ -45,9 +44,7 @@ def _estado_inicial(consulta: str, ruta_audio: str | None = None,
     }
 
 
-# Por dónde entra el grafo: si hay audio, hay que transcribirlo y verificarlo
-# antes de clasificar nada. Si la consulta ya viene como texto, va directo al
-# Orchestrator (comportamiento original, intacto).
+# Con audio, primero se transcribe y verifica; con texto, directo al Orchestrator.
 def _ruta_de_entrada(estado: EstadoConversacion) -> str:
     return "entra por voz" if estado.get("ruta_audio") else "entra por texto"
 
@@ -67,15 +64,13 @@ def construir_grafo():
     grafo.add_node("recetas_cruce", nodo_recetas_cruce)
     grafo.add_node("integrador", nodo_integrador)
 
-    # Las claves de estos mapas son las etiquetas que aparecen en el diagrama:
-    # describen POR QUÉ se toma cada rama, no a dónde va.
+    # Las claves son las etiquetas del diagrama: dicen por qué se toma la rama.
     grafo.add_conditional_edges(START, _ruta_de_entrada, {
         "entra por voz": "transcribir_voz",
         "entra por texto": "orchestrator",
     })
 
-    # El guardrail del ASR, explícito en la topología: una transcripción que no
-    # se pudo verificar NO llega al Orchestrator. Ver voz.py.
+    # Guardrail del ASR: lo no verificado no llega al Orchestrator (voz.py).
     grafo.add_conditional_edges("transcribir_voz", ruta_tras_transcribir, {
         RAMA_CONTINUAR: "orchestrator",
         RAMA_DESCARTAR: "no_se_entendio",
@@ -88,11 +83,11 @@ def construir_grafo():
         "FAMILY_COMMUNICATION": "familia",
         "EMERGENCY": "emergencia",
         "SMALL_TALK": "small_talk",
-        # Fan-out: las dos ramas corren en paralelo.
+        # Fan-out en paralelo.
         RAMAS_CRUCE[0]: "medicacion_cruce",
         RAMAS_CRUCE[1]: "recetas_cruce",
     })
-    # El integrador espera a que terminen LAS DOS ramas.
+    # El integrador espera a las dos ramas.
     grafo.add_edge(["medicacion_cruce", "recetas_cruce"], "integrador")
     grafo.add_edge("integrador", END)
     grafo.add_edge("medicacion", END)
@@ -114,8 +109,7 @@ def procesar_consulta(consulta: str, ruta_audio: str | None = None,
     latencia = time.time() - inicio
 
     return {
-        # Con entrada por voz, la consulta la escribe el ASR: se devuelve la del
-        # estado final, no la que se pasó por parámetro (que va vacía).
+        # Con voz, la consulta la escribe el ASR; el parámetro llega vacío.
         "consulta": resultado.get("consulta") or consulta,
         "intencion": resultado["intencion"],
         "razonamiento": resultado.get("razonamiento"),
@@ -129,21 +123,12 @@ def procesar_consulta(consulta: str, ruta_audio: str | None = None,
 
 
 def procesar_audio(ruta_audio: str, id_perfil: str | None = None) -> dict:
-    """Entrada por voz: transcribe el audio y lo procesa como una consulta.
-
-    Si el ASR no da una transcripción confiable, el grafo NO clasifica: pide
-    que repitan y devuelve `entrada_descartada` con el motivo. Ver
-    orquestacion_langgraph/voz.py.
-    """
+    """Entrada por voz. Si la transcripción no es confiable, devuelve `entrada_descartada`."""
     return procesar_consulta(consulta="", ruta_audio=ruta_audio, id_perfil=id_perfil)
 
 
-# Igual que procesar_consulta, pero usando app.stream() en vez de app.invoke().
-# stream_mode="updates" entrega, nodo por nodo, SOLO lo que ese nodo escribió
-# en el estado compartido — es la comunicación real entre agentes: el
-# Orchestrator no le "pasa un mensaje" al especialista, escribe en el estado
-# y el especialista lee de ahí. Sirve para mostrar ese intercambio en vivo,
-# equivalente a verbose=True en CrewAI pero explícito por nodo.
+# Como procesar_consulta, pero imprime lo que escribe cada nodo en el estado
+# (stream_mode="updates").
 def procesar_consulta_verbose(consulta: str) -> dict:
     import time
 
@@ -171,22 +156,9 @@ def procesar_consulta_verbose(consulta: str) -> dict:
     }
 
 
-# Igual que traza_por_nodo(), pero ENTREGANDO cada paso apenas ocurre en vez de
-# esperar a que el grafo termine. Lo consume la interfaz web para mostrar por
-# dónde va el sistema mientras trabaja.
-#
-# Por qué existe: una consulta con RAG tarda entre 6 y 30 segundos, y el 88% se
-# va en el nodo `generar`. Sin retroalimentación la interfaz parece colgada, que
-# fue exactamente el problema al presentar la demo. Mostrar el avance no acelera
-# nada, pero convierte una espera opaca en uno donde se ve qué está pasando.
-#
-# Entrega dicts {"nodo": str, "cambios": dict}; el último trae el estado final
-# acumulado bajo la clave "estado_final".
-#
-# `config` es el RunnableConfig de LangChain y se pasa tal cual al grafo. Lo usa
-# la campaña de medición (medicion/campana.py) para etiquetar la ejecución en
-# LangSmith y enganchar el callback que registra tokens y tiempos por nodo. Así
-# la interfaz y la medición recorren exactamente el mismo camino.
+# Generador para la interfaz web: entrega {"nodo", "cambios"} por paso y al
+# final un dict con "estado_final" (bitácora 11.5). `config` es el
+# RunnableConfig que usa medicion/campana.py para LangSmith y tokens por nodo.
 def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None,
                               id_perfil: str | None = None, config: dict | None = None):
     import time
@@ -218,10 +190,7 @@ def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None,
     }
 
 
-# traza_por_nodo() devuelve el mismo intercambio que imprime
-# procesar_consulta_verbose(), pero COMO DATOS (lista de dicts), sin imprimir,
-# para que el notebook comparativo pueda renderizar el cruce de información
-# entre agentes (qué escribió cada nodo en el estado compartido).
+# Lo mismo que imprime procesar_consulta_verbose(), como lista de dicts (notebook).
 def traza_por_nodo(consulta: str) -> list[dict]:
     app = construir_grafo()
     traza = []
@@ -231,9 +200,6 @@ def traza_por_nodo(consulta: str) -> list[dict]:
     return traza
 
 
-# Solo la decisión de clasificación del Orchestrator (una llamada al LLM), sin
-# ejecutar el especialista. Es el ruteo NATIVO de LangGraph: es exactamente el
-# valor que el edge condicional (ruta_siguiente_nodo) usa para decidir a qué
-# nodo saltar. Comparable con crewai.agentes.clasificar_consulta().
+# Solo la intención del Orchestrator, sin ejecutar el especialista.
 def clasificar_consulta(consulta: str) -> str:
     return nodo_orchestrator(_estado_inicial(consulta))["intencion"]

@@ -1,13 +1,6 @@
-# Pruebas de la generación de la matriz de ruido.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_ruido
-#
-# NO requieren GPU ni modelo: son funciones puras sobre señales de audio.
-# Lo que verifican es que el SNR de las mezclas sea el que se pidió — si esa
-# matemática está mal, toda la matriz de ruido de la evaluación de Whisper mide
-# una condición distinta de la que dice medir, y los resultados no significan
-# nada.
+# Pruebas de la matriz de ruido: el SNR de cada mezcla tiene que ser el pedido.
+# Uso: python -m pruebas.prueba_ruido
+# No requiere VPN ni GPU.
 
 import array
 import math
@@ -29,8 +22,7 @@ FRECUENCIA = 16000
 
 
 def señal_de_prueba(segundos: float = 1.0, amplitud: int = 8000) -> array.array:
-    """Un tono de 220 Hz: no es voz, pero para verificar potencias y SNR se
-    comporta igual y es determinista."""
+    """Tono de 220 Hz: para potencias y SNR sirve como voz y es determinista."""
     n = int(FRECUENCIA * segundos)
     return array.array(
         "h", [int(amplitud * math.sin(2 * math.pi * 220 * t / FRECUENCIA)) for t in range(n)]
@@ -51,8 +43,7 @@ def caso_snr_es_el_pedido():
 
 
 def caso_ruido_normalizado():
-    """El ruido sale con potencia media 1 para poder escalarlo por SNR; si no,
-    el cálculo del SNR quedaría desplazado por un factor constante."""
+    """Potencia media 1 para escalarlo por SNR sin desplazamiento constante."""
     for tipo in ["blanco", "rosa"]:
         p = potencia_media(generar_ruido(20000, tipo=tipo, semilla=1))
         assert abs(p - 1.0) < 0.05, f"ruido {tipo}: potencia {p:.4f}, esperaba ~1.0"
@@ -60,8 +51,7 @@ def caso_ruido_normalizado():
 
 
 def caso_reproducible():
-    """Misma semilla, mismo archivo. Sin esto los resultados de una corrida no
-    se pueden comparar con los de otra."""
+    """Misma semilla, mismo archivo: si no, las corridas no son comparables."""
     señal = señal_de_prueba()
     a = mezclar_con_ruido(señal, 10, tipo="blanco", semilla=7)
     b = mezclar_con_ruido(señal, 10, tipo="blanco", semilla=7)
@@ -72,9 +62,7 @@ def caso_reproducible():
 
 
 def caso_no_desborda_16_bits():
-    """A SNR bajo y con señal fuerte, la suma puede pasarse del rango de 16
-    bits. Debe recortarse, no envolver: un desborde sonaría como un chasquido y
-    Whisper lo interpretaría como habla."""
+    """Recortar, no envolver: un desborde suena a chasquido y Whisper lo toma como habla."""
     señal = señal_de_prueba(amplitud=32000)  # casi el máximo
     mezcla = mezclar_con_ruido(señal, -10, tipo="blanco", semilla=3)
     assert all(-32768 <= m <= 32767 for m in mezcla), "hay muestras fuera de rango"
@@ -94,8 +82,7 @@ def caso_ida_y_vuelta_wav():
 
 
 def caso_matriz_completa():
-    """La matriz genera un archivo por condición, incluida la de control sin
-    ruido, y reporta el SNR medido de cada una."""
+    """Un archivo por condición, incluido el control sin ruido, con su SNR medido."""
     señal = señal_de_prueba(1.0)
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
@@ -114,7 +101,6 @@ def caso_matriz_completa():
         controles = [f for f in filas if f["tipo_ruido"] == "ninguno"]
         assert len(controles) == 1, "debe haber exactamente una condición de control"
 
-        # El SNR medido de cada variante con ruido debe estar cerca del pedido.
         for fila in filas:
             if fila["tipo_ruido"] == "ninguno":
                 continue

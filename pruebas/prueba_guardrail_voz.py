@@ -1,18 +1,6 @@
-# Pruebas del guardrail de entrada por voz.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_guardrail_voz
-#
-# NO requieren GPU, ni Whisper cargado, ni VPN: la transcripción se reemplaza
-# por un doble. Lo que se verifica es LA REGLA — que una transcripción no
-# confiable no llegue al Orchestrator, y que una buena sí.
-#
-# Por qué importa esta prueba en particular: sin el guardrail, el sistema
-# reproduce el fallo medido sobre el corpus, donde 31 de 180 emergencias (17%)
-# no se atendieron porque Whisper inventó texto plausible sobre audio pobre.
-# Ver orquestacion_langgraph/voz.py.
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Pruebas del guardrail de voz: una transcripción no confiable no llega al Orchestrator.
+# Uso: python -m pruebas.prueba_guardrail_voz
+# No requiere VPN ni GPU (sin Whisper: se prueba la regla). Ver orquestacion_langgraph/voz.py.
 
 import sys
 
@@ -26,12 +14,8 @@ from orquestacion_langgraph.voz import (
 )
 
 
-# --- La regla de descarte --------------------------------------------------
-
 def prueba_descarta_cuando_el_vad_no_detecta_voz():
-    # El caso real: Whisper devolvió texto con probabilidad de idioma 1.00
-    # sobre ruido gaussiano puro. El texto parece válido; el VAD es lo único
-    # que sabe que no hubo habla.
+    # Caso real: Whisper dio este texto sobre ruido gaussiano puro; solo el VAD lo sabe.
     motivo = _motivo_para_descartar("Gracias por ver el video.", sin_voz=True)
     assert motivo is not None, "una transcripción sin voz detectada debe descartarse"
     assert "no encontró habla" in motivo, motivo
@@ -39,8 +23,7 @@ def prueba_descarta_cuando_el_vad_no_detecta_voz():
 
 
 def prueba_descarta_muletilla_conocida_aunque_el_vad_pase():
-    # Segunda capa: el VAD deja pasar audio con ruido estructurado, pero el
-    # texto es una de las muletillas que Whisper inventa.
+    # Segunda capa: el VAD deja pasar ruido estructurado.
     motivo = _motivo_para_descartar("Gracias por ver el video.", sin_voz=False)
     assert motivo is not None, "una muletilla conocida debe descartarse"
     assert "muletilla" in motivo, motivo
@@ -54,8 +37,7 @@ def prueba_descarta_transcripcion_vacia():
 
 
 def prueba_acepta_una_transcripcion_legitima():
-    # Contrapeso obligatorio: un guardrail que descarta todo no sirve. Esta es
-    # justamente la frase del caso de la emergencia perdida, bien transcrita.
+    # La frase de la emergencia perdida, bien transcrita.
     motivo = _motivo_para_descartar(
         "Me caí en el baño y no me puedo levantar, ayúdame por favor", sin_voz=False
     )
@@ -64,7 +46,7 @@ def prueba_acepta_una_transcripcion_legitima():
 
 
 def prueba_acepta_frases_cotidianas():
-    # Falsos positivos: frases normales de las 5 intenciones no deben caer.
+    # Una frase por cada una de las 5 intenciones.
     frases = [
         "quiero saber cómo hago el llapingacho",
         "ya me tomé la pastilla de la presión",
@@ -78,11 +60,7 @@ def prueba_acepta_frases_cotidianas():
     return f"acepta las {len(frases)} frases cotidianas probadas, sin falsos positivos"
 
 
-# --- El desvío en el grafo -------------------------------------------------
-
-# Estos dos casos comprueban la RAMA que elige el edge, no el nombre del nodo
-# destino: las claves son descriptivas a propósito, para que el diagrama del
-# grafo etiquete cada flecha con el motivo de la decisión (ver construir_grafo).
+# Se comprueba la rama, no el nodo destino: las claves etiquetan las flechas del diagrama.
 def prueba_el_edge_desvia_cuando_hay_motivo():
     destino = ruta_tras_transcribir({"entrada_descartada": "el detector de voz no encontró habla"})
     assert destino == RAMA_DESCARTAR, destino
@@ -96,9 +74,7 @@ def prueba_el_edge_deja_pasar_cuando_no_hay_motivo():
 
 
 def prueba_las_ramas_coinciden_con_el_mapa_del_grafo():
-    """Las ramas que devuelve el edge tienen que existir en el mapa que declara
-    el grafo. Si alguien renombra una y olvida la otra, LangGraph fallaría recién
-    en tiempo de ejecución; esto lo detecta antes."""
+    """Un renombre a medias haría fallar a LangGraph recién en ejecución."""
     from orquestacion_langgraph.grafo import construir_grafo
 
     destinos = {
@@ -113,9 +89,7 @@ def prueba_las_ramas_coinciden_con_el_mapa_del_grafo():
 def prueba_el_nodo_de_descarte_pide_repetir_y_no_clasifica():
     salida = nodo_no_se_entendio({"entrada_descartada": "la transcripción quedó vacía"})
     assert salida["respuesta"] == MENSAJE_NO_SE_ENTENDIO, salida["respuesta"]
-    # Lo importante: NO inventa una intención de las 5 reales. Asumir
-    # SMALL_TALK ante una entrada dudosa es exactamente el fallo que se
-    # quiere evitar.
+    # No debe asumir SMALL_TALK ni otra intención real ante una entrada dudosa.
     assert salida["intencion"] == "NO_SE_ENTENDIO", salida["intencion"]
     assert salida["razonamiento"], "debe quedar registrado por qué se descartó"
     return "el nodo de descarte pide repetir y no clasifica la entrada dudosa"

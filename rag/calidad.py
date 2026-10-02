@@ -1,50 +1,18 @@
-# Control de calidad del texto que produce el OCR, antes de indexarlo.
-#
-# Por qué existe este módulo: el 2026-08-19, al procesar "2 recetas mas.jpg"
-# (una doble página de un libro de cocina, foto nítida y bien iluminada),
-# GLM-OCR leyó correctamente las primeras dos líneas y después entró en un
-# bucle: repitió "Sive el mantequilla que se dore por ambio." cientos de veces
-# hasta degenerar en texto sin sentido con caracteres chinos. Resultado: 60.648
-# caracteres de basura, que eran el 66% de todo el recetario indexado.
-#
-# No fue un problema de calidad de imagen — fue la densidad y el layout
-# multicolumna de la página. Un modelo generativo produce texto plausible
-# aunque no pueda leer la entrada; sin una validación explícita, esa basura
-# entra al índice y el RAG responde con ella.
-#
-# Este módulo NO decide qué hacer con el texto malo (eso es de ingesta.py),
-# solo lo detecta y reporta por qué.
+# Detecta texto degenerado del OCR (bucles, repeticiones) antes de indexarlo.
+# Solo diagnostica; qué hacer con el rechazo lo decide ingesta.py.
+# Contexto y calibración: README.md raíz, "Control de calidad del OCR".
 
 from dataclasses import dataclass
 
-# --- Umbrales, calibrados con el recetario real (2026-08-19) ---------------
-#
-# Medición sobre los 223 fragmentos legítimos indexados en ese momento:
-#   ratio de palabras únicas -> mínimo 0.3226, percentil 5 = 0.5816,
-#                               mediana 0.9032
-#   el fragmento degenerado  -> 0.0403
-#
-# 0.20 queda con margen amplio a los dos lados: 5x por encima del caso
-# degenerado y 1.6x por debajo del peor fragmento legítimo. Si al ampliar el
-# recetario aparece un fragmento bueno por debajo de este valor, hay que
-# recalibrar con los datos nuevos y no simplemente bajar el número.
+# Calibrado sobre 223 fragmentos legítimos (mínimo 0.32) y el caso degenerado
+# (0.04). Si aparece un fragmento bueno por debajo, recalibrar, no bajar el número.
 UMBRAL_RATIO_PALABRAS_UNICAS = 0.20
 
-# El ratio de palabras únicas baja de forma natural en textos largos (las
-# preposiciones se repiten), así que no se aplica a textos cortos, donde no es
-# informativo.
+# En textos cortos el ratio no es informativo.
 MINIMO_PALABRAS_PARA_RATIO = 40
 
-# Segunda señal, independiente de la longitud: cuántas veces aparece la
-# secuencia de palabras más repetida del texto. Un texto legítimo puede repetir
-# una frase corta dos o tres veces ("en un cuenco grande y"); repetirla decenas
-# de veces es un bucle del modelo.
-#
-# Se cuenta la frecuencia TOTAL del n-grama, no las apariciones consecutivas:
-# una primera versión contaba solo repeticiones consecutivas comparando
-# n-gramas separados por n posiciones, y eso solo detectaba bucles cuyo período
-# coincidía con LONGITUD_NGRAMA. Una frase de 8 palabras repetida 30 veces
-# pasaba sin ser vista.
+# Frecuencia total del n-grama más repetido, no solo consecutiva: así se
+# detectan bucles de cualquier período (bitácora 2.3).
 LONGITUD_NGRAMA = 5
 MAXIMO_FRECUENCIA_NGRAMA = 8
 
@@ -69,11 +37,7 @@ def ratio_palabras_unicas(texto: str) -> float:
 
 
 def ngrama_mas_frecuente(texto: str, n: int = LONGITUD_NGRAMA) -> tuple[int, str | None]:
-    """Devuelve (frecuencia, texto) del n-grama de palabras más repetido.
-
-    Cuenta apariciones en todo el texto, no solo consecutivas, para detectar
-    bucles con cualquier período de repetición.
-    """
+    """Devuelve (frecuencia, texto) del n-grama de palabras más repetido."""
     palabras = texto.split()
     if len(palabras) < n * 2:
         return 1, None

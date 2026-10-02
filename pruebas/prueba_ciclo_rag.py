@@ -1,16 +1,6 @@
-# Pruebas del ciclo de decisión del subgrafo de RAG agéntico.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_ciclo_rag
-#
-# NO requieren VPN ni servidor: el LLM y la base vectorial se reemplazan por
-# dobles de prueba. Lo que se verifica es la LÓGICA DEL GRAFO — que reformule
-# cuando no encuentra, que respete el tope de intentos, que admita no haber
-# encontrado en vez de inventar. La calidad de los juicios del LLM real es
-# otra cosa y se mide en el notebook.
-#
-# Escrito sin pytest a propósito: el proyecto es un prototipo y no vale la pena
-# sumarle una dependencia por cuatro casos. Si crece, migrar a pytest.
+# Pruebas de la lógica del subgrafo de RAG agéntico, con dobles del LLM y de ChromaDB.
+# Uso: python -m pruebas.prueba_ciclo_rag
+# No requiere VPN. Sin pytest para no sumar dependencias al prototipo.
 
 import sys
 
@@ -19,20 +9,13 @@ from orquestacion_langgraph.rag_agentico.estado import MAX_INTENTOS_RECUPERACION
 from orquestacion_langgraph.rag_agentico.subgrafo import consultar_recetario
 
 
-# --- Dobles de prueba ------------------------------------------------------
-
 class RespuestaFalsa:
     def __init__(self, content):
         self.content = content
 
 
 class LLMFalso:
-    """Responde según qué le está pidiendo el prompt, no según su contenido.
-
-    `veredictos` es la cola de respuestas del evaluador de relevancia: 'SI' o
-    'NO', una por fragmento evaluado. Permite guionar escenarios donde la
-    primera búsqueda falla y la segunda acierta.
-    """
+    """Responde según el tipo de prompt. `veredictos`: cola de 'SI'/'NO', uno por fragmento."""
 
     def __init__(self, decision="BUSCAR", veredictos=None, reformulacion="arroz con leche"):
         self.decision = decision
@@ -59,8 +42,7 @@ class LLMFalso:
 
 
 class BusquedaFalsa:
-    """Devuelve fragmentos fijos. Cuenta cuántas veces se la llamó, que es lo
-    que permite verificar que hubo (o no) un segundo intento."""
+    """Devuelve fragmentos fijos y cuenta las llamadas."""
 
     def __init__(self, fragmentos_por_llamada):
         self.fragmentos_por_llamada = fragmentos_por_llamada
@@ -75,8 +57,7 @@ class BusquedaFalsa:
 
 
 class FuenteFalsa:
-    """Doble de rag.buscar.fragmentos_de_fuente: devuelve la receta completa de
-    un archivo. Sirve para verificar la expansión de contexto."""
+    """Doble de rag.buscar.fragmentos_de_fuente."""
 
     def __init__(self, por_fuente):
         self.por_fuente = por_fuente
@@ -90,7 +71,6 @@ class FuenteFalsa:
 FRAGMENTO = [{"texto": "Arroz con leche: hervir el arroz...", "fuente": "arroz.txt",
               "distancia": 0.2, "orden": 1}]
 
-# La misma receta completa, como la devolvería fragmentos_de_fuente().
 RECETA_COMPLETA = {
     "arroz.txt": [
         {"texto": "Arroz con leche", "fuente": "arroz.txt", "orden": 0},
@@ -106,8 +86,6 @@ def preparar(llm_falso, busqueda_falsa, fuente_falsa=None):
     nodos.buscar_receta_detallado = busqueda_falsa
     nodos.fragmentos_de_fuente = fuente_falsa or FuenteFalsa(RECETA_COMPLETA)
 
-
-# --- Casos -----------------------------------------------------------------
 
 def caso_camino_directo():
     """Encuentra algo relevante en el primer intento: no debe reformular."""
@@ -128,13 +106,7 @@ def caso_camino_directo():
 
 
 def caso_expande_a_la_receta_completa():
-    """El filtro de relevancia aprueba fragmentos sueltos: de una receta
-    troceada en cuatro párrafos puede aprobar uno. Sin expansión, la respuesta
-    sale con un paso aislado en lugar de la receta.
-
-    Medido con el LLM real el 2026-08-19: ante "como hago el llapingacho" el
-    sistema recuperaba la receta correcta y respondía "fríelos en la manteca".
-    """
+    """El filtro aprueba fragmentos sueltos; sin expansión sale un paso aislado (bitácora 3.1)."""
     llm = LLMFalso(veredictos=["SI"])
     busqueda = BusquedaFalsa([FRAGMENTO])
     fuente = FuenteFalsa(RECETA_COMPLETA)
@@ -156,9 +128,7 @@ def caso_expande_a_la_receta_completa():
 
 
 def caso_reformula_y_acierta():
-    """Primer intento irrelevante, reformula, segundo intento acierta.
-    Es el caso que motiva todo el ciclo: la receta SÍ está, pero el usuario
-    la nombró de otra manera."""
+    """La receta está, pero el usuario la nombró de otra manera."""
     llm = LLMFalso(veredictos=["NO", "SI"], reformulacion="arroz con leche")
     busqueda = BusquedaFalsa([FRAGMENTO, FRAGMENTO])
     preparar(llm, busqueda)
@@ -175,8 +145,7 @@ def caso_reformula_y_acierta():
 
 
 def caso_se_rinde_sin_inventar():
-    """Nunca encuentra nada relevante: debe admitirlo, respetar el tope de
-    intentos y NO llamar al LLM para redactar la respuesta."""
+    """Sin nada relevante: respeta el tope y no le pide al LLM que redacte."""
     llm = LLMFalso(veredictos=["NO"] * 10)
     busqueda = BusquedaFalsa([FRAGMENTO])
     preparar(llm, busqueda)
@@ -206,8 +175,6 @@ def caso_no_consulta_recetario():
     assert r["traza"][-1]["nodo"] == "responder_sin_recetario"
     return "decide no consultar el recetario"
 
-
-# --- Runner ----------------------------------------------------------------
 
 CASOS = [
     caso_camino_directo,

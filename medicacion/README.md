@@ -147,6 +147,10 @@ python -m pruebas.evaluar_medicacion_comparativa --ver carmen   # texto completo
 Guarda todas las respuestas crudas y sus medidas en
 `resultados/medicacion_comparativa.json`.
 
+La variante LLM recibe la misma información que la de reglas (receta, perfil
+completo, vademécum); solo no recibe el resultado calculado. Sin receta, ninguna
+de las dos llama al modelo: responde un texto fijo.
+
 **Resultado actual: reglas 0/24 · LLM 0/24.** Las métricas automáticas **no**
 distinguen las dos variantes, y la latencia es equivalente (11.2 s contra 12.0 s
 de mediana). Lo que sí las separa es el tipo de garantía: las 26 pruebas de la

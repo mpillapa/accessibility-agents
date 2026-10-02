@@ -1,32 +1,11 @@
-# Evidencia: un Flow de CrewAI SÍ expresa el ciclo de reformulación del RAG
-# agéntico, con estado tipado que se acumula entre intentos.
+# Evidencia (bitácora 4.1): un Flow de CrewAI expresa el ciclo de reformulación
+# del RAG agéntico, con estado tipado que se acumula entre intentos.
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evidencia_crewai_flow_ciclo
 #
 # No necesita LLM, VPN ni GPU: la "evaluación" rechaza los dos primeros intentos
-# a propósito para forzar el ciclo.
-#
-# POR QUÉ EXISTE
-# --------------
-# La tesis partía de que CrewAI "solo soporta arquitecturas jerárquicas y
-# secuenciales y no maneja bien el estado" (bitácora 4.1, dicho por los
-# tutores). Eso vale para la abstracción `Crew` (Process.sequential /
-# hierarchical). CrewAI 1.15.5 trae además `Flow`, con @start, @listen y @router,
-# y este script muestra que un Flow recorre
-#
-#   decidir -> recuperar -> evaluar -> reformular -> recuperar -> ... -> generar
-#
-# que es la misma estructura del subgrafo de orquestacion_langgraph/rag_agentico.
-#
-# Detalle observado al escribirlo: el valor que devuelve un @listen NO dispara
-# otra rama; solo lo hace un @router. Para cerrar el ciclo hizo falta un @router
-# extra (`volver_a_recuperar`) que en LangGraph es una sola línea
-# (`add_edge("reformular", "recuperar")`). Es una diferencia de ergonomía, no de
-# capacidad.
-#
-# No se cuenta entre las pruebas automáticas del proyecto: es evidencia de una
-# afirmación de la tesis, no una prueba del sistema.
+# a propósito para forzar el ciclo. No es parte de las pruebas automáticas.
 
 import sys
 
@@ -63,6 +42,7 @@ class FlowRAG(Flow[EstadoRAG]):
         self.state.consulta += " (reformulada)"
         self.state.traza.append("reformular")
 
+    # Un @listen no dispara otra rama; solo un @router cierra el ciclo.
     @router(reformular)
     def volver_a_recuperar(self):
         return "reformulada"

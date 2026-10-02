@@ -1,17 +1,11 @@
-# Ingesta del recetario: lee rag/recetas_data/ (texto e imágenes), pasa las
-# imágenes por OCR (el modelo del .env; hoy qwen2.5vl:7b), trocea el texto
-# resultante, descarta lo que no pasa el control de calidad, lo embebe (BGE-M3)
-# y lo guarda en una colección local de ChromaDB persistida en rag/chroma_db/.
+# Ingesta del recetario: OCR de las imágenes, troceado, control de calidad,
+# embeddings y colección de ChromaDB en rag/chroma_db/. Requiere VPN.
 #
 # Uso (desde la raíz del repo):
 #   python -m rag.ingesta                                # llama al OCR
 #   python -m rag.ingesta --desde-ocr resultados/X.json  # usa un OCR guardado
 #
-# --desde-ocr toma el texto que guardó pruebas/evaluar_ocr.py en vez de volver a
-# llamar al modelo. Existe porque el servidor rota de modelo sin aviso: con el
-# OCR guardado, el índice se puede reconstruir aunque el modelo ya no exista, y
-# se sabe exactamente de qué texto salió. Es lo que no se pudo hacer con el
-# índice de GLM-OCR (bitácora 11).
+# --desde-ocr reconstruye el índice aunque el modelo de OCR ya no exista (bitácora 11).
 
 import argparse
 import json
@@ -27,39 +21,21 @@ from rag.ocr import extraer_texto_de_imagen
 EXTENSIONES_TEXTO = {".txt", ".md"}
 EXTENSIONES_IMAGEN = {".jpg", ".jpeg", ".png", ".webp"}
 
-# Tope de caracteres por fragmento. Los fragmentos legítimos del recetario real
-# llegan a ~900 caracteres, así que con 1200 casi nada se parte: el tope existe
-# para las salidas de OCR que vienen como un bloque sin dobles saltos de línea
-# (típico en fotos de páginas densas), no para trocear recetas normales.
-#
-# Importa que ningún fragmento exceda la ventana del modelo de embeddings: si la
-# excede, rag/embeddings.py lo trunca para calcular el vector, y entonces el
-# embedding representaría un texto distinto del que se guarda en ChromaDB.
+# Los fragmentos legítimos llegan a ~900 caracteres; el tope es para bloques de
+# OCR sin saltos de línea. Debe caber en la ventana de embeddings o el vector no
+# corresponde al texto guardado (bitácora 5.4).
 MAXIMO_CARACTERES_FRAGMENTO = 1200
 
-# Piso de caracteres por fragmento. Un fragmento más corto que esto se fusiona
-# con el siguiente en vez de indexarse solo.
-#
-# Motivo medido el 2026-08-19: el troceado por párrafos dejaba encabezados
-# sueltos como "PREPARACIÓN" (11 caracteres), "Ingredientes:" o "Recetas
-# Ecuatorianas" como fragmentos propios. Al no tener contenido, su embedding no
-# representa ninguna receta en particular y quedaban cerca de cualquier
-# consulta: buscar "sushi" devolvía tres fragmentos "PREPARACIÓN" de tres
-# recetas distintas. Con la expansión al documento padre eso es peor todavía,
-# porque un solo falso positivo arrastra la receta completa al contexto.
-#
-# Fusionar en lugar de descartar conserva la información: el encabezado queda
-# pegado a los pasos que encabeza, que es donde pertenece.
+# Más corto que esto se fusiona con el siguiente: los encabezados sueltos
+# ("PREPARACIÓN") contaminaban la búsqueda (bitácora 3.4).
 MINIMO_CARACTERES_FRAGMENTO = 40
 
 
 def _partir_por_longitud(texto: str, maximo: int) -> list[str]:
     """Parte un bloque largo respetando límites de palabra.
 
-    Una palabra que por sí sola excede el tope se corta a lo bruto: el OCR
-    puede devolver cadenas sin espacios (basura de una imagen ilegible), y
-    respetar límites de palabra en ese caso dejaría pasar un fragmento que no
-    cabe en la ventana del modelo de embeddings.
+    Una palabra más larga que el tope se corta igual: el OCR puede devolver
+    cadenas sin espacios (bitácora 5.6).
     """
     partes, actual = [], ""
     for palabra in texto.split():
@@ -80,28 +56,19 @@ def _partir_por_longitud(texto: str, maximo: int) -> list[str]:
 
 
 def _fusionar_cortos(fragmentos: list[str], minimo: int, maximo: int) -> list[str]:
-    """Pega los fragmentos demasiado cortos al siguiente.
-
-    Un encabezado ("PREPARACIÓN", "Ingredientes:") no dice nada por sí solo,
-    pero sí encabeza lo que viene después: unirlos produce un fragmento con
-    sentido en vez de dos, uno inútil y otro sin contexto.
-
-    Si el corto es el último y no hay con qué fusionarlo, se pega al anterior.
-    """
+    """Pega los fragmentos demasiado cortos al siguiente (el último, al anterior)."""
     resultado: list[str] = []
     pendiente = ""
 
     for fragmento in fragmentos:
         candidato = f"{pendiente}\n{fragmento}".strip() if pendiente else fragmento
         if len(candidato) < minimo:
-            # Sigue siendo corto: se acumula esperando el próximo.
             pendiente = candidato
             continue
         if len(candidato) <= maximo:
             resultado.append(candidato)
             pendiente = ""
         else:
-            # Unirlos excedería el tope: van separados.
             if pendiente:
                 resultado.append(pendiente)
             resultado.append(fragmento)
@@ -121,13 +88,8 @@ def _fusionar_cortos(fragmentos: list[str], minimo: int, maximo: int) -> list[st
 
 
 def _trocear(texto: str, maximo: int = MAXIMO_CARACTERES_FRAGMENTO) -> list[str]:
-    """Trocea en fragmentos de a lo sumo `maximo` caracteres.
-
-    Va de la separación más semántica a la más burda: párrafos, después líneas,
-    y como último recurso corte por longitud. Así una receta normal queda con un
-    fragmento por paso o sección, y solo el texto sin estructura termina cortado
-    de forma arbitraria.
-    """
+    """Trocea en fragmentos de a lo sumo `maximo` caracteres: por párrafos,
+    después por líneas y como último recurso por longitud."""
     fragmentos = []
     for parrafo in texto.split("\n\n"):
         parrafo = parrafo.strip()
@@ -137,7 +99,6 @@ def _trocear(texto: str, maximo: int = MAXIMO_CARACTERES_FRAGMENTO) -> list[str]
             fragmentos.append(parrafo)
             continue
 
-        # Demasiado largo: probar con líneas simples.
         acumulado = ""
         for linea in parrafo.split("\n"):
             linea = linea.strip()
@@ -164,8 +125,7 @@ def _leer_archivo(archivo: Path, textos_ocr: dict[str, str] | None = None) -> st
     if extension in EXTENSIONES_IMAGEN:
         if textos_ocr is not None:
             if archivo.name not in textos_ocr:
-                # Sin texto guardado no se inventa ni se llama al OCR a
-                # escondidas: el índice tiene que salir entero del archivo dado.
+                # No se llama al OCR a escondidas: el índice sale entero del archivo dado.
                 raise ValueError(f"El OCR guardado no tiene texto para {archivo.name}")
             return textos_ocr[archivo.name]
         print(f"  OCR: {archivo.name}...")
@@ -175,8 +135,7 @@ def _leer_archivo(archivo: Path, textos_ocr: dict[str, str] | None = None) -> st
 
 def cargar_ocr_guardado(ruta: Path) -> dict[str, str]:
     """Texto por imagen de un archivo de pruebas/evaluar_ocr.py. Falla si
-    alguna imagen quedó con error: un índice construido a medias no sirve para
-    medir."""
+    alguna imagen quedó con error."""
     datos = json.loads(Path(ruta).read_text(encoding="utf-8"))
     con_error = [n for n, r in datos["imagenes"].items() if r["error"]]
     if con_error:
@@ -188,13 +147,8 @@ def cargar_ocr_guardado(ruta: Path) -> dict[str, str]:
 def cargar_fragmentos(textos_ocr: dict[str, str] | None = None) -> tuple[list[tuple[str, str, str, int]], list[dict]]:
     """Devuelve (fragmentos, rechazos).
 
-    Cada fragmento es una tupla (id, texto, archivo_fuente, orden). El `orden`
-    es la posición del fragmento dentro de su archivo: permite reconstruir una
-    receta completa a partir de uno de sus fragmentos, que es lo que hace el
-    nodo de expansión de contexto del RAG agéntico.
-
-    Cada rechazo es un dict con el archivo y el motivo, para reportarlos al
-    final.
+    Fragmento: (id, texto, archivo_fuente, orden). `orden` es la posición en su
+    archivo; la usa el RAG agéntico para expandir a la receta completa.
     """
     fragmentos: list[tuple[str, str, str, int]] = []
     rechazos: list[dict] = []
@@ -206,10 +160,8 @@ def cargar_fragmentos(textos_ocr: dict[str, str] | None = None) -> tuple[list[tu
         if texto is None:
             continue
 
-        # Primero se juzga el archivo completo. Cuando el OCR entra en un bucle,
-        # falla la transcripción entera y no un trozo: descartar el archivo de
-        # una vez da un mensaje claro ("revisá esta foto") en lugar de cuarenta
-        # rechazos de fragmentos del mismo origen.
+        # Se juzga primero el archivo entero: un bucle del OCR arruina toda la
+        # transcripción, y así se reporta un rechazo en vez de decenas.
         diagnostico = evaluar_texto(texto)
         if diagnostico.es_degenerado:
             print(f"    RECHAZADO: {diagnostico.motivo}")
@@ -222,8 +174,7 @@ def cargar_fragmentos(textos_ocr: dict[str, str] | None = None) -> tuple[list[tu
             continue
 
         for i, trozo in enumerate(_trocear(texto)):
-            # Red de seguridad: un archivo puede estar bien en conjunto y traer
-            # un tramo degenerado igual.
+            # Un archivo sano en conjunto puede traer un tramo degenerado.
             diagnostico_trozo = evaluar_texto(trozo)
             if diagnostico_trozo.es_degenerado:
                 rechazos.append({
@@ -255,10 +206,7 @@ def ingestar(textos_ocr: dict[str, str] | None = None):
     print(f"\nGenerando embeddings para {len(textos)} fragmento(s)...")
     embeddings = embed_textos(textos)
 
-    # La colección se recrea en cada ingesta. Con upsert quedaban fragmentos
-    # huérfanos de corridas anteriores: si un archivo se renombra o se borra, o
-    # si cambia el troceado, los ids viejos siguen en el índice y el RAG los
-    # sigue recuperando aunque ya no correspondan a ningún archivo del disco.
+    # Se recrea en cada ingesta para no dejar fragmentos huérfanos (bitácora 5.5).
     cliente = chromadb.PersistentClient(path=str(CHROMA_DIR))
     try:
         cliente.delete_collection(CHROMA_COLLECTION)

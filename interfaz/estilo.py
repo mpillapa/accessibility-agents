@@ -1,20 +1,6 @@
-# Identidad visual de la interfaz. Solo presentación: ninguna regla de negocio.
-#
-# De dónde sale cada decisión:
-#
-# - PALETA: de la hoja de estilos pública de usfq.edu.ec (2026-09-23). El rojo
-#   institucional #ED1C24 NO alcanza contraste AA como texto (4.38:1 sobre
-#   blanco), así que se usa solo como acento; botones y texto en rojo usan
-#   ROJO_TEXTO (6.85:1). Ver también .streamlit/config.toml.
-# - TIPOGRAFÍA: el sitio de la USFQ usa Baskerville para títulos y Helvetica
-#   para texto. Baskerville solo viene instalada en macOS, así que se carga
-#   Libre Baskerville (licencia libre, misma familia) y se cae a Georgia si no
-#   hay conexión.
-# - TAMAÑOS: el público son adultos mayores. Letra base de 18 px, botones y
-#   zona del micrófono más grandes de lo habitual.
-#
-# No se usa el logotipo de la Universidad: esto es un prototipo de tesis, no un
-# producto institucional.
+# Paleta, CSS y avatares de la interfaz (paleta de usfq.edu.ec, ver interfaz/README.md).
+# El rojo institucional no da contraste AA como texto: texto y botones usan ROJO_TEXTO.
+# Libre Baskerville sustituye a Baskerville, que solo viene en macOS.
 
 from functools import lru_cache
 
@@ -138,12 +124,7 @@ def pie_html(texto: str) -> str:
 
 @lru_cache(maxsize=32)
 def avatar(inicial: str, fondo: str, texto: str = "#FFFFFF") -> Image.Image:
-    """Un círculo con una inicial, en vez del robot y la silueta por defecto.
-
-    Los íconos por defecto de Streamlit son los mismos que usan todos los
-    chatbots; una inicial se lee como una persona o un servicio, no como "la
-    IA". Se dibuja en memoria para no agregar archivos de imagen al repo.
-    """
+    """Círculo con una inicial, dibujado en memoria, en lugar de los avatares de Streamlit."""
     lado = 96
     imagen = Image.new("RGBA", (lado, lado), (0, 0, 0, 0))
     dibujo = ImageDraw.Draw(imagen)

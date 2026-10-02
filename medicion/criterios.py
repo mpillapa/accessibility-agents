@@ -1,12 +1,6 @@
-# Criterios de éxito de la campaña (chuleta 7.2). Funciones puras: reciben lo
-# que devolvió una ejecución y la verdad de referencia, y dicen qué chequeos
-# pasaron. Se prueban sin servidor en pruebas/prueba_medicion.py.
-#
-# Regla común a todas las tareas: un timeout o una excepción es FALLO (pedido de
-# Cristian el 30-09), aunque lo que alcanzó a salir fuera correcto.
-#
-# Los criterios son automáticos y por eso tienen falsos positivos y negativos.
-# Todo fallo se lee antes de contarlo (bitácora 16.6).
+# Criterios de éxito de la campaña (chuleta 7.2), como funciones puras.
+# Un timeout o una excepción es fallo aunque la respuesta fuera correcta.
+# Son automáticos: todo fallo se lee antes de contarlo (bitácora 16.6).
 
 import re
 import unicodedata
@@ -28,8 +22,7 @@ def normalizar(texto: str) -> str:
 
 
 def nombra(texto: str, medicamento: str) -> bool:
-    """Si el texto nombra el medicamento como palabra completa, sin importar
-    tildes ni mayúsculas ('Losartan' = 'losartán')."""
+    """Si nombra el medicamento como palabra completa, sin importar tildes ni mayúsculas."""
     return re.search(rf"\b{re.escape(normalizar(medicamento))}\b", normalizar(texto)) is not None
 
 
@@ -45,8 +38,7 @@ def camino_t6_correcto(camino: list[str]) -> bool:
 
 
 def fuentes_de_la_respuesta(traza_rag: list[dict] | None) -> list[str]:
-    """Las fuentes con las que el RAG redactó la respuesta (paso `generar`).
-    Lista vacía si no generó: no encontró nada o decidió no buscar."""
+    """Fuentes del paso `generar` del RAG; vacía si no generó."""
     for paso in reversed(traza_rag or []):
         if paso.get("nodo") == "generar":
             return paso.get("fuentes", [])
@@ -57,9 +49,7 @@ def evaluar(tarea: str, definicion: dict, frase: dict, usuario: str, ejecucion: 
             catalogo: list[str] | None = None) -> dict:
     """Devuelve {"exito", "chequeos", "detalle"}.
 
-    `definicion` es la entrada de la tarea en casos_campana.json; `ejecucion`,
-    lo que registró medicion/campana.py (intencion, camino, respuesta,
-    traza_rag, cruce, error, timeout).
+    `definicion` es la tarea en casos_campana.json; `ejecucion`, lo que registró campana.py.
     """
     chequeos = {"sin_error": not ejecucion.get("error") and not ejecucion.get("timeout")}
     detalle = {}

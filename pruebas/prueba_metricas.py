@@ -1,9 +1,6 @@
 # Pruebas de las métricas de ASR (WER, CER).
-#
-#   python -m pruebas.prueba_metricas
-#
-# Sin GPU ni modelo: funciones puras sobre texto. Si el WER está mal calculado,
-# toda la evaluación de Whisper reporta números equivocados.
+# Uso: python -m pruebas.prueba_metricas
+# No requiere VPN ni GPU.
 
 import sys
 
@@ -31,8 +28,7 @@ def caso_errores_conocidos():
 
 
 def caso_puede_pasar_de_uno():
-    """Si el ASR inventa más palabras de las que había, el WER supera 1.0. No es
-    un caso teórico: es lo que hace Whisper con audio ruidoso."""
+    """Pasa con Whisper sobre audio ruidoso: inventa más palabras de las que había."""
     valor = wer("hola", "gracias por ver el video hola que tal amigos")
     assert valor > 1.0, f"esperaba WER > 1, dio {valor}"
     return f"el WER puede pasar de 1.0 cuando se inventa texto ({valor:.2f})"
@@ -46,8 +42,7 @@ def caso_referencia_vacia():
 
 
 def caso_tildes():
-    """En español el ASR suele acertar la palabra y errar la tilde. Contar eso
-    como error de palabra infla el WER sin que haya problema de comprensión."""
+    """Errar solo la tilde no es un error de comprensión."""
     r, h = "me caí en la cocina", "me cai en la cocina"
     assert wer(r, h) > 0, "sin quitar tildes debería contar como error"
     assert wer(r, h, quitar_tildes=True) == 0.0, "quitando tildes debería ser 0"
@@ -64,8 +59,7 @@ def caso_detecta_alucinacion_conocida():
 
 
 def caso_agregado_no_es_promedio():
-    """El WER agregado se calcula sobre el total de errores y palabras. Promediar
-    los WER individuales daría más peso a las frases cortas."""
+    """Sobre el total de errores y palabras: promediar sobrepesa las frases cortas."""
     pares = [
         ("hola", "holo"),                                   # 1 error / 1 palabra  = 1.00
         ("uno dos tres cuatro cinco seis siete ocho nueve diez",

@@ -1,17 +1,11 @@
-# Evaluación del RAG agéntico contra el LLM y el recetario reales.
+# Evaluación de comportamiento del RAG agéntico contra el LLM y el recetario reales.
+# La lógica del grafo con dobles está en pruebas/prueba_ciclo_rag.py.
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_rag_real
 #   python -m pruebas.evaluar_rag_real --json resultados.json
 #
-# REQUIERE VPN institucional y el recetario ingerido (python -m rag.ingesta).
-#
-# A diferencia de pruebas/prueba_ciclo_rag.py — que usa dobles y verifica la
-# lógica del grafo — esto mide COMPORTAMIENTO: si el evaluador de relevancia
-# acierta, si la respuesta llega completa, si el sistema admite lo que no sabe.
-# Sirve para comparar el antes y el después de un cambio en los prompts o en la
-# estrategia de recuperación, que es algo que no se puede verificar con
-# aserciones fijas: la salida de un LLM varía entre corridas.
+# Requiere VPN institucional y el recetario ingerido (python -m rag.ingesta).
 
 import argparse
 import json
@@ -20,16 +14,8 @@ import time
 
 from orquestacion_langgraph.rag_agentico.subgrafo import consultar_recetario
 
-# Cada caso declara qué se espera, para poder marcar el resultado sin leerlo a
-# ojo. `fuentes_aceptables` es una lista porque el recetario tiene el mismo
-# plato en más de un archivo: los llapingachos están en llapingacho.jpg y
-# también en receta1.jpeg ("Llapingachos al estilo de Ambato"). Exigir un
-# archivo puntual daría por incorrecta una recuperación que es correcta.
-# Es None cuando no debería usar el recetario.
-#
-# `minimo_caracteres` sirve para detectar respuestas truncas: cuando una receta
-# está repartida en varios fragmentos y el filtro de relevancia acepta uno solo,
-# la respuesta sale con un paso aislado en vez de la receta completa.
+# `fuentes_aceptables` es lista porque un plato puede estar en varios archivos;
+# None si no debería usar el recetario. `minimo_caracteres` detecta respuestas truncas.
 CASOS = [
     {
         "id": "acierto_directo",
@@ -43,8 +29,7 @@ CASOS = [
         "id": "descripcion_sin_nombrar_plato",
         "consulta": "quiero hacer eso de plátano verde majado con chicharrón adentro",
         "espera_resultado": True,
-        # El chicharrón distingue al bolón de las tortillas y empanadas de
-        # verde, que comparten la masa pero no el relleno.
+        # El chicharrón lo distingue de tortillas y empanadas de verde.
         "fuentes_aceptables": ["bolon de verde.png"],
         "minimo_caracteres": 300,
         "nota": "describe el plato sin nombrarlo, con un ingrediente que lo distingue",
@@ -62,8 +47,7 @@ CASOS = [
         "consulta": "como hago el llapingacho",
         "espera_resultado": True,
         "fuentes_aceptables": ["llapingacho.jpg", "receta1.jpeg"],
-        # Una receta completa de llapingacho (ingredientes + varios pasos) no
-        # entra en menos de esto. La línea base daba 243 caracteres: un paso.
+        # Una receta completa no entra en menos; la línea base daba 243 (un paso).
         "minimo_caracteres": 500,
         "nota": "la receta está repartida en varios fragmentos: debe responder completa",
     },
@@ -98,8 +82,7 @@ def evaluar_caso(caso: dict) -> dict:
     respuesta = resultado["respuesta"] or ""
     aceptables = caso["fuentes_aceptables"]
 
-    # Se registran señales objetivas; el juicio de calidad de la redacción queda
-    # para la lectura humana del reporte.
+    # Solo señales objetivas; la calidad de la redacción se juzga leyendo.
     return {
         "id": caso["id"],
         "consulta": caso["consulta"],

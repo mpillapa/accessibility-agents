@@ -1,11 +1,7 @@
-# Transcripción de audio a texto con Whisper (faster-whisper).
+# Transcripción de audio con Whisper (faster-whisper). No importa nada del grafo
+# ni de rag/ (asr/README.md). Usa GPU por defecto.
 #
-# Este módulo es deliberadamente independiente del sistema multiagente: no
-# importa nada de orquestacion_langgraph/ ni de rag/. Cristian pidió trabajar
-# Whisper aislado antes de integrarlo al grafo, y mantener esa frontera permite
-# medir el ASR por separado.
-#
-# Uso desde la línea de comandos (desde la raíz del repo):
+# Uso (desde la raíz del repo):
 #   python -m asr.transcribir ruta/al/audio.wav
 
 import sys
@@ -21,16 +17,10 @@ from asr.config import (
     WHISPER_MODELO,
 )
 
-# El modelo se carga una sola vez y se reutiliza: cargarlo cuesta ~37 s con
-# 'large-v3' en GPU, así que hacerlo por transcripción haría inservible la app
-# de grabación. Se carga en la primera llamada y no al importar, para que
-# importar este módulo (por ejemplo, en las pruebas) no cueste nada.
+# Carga perezosa y única: ~37 s con large-v3 en GPU.
 _modelo = None
 
-# La interfaz precarga el modelo en un hilo al abrir la página (interfaz/app.py)
-# para que la primera grabación no espere ~37 s. Si la persona graba antes de
-# que termine, el candado hace que la segunda llamada espere a la primera en vez
-# de cargar otro modelo en paralelo en la GPU.
+# La interfaz precarga en un hilo; el candado evita cargar dos modelos en la GPU.
 _candado_carga = threading.Lock()
 
 
@@ -59,11 +49,7 @@ def _cargar_si_hace_falta():
 
 @dataclass
 class Transcripcion:
-    """Resultado de transcribir un audio.
-
-    `texto` es la transcripción completa. Los demás campos son las señales que
-    hacen falta para evaluar el ASR, en particular `sin_voz`: ver más abajo.
-    """
+    """Resultado de transcribir un audio. Mirar `sin_voz`, no solo `texto`."""
 
     texto: str
     idioma: str
@@ -72,15 +58,7 @@ class Transcripcion:
     tiempo_transcripcion_s: float
     segmentos: list[dict] = field(default_factory=list)
 
-    # True cuando el detector de actividad de voz (VAD) no encontró habla.
-    #
-    # Importa porque Whisper INVENTA texto sobre audio sin voz: con 3 segundos
-    # de ruido gaussiano puro devolvió " Gracias." y reportó probabilidad de
-    # idioma 1.00 (medido el 2026-08-19). Un dispositivo que escucha todo el día
-    # en la casa de una persona mayor va a recibir mucho audio sin habla, y ese
-    # texto inventado entraría al sistema como si fuera una consulta real.
-    #
-    # Quien consuma esta clase tiene que mirar este campo, no solo `texto`.
+    # El VAD no encontró habla. Whisper inventa texto sobre audio sin voz (asr/README.md).
     sin_voz: bool = False
 
     def __str__(self):
@@ -91,12 +69,7 @@ class Transcripcion:
 def transcribir(ruta_audio: Path | str, usar_vad: bool = True) -> Transcripcion:
     """Transcribe un archivo de audio.
 
-    `usar_vad=True` activa el filtro de actividad de voz de faster-whisper, que
-    descarta los tramos sin habla antes de pasarlos al modelo. Reduce las
-    alucinaciones pero no las elimina: por eso el resultado trae `sin_voz`.
-
-    Ponerlo en False sirve para medir cuánto texto inventa Whisper sin ninguna
-    protección, que es una de las mediciones de esta fase.
+    `usar_vad=False` sirve para medir cuánto inventa Whisper sin filtro de voz.
     """
     ruta_audio = Path(ruta_audio)
     if not ruta_audio.exists():
@@ -110,8 +83,7 @@ def transcribir(ruta_audio: Path | str, usar_vad: bool = True) -> Transcripcion:
         language=WHISPER_IDIOMA,
         vad_filter=usar_vad,
     )
-    # faster-whisper devuelve un generador perezoso: la transcripción real
-    # ocurre al recorrerlo, así que el tiempo se mide después de materializarlo.
+    # El generador es perezoso: la transcripción ocurre al recorrerlo.
     segmentos = [
         {
             "inicio_s": round(s.start, 2),

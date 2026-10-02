@@ -1,26 +1,11 @@
-# Servidor local de la app de grabación y demo por voz.
+# Servidor local de la app de grabación de corpus y demo por voz. Whisper en GPU.
+# Prototipo de un solo usuario, no apto para producción (demo_voz/README.md).
 #
 # Uso (desde la raíz del repo):
 #   python -m demo_voz.servidor
 #   python -m demo_voz.servidor --puerto 8080
 #
-# Después abrir http://localhost:8000 en el navegador.
-#
-# POR QUÉ UNA APP WEB Y NO UN SCRIPT: el micrófono está en la máquina de quien
-# graba, no en el servidor. Este equipo (DGX-H200) no tiene tarjeta de captura
-# de audio — /dev/snd solo trae 'seq' y 'timer'. El navegador captura el audio
-# del lado del cliente y lo sube; Whisper corre acá, en la GPU.
-#
-# NOTA SOBRE EL MICRÓFONO Y HTTPS: los navegadores solo dan acceso al micrófono
-# en HTTPS o en localhost. Al trabajar por VSCode Remote, el port forwarding
-# hace que el servidor aparezca como localhost en la máquina del cliente, así
-# que funciona. Abrirlo por la IP directa (172.28.230.10:8000) haría que el
-# navegador bloquee el micrófono.
-#
-# Se usa http.server de la librería estándar a propósito: es un prototipo local
-# de un solo usuario y no vale la pena sumarle FastAPI como dependencia. NO es
-# un servidor apto para producción — sin autenticación, sin HTTPS propio, sin
-# límites de concurrencia.
+# Abrir http://localhost:8000: el micrófono solo funciona por localhost o HTTPS.
 
 import argparse
 import json
@@ -35,27 +20,19 @@ from demo_voz import corpus
 
 ESTATICOS = Path(__file__).parent / "static"
 
-# Tope del audio que se acepta por petición. Es un prototipo de un solo usuario;
-# el límite existe para que un error del navegador no llene el disco.
+# Para que un error del navegador no llene el disco.
 MAXIMO_BYTES_AUDIO = 25 * 1024 * 1024
 
 
 def convertir_a_wav_16k(datos: bytes, extension_origen: str = "webm") -> Path:
-    """Convierte el audio del navegador a WAV mono 16 kHz.
-
-    El navegador graba en WebM/Opus (o MP4/AAC en Safari), no en WAV. Whisper
-    puede leer esos formatos vía PyAV, pero el corpus se guarda en WAV mono
-    16 kHz porque la matriz de ruido (asr/ruido.py) trabaja sobre muestras PCM
-    de 16 bits: mezclar ruido con audio comprimido exigiría decodificar y
-    recodificar en cada paso.
-    """
+    """Convierte el audio del navegador (WebM/Opus, MP4/AAC) a WAV mono 16 kHz,
+    el formato que necesita la matriz de ruido."""
     with tempfile.NamedTemporaryFile(suffix=f".{extension_origen}", delete=False) as f:
         f.write(datos)
         origen = Path(f.name)
 
     destino = origen.with_suffix(".wav")
-    # ffmpeg del sistema no está instalado; se usa el que trae PyAV, que vino
-    # como dependencia de faster-whisper.
+    # Sin ffmpeg en el sistema: se usa PyAV, que trae faster-whisper.
     import av
 
     contenedor_entrada = av.open(str(origen))
@@ -84,11 +61,9 @@ def duracion_wav(ruta: Path) -> float:
 
 class Manejador(BaseHTTPRequestHandler):
     def log_message(self, formato, *args):
-        # El log por defecto ensucia la consola con una línea por recurso.
+        # Solo se registran los POST.
         if "POST" in (args[0] if args else ""):
             super().log_message(formato, *args)
-
-    # --- utilidades ---
 
     def _responder_json(self, datos, codigo=200):
         cuerpo = json.dumps(datos, ensure_ascii=False).encode("utf-8")
@@ -121,8 +96,6 @@ class Manejador(BaseHTTPRequestHandler):
             return None
         return self.rfile.read(longitud)
 
-    # --- rutas ---
-
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self._responder_archivo(ESTATICOS / "index.html", "text/html; charset=utf-8")
@@ -143,12 +116,8 @@ class Manejador(BaseHTTPRequestHandler):
             self.send_error(404)
 
     def _grabar(self):
-        """Guarda una grabación del corpus y devuelve su transcripción.
-
-        La transcripción se devuelve solo para que quien graba pueda verificar
-        que el audio salió bien. La verdad de referencia es el texto del
-        dataset, no lo que transcribió Whisper.
-        """
+        """Guarda una grabación del corpus. La transcripción se devuelve solo para
+        verificar el audio; la referencia es el texto del dataset."""
         from urllib.parse import parse_qs, urlparse
 
         parametros = parse_qs(urlparse(self.path).query)

@@ -1,4 +1,5 @@
-# Evaluación de Whisper sobre el corpus grabado, por condición de ruido.
+# Whisper sobre el corpus grabado, por condición de ruido (bitácora 10): WER/CER,
+# transcripciones vacías (el VAD descartó voz real) y alucinaciones conocidas.
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_asr_corpus                  # corpus completo
@@ -6,15 +7,6 @@
 #   python -m pruebas.evaluar_asr_corpus --solo-matriz    # generar audio y salir
 #
 # Requiere GPU y el corpus grabado (ver demo_voz/). No requiere VPN.
-#
-# Mide tres cosas por condición de ruido:
-#   1. WER y CER — cuánto se degrada la transcripción.
-#   2. Transcripciones vacías — cuándo el VAD se come voz real. Ésta es la
-#      contracara del hallazgo de que el VAD elimina el 100% de las
-#      alucinaciones: si además se come frases legítimas, el remedio tiene un
-#      costo que hay que conocer.
-#   3. Alucinaciones conocidas — si aparece la muletilla de YouTube sobre audio
-#      que SÍ tiene voz.
 
 import argparse
 import csv
@@ -43,8 +35,7 @@ def cargar_corpus(limite: int | None = None) -> list[dict]:
         filas = list(csv.DictReader(f))
 
     if limite and limite < len(filas):
-        # Muestra estratificada: misma cantidad por intención, para que la
-        # accuracy de ruteo siga siendo medible sobre el subconjunto.
+        # Muestra estratificada por intención, para poder medir el ruteo después.
         por_intencion = defaultdict(list)
         for fila in filas:
             por_intencion[fila["intencion"]].append(fila)
@@ -144,8 +135,6 @@ def reportar(resultados: list[dict]) -> None:
                   f"transcripción.\n  El VAD descartó voz real. Es el costo del "
                   f"filtro que elimina las alucinaciones.")
 
-    # Frases donde el VAD se comió voz real, por condición: la medición
-    # pendiente más importante de esta fase.
     print("\n" + "=" * 78)
     print("FALSOS NEGATIVOS DEL VAD (audio con voz que quedó sin transcribir)")
     print("=" * 78)
@@ -157,8 +146,7 @@ def reportar(resultados: list[dict]) -> None:
 
 
 def reportar_por_intencion(resultados: list[dict]) -> None:
-    """El WER por intención importa porque las consecuencias no son simétricas:
-    una emergencia mal transcrita es más grave que un saludo mal transcrito."""
+    """WER por intención sobre audio limpio: una emergencia mal transcrita pesa más."""
     limpio = [f for f in resultados if f["tipo_ruido"] == "ninguno"]
     if not limpio:
         return

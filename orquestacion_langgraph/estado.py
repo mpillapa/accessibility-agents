@@ -9,51 +9,26 @@ class EstadoConversacion(TypedDict):
     razonamiento: Optional[str]
     respuesta: Optional[str]
 
-    # De quién es la consulta: qué perfil de medicacion/datos/perfiles.json y,
-    # por lo tanto, qué receta médica hay que leer.
-    #
-    # LIMITACIÓN DECLARADA: cuando viene None, el nodo de medicación cae al
-    # perfil de PERFIL_ACTIVO (ver agentes.PERFIL_POR_DEFECTO) para que la demo
-    # funcione sin login. Eso es aceptable en un prototipo con datos ficticios y
-    # NO lo sería en producción: responder sobre la medicación de una persona
-    # cualquiera porque no se sabe quién pregunta es justo lo que un sistema real
-    # no puede hacer. En producción esto sale de la autenticación y sin sesión no
-    # hay respuesta.
+    # Perfil de medicacion/datos/perfiles.json. Si es None se usa
+    # agentes.PERFIL_POR_DEFECTO (solo prototipo; ver medicacion/README.md).
     id_perfil: Optional[str]
 
-    # --- Entrada por voz (None cuando la consulta entra como texto) ---
-
-    # Audio a transcribir. Su presencia es lo que hace que el grafo arranque
-    # por el nodo de voz en vez de ir directo al Orchestrator.
+    # Entrada por voz (None si la consulta entra como texto).
+    # Si hay audio, el grafo arranca por el nodo de voz.
     ruta_audio: Optional[str]
 
-    # Qué devolvió el ASR, incluidas las señales que NO son el texto:
-    # `sin_voz`, probabilidad de idioma, duración. Se guarda completo aunque la
-    # transcripción se descarte, porque es la evidencia de por qué se descartó.
+    # Salida completa del ASR; se guarda aunque se descarte, como evidencia.
     transcripcion: Optional[dict]
 
-    # Por qué no se pudo confiar en la transcripción, o None si sí se pudo.
-    # Cuando no es None, el grafo NO rutea: pide que repitan. Ver
-    # orquestacion_langgraph/voz.py para el porqué de esta regla.
+    # Motivo del descarte; si no es None, el grafo pide que repitan (voz.py).
     entrada_descartada: Optional[str]
 
-    # Traza interna del subgrafo de RAG agéntico, cuando la consulta pasó por
-    # el nodo de recetas. Se propaga hacia arriba solo para poder inspeccionarla
-    # (demo y notebook comparativo); ningún nodo del grafo principal la lee para
-    # tomar decisiones. Es None para las demás intenciones.
+    # Traza del subgrafo de RAG, solo para inspección; ningún nodo la lee.
     traza_rag: Optional[list[dict]]
 
-    # --- Tarea medicamento × comida (None en las demás intenciones) ---
-    #
-    # Las dos ramas corren EN PARALELO y cada una escribe su propio campo:
-    # si escribieran el mismo, LangGraph no sabría cuál conservar. El
-    # integrador lee los dos cuando ambas terminaron.
-
-    # Lo que escribe la rama de medicación: los medicamentos vigentes.
+    # Tarea medicamento × comida. Cada rama paralela escribe su propio campo:
+    # si escribieran el mismo, LangGraph no sabría cuál conservar.
     medicamentos_vigentes: Optional[list[str]]
-
-    # Lo que escribe la rama de recetas: qué recetas encontró el RAG.
     recetas_encontradas: Optional[dict]
-
-    # El resultado del cruce determinista (interacciones/reglas.py).
+    # Resultado de interacciones/reglas.py.
     cruce: Optional[dict]

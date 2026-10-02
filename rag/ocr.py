@@ -1,10 +1,5 @@
-# OCR/visión vía un modelo multimodal servido como endpoint OpenAI-compatible.
-# Se usa chat completions con contenido de imagen (formato "vision" estilo
-# OpenAI), no un endpoint de OCR dedicado.
-#
-# Modelos: zai-org/GLM-OCR en vLLM hasta el 2026-09-09 (generó el índice de
-# agosto); desde entonces qwen2.5vl:7b en Ollama, acordado con el tutor el
-# 2026-09-30. El modelo sale del .env (VLLM_OCR_MODEL).
+# OCR de imágenes con un modelo multimodal vía chat completions (OpenAI-compatible).
+# El modelo sale del .env; hoy qwen2.5vl:7b, antes GLM-OCR (README.md raíz).
 
 import base64
 from pathlib import Path
@@ -13,16 +8,11 @@ from openai import OpenAI
 
 from rag.config import VLLM_API_KEY, VLLM_OCR_BASE_URL, VLLM_OCR_MODEL
 
-# Tope de salida por imagen. Sin tope, una página que hace entrar al modelo en
-# bucle lo deja generando hasta llenar su contexto: el 2026-09-30, qwen2.5vl:7b
-# pasó más de 25 minutos con "2 recetas mas.jpg", la misma página que llevó a
-# GLM-OCR a repetir una frase 888 veces (bitácora 2.3). La receta más larga del
-# recetario tiene ~4.000 caracteres (~1.500 tokens): 4.096 no corta texto
-# legítimo, y un bucle se corta, sale con finish_reason="length" y lo rechaza
-# rag/calidad.py en vez de colgar la ingesta.
+# Corta los bucles del modelo (bitácora 2.3) sin cortar la receta más larga
+# (~1.500 tokens); un bucle sale con finish_reason="length" y lo rechaza calidad.py.
 MAXIMO_TOKENS_SALIDA = 4096
 
-# Segundos por imagen. Con el tope de arriba una imagen normal tarda ~20 s.
+# Segundos por imagen; una normal tarda ~20 s.
 TIMEOUT_SEGUNDOS = 300
 
 _cliente = OpenAI(
@@ -46,12 +36,9 @@ def extraer_texto_de_imagen(ruta_imagen: Path) -> str:
 
 
 def extraer_texto_detallado(ruta_imagen: Path) -> dict:
-    """Envía una imagen (ej. foto de una receta manuscrita) al endpoint
-    OCR/visión y devuelve el texto reconocido. Requiere acceso a la red de la
-    universidad. Para medirlo sin texto de referencia: pruebas/evaluar_ocr.py.
+    """Devuelve {"texto", "fin", "tokens_salida"} de una imagen. Requiere VPN.
 
-    Devuelve {"texto", "fin", "tokens_salida"}. `fin` == "length" significa que
-    el modelo agotó MAXIMO_TOKENS_SALIDA: casi siempre un bucle."""
+    `fin` == "length" significa que agotó MAXIMO_TOKENS_SALIDA: casi siempre un bucle."""
     ruta_imagen = Path(ruta_imagen)
     datos = ruta_imagen.read_bytes()
     b64 = base64.b64encode(datos).decode("ascii")

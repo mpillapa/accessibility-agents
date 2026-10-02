@@ -1,50 +1,27 @@
-# Estado del subgrafo de RAG agéntico, y las reglas que gobiernan su ciclo.
-#
-# Es un estado SEPARADO del EstadoConversacion del grafo principal: el grafo
-# principal no necesita saber que hubo reformulaciones o cuántos fragmentos se
-# descartaron, solo recibe la respuesta final y la traza. Mantenerlos separados
-# es lo que permite tratar el RAG como un componente reemplazable.
+# Estado del subgrafo de RAG agéntico y las reglas de su ciclo. Separado de
+# EstadoConversacion para que el RAG sea reemplazable.
 
 import operator
 from typing import Annotated, Optional, TypedDict
 
-# --- Reglas de negocio del ciclo de recuperación ---------------------------
-# Explícitas y con nombre a propósito: son decisiones de diseño discutibles,
-# no detalles de implementación, y tienen que poder revisarse sin leer los
-# prompts. Ver el README de este paquete para la justificación de cada una.
+# Reglas de negocio del ciclo. Justificación de cada una en el README del paquete.
 
-# Cuántas búsquedas se permiten como máximo por consulta (la original más las
-# reformulaciones). Con 2, el usuario espera a lo sumo dos rondas antes de
-# recibir una respuesta o un "no lo encontré". Subirlo mejora el recall a
-# costa de latencia, que en esta población importa: un adulto mayor esperando
-# frente a un dispositivo asume que se dañó.
+# Búsquedas máximas por consulta (original + reformulaciones). Más rondas suben
+# el recall a costa de latencia.
 MAX_INTENTOS_RECUPERACION = 2
 
-# Cuántos fragmentos pide a la base vectorial en cada búsqueda.
+# k de cada búsqueda; igual al del RAG anterior.
 FRAGMENTOS_POR_BUSQUEDA = 3
 
-# Si es True, el nodo evaluador juzga CADA fragmento por separado (patrón tipo
-# CRAG: filtra los irrelevantes y conserva los buenos). Cuesta una llamada al
-# LLM por fragmento. Si es False, juzga el conjunto en una sola llamada: más
-# rápido, pero no puede descartar un fragmento malo y quedarse con los otros.
+# True: una llamada al LLM por fragmento (tipo CRAG). False: una sola para el
+# conjunto, más rápido pero todo o nada.
 EVALUAR_FRAGMENTO_POR_FRAGMENTO = True
 
-# Cuando un fragmento pasa el filtro de relevancia, se traen también los demás
-# fragmentos de su mismo archivo, en orden, antes de redactar la respuesta
-# (patrón conocido como recuperación del documento padre).
-#
-# Motivo medido el 2026-08-19: ante "como hago el llapingacho" el sistema
-# recuperaba la receta correcta, el filtro aceptaba 1 de 3 fragmentos, y la
-# respuesta salía con un paso suelto ("fríelos en la manteca") en lugar de la
-# receta. El troceado por párrafos reparte una receta en varios fragmentos y el
-# filtro, al ser estricto, descarta parte de ella.
+# Si un fragmento pasa el filtro, se trae el resto de su archivo (documento
+# padre); sin esto la respuesta sale con un paso suelto (README, "Hallazgos medidos").
 EXPANDIR_A_RECETA_COMPLETA = True
 
-# Tope de caracteres del contexto que se le pasa al generador tras expandir. Un
-# archivo con muchas recetas (una página doble, por ejemplo) puede tener docenas
-# de fragmentos, y traerlos todos llenaría el prompt de recetas que el usuario
-# no pidió. Al recortar se conservan primero los fragmentos que pasaron el
-# filtro.
+# Tope del contexto tras expandir; un archivo puede traer varias recetas.
 MAXIMO_CARACTERES_CONTEXTO = 6000
 
 
@@ -66,14 +43,5 @@ class EstadoRAG(TypedDict):
     respuesta: Optional[str]
     hubo_resultado: Optional[bool]             # False = se respondió "no lo encontré"
 
-    # Trazabilidad (para el notebook comparativo y la defensa de la tesis).
-    #
-    # El Annotated[..., operator.add] es un REDUCER: le dice a LangGraph que
-    # cuando un nodo devuelve {"traza": [x]} debe CONCATENAR con lo que ya
-    # había, en vez de reemplazarlo (que es el comportamiento por defecto de
-    # los demás campos). Sin esto, cada nodo borraría la traza del anterior y
-    # el ciclo quedaría invisible.
-    #
-    # Vale la pena anotarlo para el paper: es exactamente el tipo de manejo de
-    # estado acumulado que los tutores señalaron como limitación de CrewAI.
+    # Reducer: cada nodo concatena a la traza en vez de reemplazarla.
     traza: Annotated[list[dict], operator.add]

@@ -1,15 +1,8 @@
-# Genera imágenes de los grafos para ver visualmente el flujo de nodos y edges.
+# Dibuja el grafo principal (grafo.png) y el subgrafo de RAG (grafo_rag.png).
+# El PNG sale de mermaid.ink (requiere internet); el ASCII y el .mmd son locales.
 #
 # Uso (desde la raíz del repo):
 #   python -m orquestacion_langgraph.visualizar
-#
-# Dibuja dos grafos:
-#   - el principal (Orchestrator -> especialista), en grafo.png
-#   - el subgrafo de RAG agéntico (con su ciclo), en grafo_rag.png
-#
-# Los PNG salen vía la API pública de mermaid.ink (requiere internet). La
-# versión ASCII se imprime 100% local, y el código mermaid se guarda junto a
-# cada PNG (grafo.mmd, grafo_rag.mmd).
 
 from pathlib import Path
 
@@ -30,8 +23,7 @@ def dibujar(app, titulo: str, ruta_png: Path):
     print("\n--- Vista ASCII (local) ---\n")
     print(g.draw_ascii())
 
-    # El código mermaid se guarda siempre, aunque falle el PNG: es la fuente
-    # editable del diagrama (sirve para el documento en LaTeX o para mermaid.live).
+    # Se guarda aunque falle el PNG: es la fuente editable del diagrama.
     ruta_png.with_suffix(".mmd").write_text(g.draw_mermaid(), encoding="utf-8")
 
     try:

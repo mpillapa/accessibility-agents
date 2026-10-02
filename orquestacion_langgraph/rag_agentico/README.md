@@ -81,6 +81,8 @@ Decisiones de diseño que no son constantes pero sí son reglas:
   contrapartida es que un falso positivo del evaluador arrastra una receta
   completa al contexto, no un fragmento: la expansión amplifica los errores del
   filtro en las dos direcciones.
+- **El evaluador juzga pertenencia, no utilidad.** Con "¿ayuda a responder?"
+  aceptaba fragmentos de otro plato que compartía un ingrediente.
 
 ## Hallazgos medidos (2026-08-19)
 

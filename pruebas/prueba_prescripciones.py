@@ -1,13 +1,6 @@
-# Pruebas de la receta médica como fuente de verdad.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_prescripciones
-#
-# NO requieren VPN ni LLM: todo lo que se prueba acá son funciones puras sobre
-# los JSON. Que se pueda probar así es exactamente el argumento para que la
-# lectura de la receta NO viva en un prompt (ver medicacion/prescripciones.py).
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Pruebas de la receta médica como fuente de verdad (ver medicacion/prescripciones.py).
+# Uso: python -m pruebas.prueba_prescripciones
+# No requiere VPN.
 
 import sys
 from datetime import date
@@ -34,8 +27,7 @@ from medicacion.prescripciones import (
     verificar_indicacion,
 )
 
-# Antes de la vigencia de todas las recetas de prueba, para que el estado de
-# "vencida" dependa de la fecha que pasa la prueba y no del día en que se corra.
+# Anterior a todo vencimiento: "vencida" depende de la fecha dada, no del día en que se corre.
 HOY_FIJO = date(2026, 9, 22)
 MUY_EN_EL_FUTURO = date(2030, 1, 1)
 
@@ -48,11 +40,8 @@ def _medicamentos_del_plan(plan):
     return {i["medicamento"] for t in plan["tomas"] for i in t["items"]}
 
 
-# --- Lectura y consolidación de la receta -----------------------------------
-
 def prueba_consolida_varias_recetas_en_un_plan():
-    """Manuel tiene dos recetas a la vez, una crónica y una aguda. La persona no
-    vive "la receta A y la receta B": vive lo que le toca a las ocho."""
+    """Manuel tiene una receta crónica y una aguda: se consolidan por horario."""
     assert len(prescripciones_de("manuel")) == 2
     plan = plan_diario("manuel", HOY_FIJO)
     medicamentos = _medicamentos_del_plan(plan)
@@ -71,9 +60,7 @@ def prueba_agrupa_por_hora_y_en_orden():
 
 
 def prueba_los_horarios_de_la_receta_mandan():
-    """El médico puso la Furosemida a las 08:00 y 16:00 con un motivo explícito
-    ('no la tome de noche'). La tabla general de dos tomas diría 08:00 y 20:00:
-    el sistema NO debe reescribir lo que indicó el profesional."""
+    """Furosemida a las 08:00 y 16:00 por indicación médica, no 08:00 y 20:00 de la tabla."""
     receta = prescripciones_de("carmen")[0]
     furosemida = next(i for i in receta["indicaciones"] if i["medicamento"] == "Furosemida")
     assert horarios_de_indicacion(furosemida) == ["08:00", "16:00"]
@@ -92,8 +79,6 @@ def prueba_total_diario_se_calcula_sobre_los_horarios_reales():
     assert total_diario_mg(furosemida) == 80, total_diario_mg(furosemida)
     return "suma el día sobre los horarios agendados (40 mg x 2 = 80 mg)"
 
-
-# --- Verificación: los tres avisos graves -----------------------------------
 
 def prueba_detecta_alergia_en_la_receta():
     """Manuel es alérgico a penicilina y su receta aguda trae Amoxicilina."""
@@ -115,8 +100,7 @@ def prueba_detecta_contraindicacion_en_la_receta():
 
 
 def prueba_detecta_exceso_sobre_el_tope_ajustado_por_rinon():
-    """El caso que antes justificaba ajustar la dosis automáticamente. Ahora es
-    una VERIFICACIÓN: el sistema no recorta la receta, avisa que no cuadra."""
+    """No recorta la receta: avisa que no cuadra."""
     avisos = plan_diario("carmen", HOY_FIJO)["avisos"]
     exceso = [a for a in avisos if a["tipo"] == AVISO_EXCEDE_TOPE]
     assert len(exceso) == 1, avisos
@@ -127,8 +111,7 @@ def prueba_detecta_exceso_sobre_el_tope_ajustado_por_rinon():
 
 
 def prueba_receta_limpia_no_genera_avisos():
-    """Contrapeso imprescindible: si el verificador avisara siempre, no serviría
-    de nada. Rosa y Elena tienen recetas coherentes con su perfil."""
+    """Rosa y Elena tienen recetas coherentes con su perfil."""
     for id_perfil in ("rosa", "elena"):
         avisos = plan_diario(id_perfil, HOY_FIJO)["avisos"]
         assert avisos == [], (id_perfil, avisos)
@@ -136,8 +119,7 @@ def prueba_receta_limpia_no_genera_avisos():
 
 
 def prueba_medicamento_desconocido_no_pasa_en_silencio():
-    """Un nombre que no está en el vademécum no se puede verificar. Callarlo
-    equivaldría a dar por buena una indicación que el sistema nunca revisó."""
+    """Callarlo daría por buena una indicación que nunca se revisó."""
     indicacion = {"medicamento": "Pastilla del abuelo", "dosis_mg": 100, "tomas_por_dia": 1}
     avisos = verificar_indicacion(indicacion, obtener_perfil("rosa"), "rx-test")
     assert _tipos(avisos) == {AVISO_MEDICAMENTO_DESCONOCIDO}, avisos
@@ -155,10 +137,7 @@ def prueba_cada_aviso_dice_que_hacer():
 
 
 def prueba_la_accion_depende_del_tipo_de_problema():
-    """No todos los problemas piden lo mismo. Ante una alergia a penicilina hay
-    que decir NO lo tome; ante una dosis alta, consultar antes de la próxima
-    toma. Tratarlos igual fue un error de la primera versión, que la variante
-    LLM del experimento expuso al responder mejor que las reglas en ese punto."""
+    """Alergia: no lo tome. Dosis alta: consulte antes de la próxima toma."""
     alergia = ACCION_POR_TIPO[AVISO_ALERGIA]
     exceso = ACCION_POR_TIPO[AVISO_EXCEDE_TOPE]
     assert "NO tomarlo" in alergia, alergia
@@ -178,19 +157,16 @@ def prueba_la_accion_depende_del_tipo_de_problema():
 
 
 def prueba_la_receta_vencida_no_pide_suspender():
-    """Dejar un antihipertensivo porque venció el papel es peor que el papel
-    vencido. La acción tiene que decirlo explícitamente."""
+    """Dejar un antihipertensivo porque venció el papel es peor que el papel vencido."""
     accion = ACCION_POR_TIPO[AVISO_PRESCRIPCION_VENCIDA]
     assert "NO suspender" in accion, accion
     return "una receta vencida pide renovarla, no dejar el tratamiento"
 
 
-# --- La regla que gobierna el módulo: marcar, nunca quitar -------------------
+# Regla del módulo: marcar, nunca quitar.
 
 def prueba_no_quita_del_plan_lo_que_tiene_aviso():
-    """Suspender un tratamiento es tan clínico como recetarlo. Una persona que
-    deja su medicación porque la app se la ocultó corre más riesgo que una
-    advertida. El sistema marca; decidir es del médico."""
+    """Suspender es tan clínico como recetar: el sistema marca, decide el médico."""
     for id_perfil, medicamento in (("manuel", "Amoxicilina"),
                                    ("jorge", "Naproxeno"),
                                    ("carmen", "Furosemida")):
@@ -201,8 +177,7 @@ def prueba_no_quita_del_plan_lo_que_tiene_aviso():
 
 
 def prueba_marca_el_renglon_y_no_solo_el_encabezado():
-    """El aviso tiene que viajar junto al medicamento: una persona mayor lee la
-    lista de lo que tiene que tomar, no necesariamente el bloque de arriba."""
+    """El aviso viaja con el medicamento: la persona lee la lista, no el bloque de arriba."""
     plan = plan_diario("jorge", HOY_FIJO)
     naproxeno = [i for t in plan["tomas"] for i in t["items"] if i["medicamento"] == "Naproxeno"]
     assert naproxeno, plan["tomas"]
@@ -228,11 +203,8 @@ def prueba_los_avisos_graves_van_primero():
     return "ordena los avisos por gravedad"
 
 
-# --- Sin receta: no inventar ------------------------------------------------
-
 def prueba_sin_receta_no_inventa_plan():
-    """Luis no tiene receta. El sistema no debe construirle un tratamiento a
-    partir de nada: es el caso donde un LLM tiende a rellenar."""
+    """Luis no tiene receta: es donde un LLM tiende a rellenar."""
     plan = plan_diario("luis", HOY_FIJO)
     assert plan["tiene_prescripcion"] is False
     assert plan["tomas"] == []
@@ -246,7 +218,7 @@ def prueba_persona_desconocida_no_devuelve_plan():
     return "no devuelve plan para una persona que no está en el sistema"
 
 
-# --- Alternativas: informar, no sustituir -----------------------------------
+# Alternativas: informar, no sustituir.
 
 def prueba_alternativas_son_del_mismo_grupo():
     resultado = alternativas_para("Paracetamol", "manuel")
@@ -271,9 +243,7 @@ def prueba_alternativas_descartan_lo_contraindicado():
 
 
 def prueba_las_alternativas_no_son_una_sustitucion():
-    """El sistema informa qué existe; autorizar el cambio es del médico. Las
-    dosis que devuelve son de catálogo y se llaman así a propósito, para que
-    nadie las lea como una pauta."""
+    """Autorizar el cambio es del médico; las dosis se llaman "de catálogo" para no leerse como pauta."""
     resultado = alternativas_para("Metformina", "rosa")
     assert resultado["requiere_autorizacion_medica"] is True
     for alternativa in resultado["del_mismo_grupo"]:
@@ -297,8 +267,6 @@ def prueba_medicamento_inexistente_no_inventa_alternativas():
     return "no inventa alternativas para un medicamento que no existe"
 
 
-# --- Clasificación de la consulta -------------------------------------------
-
 def prueba_clasificador_detecta_que_le_falta_una_pastilla():
     for consulta, esperado in (
         ("se me acabó el paracetamol", "Paracetamol"),
@@ -312,8 +280,7 @@ def prueba_clasificador_detecta_que_le_falta_una_pastilla():
 
 
 def prueba_clasificador_por_defecto_es_el_plan():
-    """Sin faltante explícito Y medicamento nombrado, la consulta es el plan del
-    día: es la más frecuente y la menos riesgosa de responder de más."""
+    """Sin faltante y medicamento nombrados, es el plan del día: lo más frecuente y menos riesgoso."""
     for consulta in ("¿qué pastillas me toca tomar hoy?",
                      "¿a qué hora tomo la furosemida?",
                      "se me acabaron las pastillas"):

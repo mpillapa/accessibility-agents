@@ -1,13 +1,5 @@
-# Redacción de la respuesta de la tarea medicamento × comida.
-#
-# El cruce ya está hecho (reglas.py). Aquí solo se convierte en palabras:
-#   - si NO es evaluable (falta la receta médica, la persona o el plato), el
-#     texto es FIJO y no se llama al LLM: no hay nada que redactar, y lo que hay
-#     que decir no puede depender de que el modelo lo diga bien;
-#   - si es evaluable, el LLM redacta a partir del resultado del cruce, con la
-#     instrucción explícita de no agregar interacciones que no estén en él.
-# El aviso final se agrega en código, no en el prompt, por la misma razón que en
-# medicacion/agente.py: tiene que estar siempre.
+# Redacción de la respuesta medicamento × comida a partir del cruce de reglas.py.
+# Si no es evaluable, texto fijo sin LLM; el aviso final se agrega en código para que esté siempre.
 
 from interacciones.reglas import (
     MOTIVO_SIN_PERFIL,

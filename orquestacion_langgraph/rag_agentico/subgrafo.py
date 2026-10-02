@@ -1,34 +1,5 @@
-# Construcción del subgrafo de RAG agéntico.
-#
-# Forma del grafo:
-#
-#   START -> decidir_busqueda
-#              |-- (no necesita) --> responder_sin_recetario --> END
-#              `-- (sí necesita) --> recuperar
-#                                       |
-#                                       v
-#                                  evaluar_relevancia
-#                                       |
-#              .------------------------+------------------------.
-#              |                        |                        |
-#         (hay útiles)          (sin útiles,            (sin útiles,
-#              |                 quedan intentos)        sin intentos)
-#              v                        |                        |
-#      expandir_contexto            reformular              sin_resultado
-#              |                        |                        |
-#              v                        `--> recuperar           v
-#           generar                          (ciclo)            END
-#              |
-#              v
-#             END
-#
-# El ciclo reformular -> recuperar es lo que distingue esto de un RAG lineal:
-# el grafo puede volver sobre sus pasos. En un pipeline fijo, una búsqueda que
-# falla por vocabulario termina en una respuesta mala o inventada.
-#
-# expandir_contexto está entre el filtro y el generador porque el filtro deja
-# pasar fragmentos sueltos: de una receta troceada en cinco párrafos puede
-# aprobar uno, y redactar con ese solo da un paso aislado en vez de la receta.
+# Construcción del subgrafo de RAG agéntico, con el ciclo reformular -> recuperar.
+# Diagrama del flujo y reglas en README.md de este paquete.
 
 from langgraph.graph import StateGraph, START, END
 
@@ -48,11 +19,10 @@ from orquestacion_langgraph.rag_agentico.nodos import (
 
 
 def construir_subgrafo_rag(con_generacion: bool = True):
-    """Con `con_generacion=False` el subgrafo termina después de expandir el
-    contexto: devuelve QUÉ recetas encontró, sin redactar la respuesta. Lo usa
-    la tarea medicamento × comida, que solo necesita saber de qué plato se
-    habla para cruzarlo con la medicación. Se salta `generar`, que es ~88% del
-    tiempo del RAG (bitácora 11)."""
+    """Con `con_generacion=False` termina tras expandir el contexto, sin redactar.
+
+    Lo usa la tarea medicamento × comida; se ahorra `generar` (~88% del tiempo, bitácora 11).
+    """
     grafo = StateGraph(EstadoRAG)
 
     grafo.add_node("decidir_busqueda", nodo_decidir_busqueda)
@@ -107,12 +77,10 @@ def _estado_inicial(consulta: str) -> dict:
 
 
 def consultar_recetario(consulta: str, con_generacion: bool = True) -> dict:
-    """Punto de entrada del subgrafo. Devuelve la respuesta más la traza del
-    ciclo, para que el grafo principal pueda pasarla hacia arriba y el
-    notebook comparativo pueda mostrar qué hizo el RAG paso a paso.
+    """Punto de entrada del subgrafo: respuesta, traza y metadatos.
 
-    `fuentes` son las recetas cuyos fragmentos aprobó el evaluador de
-    relevancia. Con `con_generacion=False`, `respuesta` es None."""
+    `fuentes` son las recetas que aprobó el evaluador. Con `con_generacion=False`,
+    `respuesta` es None."""
     resultado = construir_subgrafo_rag(con_generacion).invoke(_estado_inicial(consulta))
     utiles = resultado.get("fragmentos_utiles") or []
     hubo_resultado = resultado["hubo_resultado"]

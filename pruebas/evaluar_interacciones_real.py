@@ -1,23 +1,14 @@
-# Evaluación de la tarea medicamento × comida con los modelos reales, por el
-# grafo completo.
+# Tarea medicamento × comida con los modelos reales, por el grafo completo, sobre
+# las frases de la campaña (interacciones/datos/casos_prueba.json, "campana").
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_interacciones_real
 #   python -m pruebas.evaluar_interacciones_real --usuarios rosa elena --json salida.json
 #
-# REQUIERE el LLM, los embeddings y el índice del recetario.
+# Requiere el LLM, los embeddings y el índice del recetario.
 #
-# Corre las frases de la campaña (interacciones/datos/casos_prueba.json,
-# sección "campana") para cada usuario y marca cada ejecución contra la verdad
-# de referencia. Es ÉXITO si se cumple todo:
-#   1. el Orchestrator eligió MEDICATION_FOOD_CHECK;
-#   2. el camino fue orchestrator → {medicacion_cruce, recetas_cruce} → integrador;
-#   3. el RAG encontró una de las fuentes aceptadas;
-#   4. las interacciones son exactamente las esperadas para ese usuario.
-# Si algo falla, se registra QUÉ falló, para leerlo antes de contarlo.
-#
-# Corre en serie: la latencia que reporta es la de una consulta sola, aunque
-# sigue expuesta a la carga del servidor compartido (bitácora 11).
+# Éxito = intención MEDICATION_FOOD_CHECK, camino correcto, fuente aceptada e
+# interacciones exactas. Corre en serie (latencia de una consulta sola).
 
 import argparse
 import json

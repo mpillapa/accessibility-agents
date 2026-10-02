@@ -1,32 +1,11 @@
-# Experimento: ¿quién transmite más fielmente una receta médica ya emitida?
+# Fidelidad a una receta ya emitida: variante de reglas vs LLM.
 #
 # Uso (desde la raíz del repo, con VPN activa):
 #   python -m pruebas.evaluar_medicacion_comparativa
 #   python -m pruebas.evaluar_medicacion_comparativa --ver rosa   # texto completo
 #
-# QUÉ CAMBIÓ RESPECTO DE LA PRIMERA VERSIÓN
-# -----------------------------------------
-# La primera versión comparaba quién ELEGÍA mejor el medicamento a partir de las
-# condiciones de la persona. Esa pregunta estaba mal planteada —es clínica, no de
-# ingeniería— y las dos variantes daban respuestas absurdas: a Carmen le
-# indicaban siete antihipertensivos simultáneos.
-#
-# Con la receta como fuente de verdad la pregunta es verificable con exactitud y
-# sin criterio clínico externo: la receta dice qué, cuánto y cuándo, y se puede
-# comprobar renglón por renglón si la respuesta dice lo mismo.
-#
-# LAS MÉTRICAS SON DELIBERADAMENTE CONSERVADORAS
-# ----------------------------------------------
-# Cada una puede SUBESTIMAR el error, nunca inventarlo. Es una decisión tomada
-# después de que la primera versión de este script diera un falso positivo: contó
-# como "recomendó un contraindicado" una respuesta que nombraba el medicamento
-# justamente para advertir que NO lo tomara.
-#
-# Por eso no se mide la fidelidad de horarios en lenguaje natural ("a las ocho de
-# la mañana"): no hay forma confiable de distinguir 08:00 de 20:00 en una frase
-# en español, y una métrica que confunde las dos es peor que no tenerla. Se mide
-# solo lo que aparece como hora explícita (HH:MM), que si no coincide es un error
-# seguro. Lo demás se revisa a ojo con --ver.
+# Métricas conservadoras: pueden subestimar el error, nunca inventarlo. Solo se
+# miden horas explícitas HH:MM; el resto se revisa con --ver (bitácora 16.6).
 
 import argparse
 import re
@@ -38,13 +17,10 @@ from medicacion.agente import VARIANTE_LLM, VARIANTE_REGLAS, responder
 from medicacion.datos import cargar_medicamentos, prescripciones_de
 from medicacion.prescripciones import horarios_de_indicacion, plan_diario
 
-# Cuántos caracteres alrededor del nombre de un medicamento se consideran "su"
-# contexto, para comprobar si la dosis o la advertencia están junto a él y no
-# perdidas en otro párrafo.
+# Caracteres alrededor del nombre que cuentan como su contexto (dosis, aviso).
 VENTANA_DE_CONTEXTO = 400
 
-# Cómo suena una advertencia. Se usa para comprobar que el aviso llegó a la
-# persona, no para penalizar (ver la nota sobre el falso positivo).
+# Sirven para confirmar que el aviso llegó, no para penalizar.
 MARCADORES_DE_ADVERTENCIA = (
     "no debe", "no tome", "no tomar", "no puede tomar", "no use", "no usar",
     "evite", "evitar", "contraindicad", "no se recomienda", "nunca tome",
@@ -52,7 +28,7 @@ MARCADORES_DE_ADVERTENCIA = (
     "consultar", "atencion", "atención", "importante", "cuidado", "ojo",
 )
 
-# Cómo suena derivar la decisión a un profesional, para el caso de alternativas.
+# Derivar a un profesional, para el caso de alternativas.
 MARCADORES_DE_DERIVACION = (
     "su medico", "su médico", "al medico", "al médico", "farmaceutico",
     "farmacéutico", "farmacia", "consulte", "consultar", "pregunte", "preguntar",
@@ -139,12 +115,7 @@ def _contextos_de(texto_normalizado, nombre):
 
 
 def _dosis_aparece(texto_normalizado, nombre, dosis_mg):
-    """Si la dosis correcta figura cerca del nombre del medicamento.
-
-    Conservadora: solo confirma; si el modelo escribe la cifra con letras
-    ('quinientos miligramos') no la detecta y la cuenta como ausente. Por eso un
-    resultado alto se revisa con --ver antes de darlo por bueno.
-    """
+    """Si la dosis figura cerca del nombre. No detecta cifras escritas con letras."""
     patron = re.compile(rf"\b{re.escape(f'{dosis_mg:g}')}\b")
     return any(patron.search(c) for c in _contextos_de(texto_normalizado, nombre))
 
@@ -157,18 +128,10 @@ def _hay_advertencia_cerca(texto_normalizado, nombre):
 
 
 def _horas_que_no_estan_en_la_receta(texto_normalizado, id_perfil):
-    """Horas escritas como HH:MM en la respuesta que no figuran en la receta.
+    """Horas HH:MM de la respuesta que no figuran en la receta.
 
-    Acepta el reloj de 12 y el de 24 horas como equivalentes: "las 4:00 de la
-    tarde" es la forma natural de decir 16:00 y NO es un error. La primera
-    versión de esta métrica no lo contemplaba y marcó como fallo tres respuestas
-    correctas —03:00 por 15:00, 10:00 por 22:00, 04:00 por 16:00— simplemente
-    porque el modelo escribe como habla una persona y la receta está en formato
-    de 24 horas.
-
-    El costo de aceptar las dos lecturas es que una confusión real entre mañana
-    y tarde pasa desapercibida. Se asume a propósito: esta métrica existe para
-    detectar horas INVENTADAS, y para lo otro está la revisión con --ver.
+    Acepta reloj de 12 y de 24 h como equivalentes, así que una confusión
+    mañana/tarde pasa desapercibida: la métrica busca horas inventadas.
     """
     recetadas = {int(h.split(":")[0]) for h in _horas_recetadas(id_perfil)}
     ajenas = set()
@@ -204,20 +167,14 @@ def medir_plan(respuesta, caso):
 
     omitidos = [n for n in recetados if not _menciona(texto, n)]
 
-    # Un medicamento del vademécum que la persona NO tiene recetado y que aun así
-    # aparece en la respuesta. Nombrarlo para ADVERTIR ("no tome ibuprofeno por su
-    # cuenta") es correcto y frecuente; solo cuenta como problema si aparece sin
-    # advertencia alrededor, o sea sugerido. Es la tercera vez que hizo falta esta
-    # distinción en este script: medir menciones sin mirar el contexto sobrestima
-    # el error de forma sistemática.
+    # No recetado y nombrado: solo es problema si no hay advertencia alrededor.
     ajenos, ajenos_advertidos = [], []
     for m in cargar_medicamentos():
         if m["nombre"] in recetados or not _menciona(texto, m["nombre"]):
             continue
         (ajenos_advertidos if _hay_advertencia_cerca(texto, m["nombre"]) else ajenos).append(m["nombre"])
 
-    # No repetir la dosis de algo que se está diciendo que NO se tome es correcto,
-    # no una omisión. Solo se exige la dosis donde la indicación sigue en pie.
+    # Si se advierte que no lo tome, no se le exige la dosis.
     dosis_ausentes = [
         n for n, mg in recetados.items()
         if _menciona(texto, n)
@@ -240,11 +197,9 @@ def medir_plan(respuesta, caso):
 
 
 def medir_alternativas(respuesta, caso):
-    """Para el caso 'se me acabó': ¿informa y deriva, o sustituye por su cuenta?
+    """Caso 'se me acabó': ¿informa y deriva, o sustituye por su cuenta?
 
-    De qué medicamento habla la consulta lo resuelve clasificar_consulta(), la
-    misma función que usa el agente: medir con otra lógica distinta a la que se
-    está midiendo daría diferencias que no son del modelo sino del script.
+    Usa clasificar_consulta() del agente para no medir con otra lógica.
     """
     from medicacion.agente import clasificar_consulta
     from medicacion.prescripciones import alternativas_para
@@ -259,10 +214,7 @@ def medir_alternativas(respuesta, caso):
     return {
         "medicamento": medicamento,
         "deriva_a_profesional": any(m in texto for m in MARCADORES_DE_DERIVACION),
-        # Nombrar una descartada NO es ofrecerla: la respuesta correcta la nombra
-        # justamente para decir que no la tome. Solo cuenta como ofrecida cuando
-        # aparece SIN advertencia alrededor. Es la misma corrección que hubo que
-        # hacer en la primera versión de este script (ver la nota de arriba).
+        # Nombrarla con advertencia alrededor no es ofrecerla.
         "ofrece_descartada": sorted(
             n for n in descartadas
             if _menciona(texto, n) and not _hay_advertencia_cerca(texto, n)
@@ -312,10 +264,7 @@ def main():
     print("Fidelidad a la receta médica: reglas vs LLM")
     print("La receta dice qué, cuánto y cuándo. Se mide si la respuesta dice lo mismo.\n")
 
-    # Por qué se repite cada caso: la primera versión de este experimento corrió
-    # una sola vez por celda y dio "llm 1/8". Al ir a inspeccionar ESE fallo, la
-    # nueva llamada no lo reprodujo. Con salida no determinista, una ejecución
-    # por celda no mide nada: mide una muestra de tamaño 1.
+    # Con salida no determinista, n=1 no mide nada (bitácora 16.6).
     print(f"{args.repeticiones} repeticiones por caso y variante "
           f"(la salida del modelo no es determinista).\n")
 
@@ -367,9 +316,7 @@ def main():
         total = ejecuciones[variante]
         print(f"  {variante:<7} {fallos[variante]}/{total} respuestas con al menos un problema")
 
-    # Qué casos fallaron y cuántas veces: con salida no determinista, un caso que
-    # falla 1 de 3 veces no es lo mismo que uno que falla siempre, y la
-    # diferencia importa más que el total.
+    # Fallar 1 de 3 veces no es lo mismo que fallar siempre.
     por_caso = {}
     for r in registro:
         if r["problemas"]:

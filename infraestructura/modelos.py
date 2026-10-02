@@ -1,28 +1,6 @@
-# Resolución del identificador de modelo servido por un endpoint vLLM/Ollama.
-#
-# POR QUÉ EXISTE ESTE MÓDULO
-# --------------------------
-# Los endpoints de la Universidad rotan de modelo sin aviso. Verificado tres
-# veces en tres semanas sobre el MISMO puerto (12559):
-#
-#   hasta 2026-09-08   google/gemma-4-12B-it            (contenedor eliminado)
-#   2026-09-09..20     zai-org/GLM-5.3-Flash            (contenedor eliminado)
-#   desde 2026-09-21   canada-quant/GLM-5.3-Flash-W4A16-MTP
-#
-# La API OpenAI valida el campo `model` contra el identificador exacto que sirve
-# el contenedor: cualquier otro valor devuelve 404 y el sistema entero cae. Con
-# el id escrito a mano en el .env, cada rotación del servidor rompe el proyecto
-# hasta que alguien lo edita a mano.
-#
-# La solución es preguntarle al servidor qué está sirviendo (GET /v1/models) en
-# vez de asumirlo. El valor del .env pasa de ser un dato obligatorio a ser una
-# preferencia: se respeta si el servidor todavía lo sirve, y si no, se usa lo
-# que haya y se avisa por consola.
-#
-# LIMITACIÓN CONOCIDA: esto evita la caída por 404, pero NO hace que los
-# resultados sean reproducibles. Un modelo distinto da salidas distintas. Por
-# eso `describir_resolucion()` deja registro de qué se resolvió realmente: al
-# reportar una medición hay que anotar con qué modelo se obtuvo.
+# Resuelve el id de modelo que sirve un endpoint vLLM/Ollama (GET /v1/models) en
+# vez de fijarlo en el .env, porque el servidor rota de modelo sin aviso.
+# Registro de rotaciones: README.md raíz, "Rotación de modelos en el servidor".
 
 import os
 from pathlib import Path
@@ -30,25 +8,18 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# override=True: el .env del proyecto manda sobre variables ya presentes en el
-# entorno (p. ej. las que VSCode inyecta desde un .env del workspace padre).
+# override=True: el .env del proyecto manda sobre el que inyecta VSCode.
 load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 
-# Segundos de espera al consultar /v1/models. Corto a propósito: sin VPN la
-# llamada no va a responder nunca y no queremos que el import quede colgado.
-# Si se agota, se usa el modelo preferido del .env y el error aparece después,
-# en la llamada real, que es donde el usuario lo entiende.
+# Corto: sin VPN no responde y no debe colgar el import; se cae al valor del .env.
 TIMEOUT_CONSULTA_SEGUNDOS = 5.0
 
-# Qué se resolvió en esta ejecución, por base_url. Sirve para dos cosas:
-# evitar una consulta de red por cada import, y poder anotar en las mediciones
-# con qué modelo se corrió realmente (ver describir_resolucion()).
+# Caché por base_url; también alimenta describir_resolucion().
 _resoluciones: dict[str, "ResolucionModelo"] = {}
 
 
 class ResolucionModelo:
-    """Resultado de resolver el modelo de un endpoint: qué se pidió, qué se
-    obtuvo y por qué. Se guarda para poder documentar las mediciones."""
+    """Qué se pidió, qué se obtuvo y por qué."""
 
     def __init__(self, base_url: str, preferido: str, resuelto: str, motivo: str):
         self.base_url = base_url
@@ -65,8 +36,7 @@ class ResolucionModelo:
 
 
 def _consultar_modelos_servidos(base_url: str, api_key: str) -> list[str]:
-    """Devuelve los ids que el endpoint declara en GET /v1/models, o lista
-    vacía si no se pudo consultar (sin VPN, servidor caído, timeout)."""
+    """Ids de GET /v1/models, o lista vacía si no se pudo consultar."""
     cliente = OpenAI(
         base_url=base_url,
         api_key=api_key,
@@ -76,22 +46,15 @@ def _consultar_modelos_servidos(base_url: str, api_key: str) -> list[str]:
     try:
         return [modelo.id for modelo in cliente.models.list().data]
     except Exception:
-        # Deliberadamente amplio: cualquier fallo de red, DNS, timeout o
-        # respuesta mal formada debe degradar al valor del .env, nunca
-        # impedir que el módulo se importe.
+        # Amplio a propósito: ningún fallo debe impedir importar el módulo.
         return []
 
 
 def resolver_modelo(base_url: str, modelo_preferido: str, api_key: str) -> str:
-    """Devuelve el id de modelo que este endpoint acepta hoy.
+    """Id de modelo que este endpoint acepta hoy.
 
-    `modelo_preferido` es el valor del .env: se respeta si el servidor lo
-    sigue sirviendo. Si el servidor cambió de modelo, se usa el que haya y se
-    avisa por consola, porque el cambio afecta la comparabilidad de cualquier
-    medición que se tome después.
-
-    El resultado se cachea por `base_url`: una consulta de red por endpoint y
-    por ejecución, no una por llamada al modelo.
+    Respeta `modelo_preferido` (el .env) si el servidor lo sirve; si no, usa el
+    único que haya y avisa. Cacheado por `base_url`.
     """
     if base_url in _resoluciones:
         return _resoluciones[base_url].resuelto
@@ -105,8 +68,7 @@ def resolver_modelo(base_url: str, modelo_preferido: str, api_key: str) -> str:
         motivo = "el endpoint sigue sirviendo el modelo configurado en el .env"
         resuelto = modelo_preferido
     elif len(servidos) == 1:
-        # Un endpoint vLLM dedicado sirve un solo modelo: si el del .env ya no
-        # está, el que hay es necesariamente su reemplazo. Sustituir es seguro.
+        # Endpoint dedicado: el único modelo servido es el reemplazo.
         resuelto = servidos[0]
         motivo = f"el .env pide {modelo_preferido!r}; el endpoint ahora sirve solo {resuelto!r}"
         print(
@@ -116,12 +78,8 @@ def resolver_modelo(base_url: str, modelo_preferido: str, api_key: str) -> str:
             f"con {modelo_preferido}."
         )
     else:
-        # El endpoint sirve varios modelos (caso Ollama: 14 modelos de chat,
-        # visión y embeddings en el mismo puerto) y ninguno es el pedido. NO se
-        # puede adivinar cuál corresponde: sustituir un modelo de embeddings por
-        # uno de chat produciría vectores de otra dimensión y corrompería el
-        # índice en silencio, que es peor que fallar. Se mantiene el preferido
-        # para que la llamada real falle con un 404 explícito.
+        # Varios modelos (Ollama): no se adivina, un modelo equivocado de
+        # embeddings corrompería el índice en silencio. Que falle con 404.
         resuelto = modelo_preferido
         motivo = (
             f"el endpoint sirve {len(servidos)} modelos y ninguno es {modelo_preferido!r}; "
@@ -140,12 +98,7 @@ def resolver_modelo(base_url: str, modelo_preferido: str, api_key: str) -> str:
 
 
 def describir_resolucion() -> dict[str, dict[str, str]]:
-    """Qué modelo se resolvió para cada endpoint en esta ejecución.
-
-    Pensado para anotarlo junto a cualquier número que se reporte (latencias,
-    WER, accuracy de ruteo). Con el servidor rotando modelos, una medición sin
-    esta información no se puede interpretar después.
-    """
+    """Qué modelo se resolvió para cada endpoint; anotarlo junto a toda medición."""
     return {
         base_url: {
             "preferido": r.preferido,

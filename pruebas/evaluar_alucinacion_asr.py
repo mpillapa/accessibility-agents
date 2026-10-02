@@ -1,23 +1,11 @@
-# ¿Cuánto texto inventa Whisper cuando no hay nadie hablando?
+# Cuánto texto inventa Whisper sobre audio sin voz (bitácora 2.2). La referencia
+# es la cadena vacía: cualquier texto es un error.
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_alucinacion_asr
 #   python -m pruebas.evaluar_alucinacion_asr --json resultados.json
 #
-# Requiere GPU y el modelo de Whisper. NO requiere VPN ni corpus grabado: el
-# audio se genera acá, y la gracia del experimento es justamente que no
-# contiene voz.
-#
-# Por qué importa: el sistema está pensado para un dispositivo que escucha en la
-# casa de una persona mayor. La mayor parte del tiempo no va a haber nadie
-# hablándole, pero sí va a haber televisión, cocina y ruido de calle. Si el ASR
-# inventa texto sobre ese audio, ese texto entra al Orchestrator como si fuera
-# una consulta real y puede activar un agente — en el peor caso, el de
-# emergencias.
-#
-# Esto mide algo distinto del WER, que asume que hay voz que transcribir y
-# compara palabra por palabra. Acá la referencia es la cadena vacía: cualquier
-# texto es un error.
+# Requiere GPU y el modelo de Whisper. No requiere VPN ni corpus: el audio se genera acá.
 
 import argparse
 import json
@@ -31,9 +19,7 @@ from asr.transcribir import transcribir
 
 FRECUENCIA = 16000
 
-# Cada condición es audio SIN VOZ. La amplitud está en unidades de 16 bits:
-# 32768 es el máximo, así que 300 es un ambiente tranquilo y 6000 es ruido
-# fuerte y constante.
+# Audio sin voz. Amplitud en unidades de 16 bits (máximo 32768).
 CONDICIONES = [
     {"id": "silencio_digital",   "tipo": "silencio", "amplitud": 0,
      "nota": "silencio absoluto, el caso más fácil"},
@@ -57,8 +43,7 @@ def generar_audio(condicion: dict, segundos: int, ruta: Path) -> None:
     if condicion["tipo"] == "silencio":
         muestras = [0] * n
     else:
-        # Semilla fija por condición y duración: el experimento tiene que dar el
-        # mismo audio en cada corrida para que los resultados sean comparables.
+        # Ojo: hash() de str cambia entre procesos salvo que PYTHONHASHSEED esté fijo.
         semilla = abs(hash((condicion["id"], segundos))) % (2**31)
         normalizado = generar_ruido(n, tipo=condicion["tipo"], semilla=semilla)
         muestras = [

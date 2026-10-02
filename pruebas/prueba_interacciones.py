@@ -1,18 +1,7 @@
-# Pruebas de la tarea medicamento × comida: el cruce y el camino por el grafo.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_interacciones
-#
-# NO requieren VPN ni LLM. El cruce (interacciones/reglas.py) es código puro y
-# se prueba contra la verdad de referencia escrita a mano
-# (interacciones/datos/casos_prueba.json). El grafo se prueba con dobles en
-# lugar del LLM y de ChromaDB: lo que se verifica es el CAMINO (orquestador →
-# dos ramas en paralelo → integrador) y que el integrador cruce lo que las
-# ramas le pasan, no la calidad de la redacción.
-#
-# La integridad de los datos es de pruebas/prueba_datos_interacciones.py.
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Pruebas de medicamento × comida: el cruce contra casos_prueba.json y el camino por
+# el grafo con dobles (orquestador -> dos ramas en paralelo -> integrador).
+# Uso: python -m pruebas.prueba_interacciones
+# No requiere VPN.
 
 import sys
 from datetime import date
@@ -23,8 +12,6 @@ from interacciones.datos import cargar_casos
 
 HOY = date.fromisoformat(cargar_casos()["_fecha_referencia"])
 
-
-# --- El cruce contra la verdad de referencia --------------------------------
 
 def prueba_casos_de_desarrollo():
     """Los 11 casos escritos a mano, con la fuente dada (sin RAG)."""
@@ -49,12 +36,8 @@ def prueba_casos_de_campana():
     return f"el cruce coincide en las {total} combinaciones de la campaña (incluye las dos fuentes de llapingacho)"
 
 
-# --- Reglas que los perfiles reales no ejercitan -------------------------------
-
 def _con_perfil_sintetico(funcion_renal: str):
-    """Reemplaza perfil y prescripción por los de una persona inventada que toma
-    losartán. Ningún perfil real combina losartán con función renal reducida,
-    así que la regla del potasio no se prueba de otra forma."""
+    """Persona inventada con losartán: ningún perfil real ejercita la regla del potasio."""
     perfil = {"id": "sintetico", "condiciones": ["hipertension"], "alergias": [], "funcion_renal": funcion_renal}
     receta = {"id": "rx-sint", "id_perfil": "sintetico", "vigente_hasta": None,
               "indicaciones": [{"medicamento": "Losartan"}]}
@@ -120,8 +103,6 @@ def prueba_usa_los_medicamentos_de_la_rama():
     return "el cruce usa los medicamentos que le pasa la rama de medicación"
 
 
-# --- Redacción ------------------------------------------------------------------
-
 class LLMQueNoDebeLlamarse:
     def invoke(self, prompt):
         raise AssertionError("no debía llamarse al LLM")
@@ -144,8 +125,6 @@ def prueba_el_prompt_lleva_solo_el_cruce():
     assert "Sertralina con" not in prompt, "Sertralina no interactúa con este plato"
     return "el prompt del integrador lleva el resultado del cruce y prohíbe agregar otros"
 
-
-# --- El camino por el grafo, con dobles -----------------------------------------
 
 class Respuesta:
     def __init__(self, content):

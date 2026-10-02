@@ -1,45 +1,9 @@
 # Interfaz web del sistema multiagente de accesibilidad.
 #
-# Ejecutar, desde la RAÍZ del repositorio (ahí está .streamlit/config.toml, que
-# trae el tema):
+# Uso, desde la raíz del repositorio (ahí está .streamlit/config.toml):
 #   .venv/bin/streamlit run interfaz/app.py
 #   .venv/bin/streamlit run interfaz/app.py --server.address 0.0.0.0   # por IP
-#
-# QUÉ CAMBIÓ EL 2026-09-30
-# -------------------------
-# - La voz se graba en la MISMA barra del chat (st.chat_input con
-#   accept_audio). El micrófono aparte fallaba al grabar: ver entrada.py.
-# - La barra queda bloqueada mientras el asistente responde (submit_mode
-#   "disable"): un toque ya no corta la respuesta a la mitad.
-# - Whisper se precarga en segundo plano al abrir la página.
-#
-# QUÉ CAMBIÓ EN LA VERSIÓN DEL 2026-09-23
-# ---------------------------------------
-# - La voz pasó al frente: el micrófono está a la vista, junto al cuadro de
-#   texto, en vez de escondido en un desplegable.
-# - Las respuestas se pueden ESCUCHAR (voz_salida.py), y se leen solas cuando la
-#   pregunta llegó por voz. Para una persona mayor que habla con el asistente,
-#   tener que leer la respuesta rompe el propósito.
-# - La persona que usa el asistente se elige en la barra lateral (antes, con la
-#   variable de entorno PERFIL_ACTIVO, que sigue funcionando como valor inicial).
-# - Identidad visual con la paleta y tipografía de la USFQ (estilo.py) y textos
-#   en usted, sin emojis ni fórmulas de chatbot (textos.py).
-#
-# QUÉ MUESTRA Y POR QUÉ
-# ---------------------
-# Un chat es lo que entiende cualquier persona, pero un chat a secas esconde
-# justo lo que distingue a este sistema de un LLM suelto: que hay un orquestador
-# decidiendo a qué agente va cada consulta, y que el RAG puede volver sobre sus
-# pasos. Por eso cada respuesta trae, plegado, el recorrido real por el grafo.
-#
-# Esta capa no contiene lógica de negocio: importa el grafo y lo dibuja.
-#
-# Organización:
-#   app.py         flujo de la página
-#   componentes.py cómo se dibuja cada turno
-#   voz_salida.py  lectura en voz alta
-#   estilo.py      paleta, tipografía, avatares
-#   textos.py      todo el texto visible
+# Requiere VPN institucional.
 
 import hashlib
 import os
@@ -48,9 +12,7 @@ import tempfile
 import threading
 from pathlib import Path
 
-# Streamlit ejecuta este archivo como script suelto, así que sys.path[0] es
-# interfaz/ y no la raíz del proyecto: sin esto, `import infraestructura` falla
-# con ModuleNotFoundError. Tiene que ir ANTES de los imports del proyecto.
+# Streamlit pone interfaz/ en sys.path[0]: la raíz va antes de los imports del proyecto.
 RAIZ_DEL_PROYECTO = Path(__file__).parent.parent
 if str(RAIZ_DEL_PROYECTO) not in sys.path:
     sys.path.insert(0, str(RAIZ_DEL_PROYECTO))
@@ -70,8 +32,7 @@ from orquestacion_langgraph.llm import VLLM_CHAT_BASE_URL, VLLM_CHAT_MODEL
 st.set_page_config(page_title=textos.TITULO_PESTANA, page_icon=":material/home:", layout="centered")
 st.markdown(CSS, unsafe_allow_html=True)
 
-# Audios del corpus para mostrar el guardrail en vivo: el mismo audio de
-# emergencia, limpio y degradado. Ver orquestacion_langgraph/voz.py.
+# Mismo audio de emergencia, limpio y degradado, para mostrar el guardrail del ASR.
 CORPUS = RAIZ_DEL_PROYECTO / "corpus_audio" / "variantes"
 EJEMPLOS = {
     "Emergencia, sin ruido": "f0006__limpio.wav",
@@ -89,12 +50,9 @@ def _estado_inicial():
 
 @st.cache_resource(show_spinner=False)
 def _precargar_whisper() -> threading.Thread:
-    """Carga Whisper en un hilo, una sola vez por proceso de Streamlit.
+    """Carga Whisper en un hilo, una vez por proceso (en frío tarda ~37 s).
 
-    Sin esto, la primera grabación espera ~37 s a que cargue el modelo y parece
-    que la página se colgó. En un hilo, la página abre al instante; si la
-    persona graba antes de que termine, asr/transcribir.py espera a la carga en
-    curso en vez de empezar otra.
+    Si se graba antes de que termine, asr/transcribir.py espera esa misma carga.
     """
     def cargar():
         try:
@@ -107,8 +65,6 @@ def _precargar_whisper() -> threading.Thread:
     hilo.start()
     return hilo
 
-
-# --- Barra lateral ---------------------------------------------------------
 
 def _barra_lateral() -> tuple[dict, bool]:
     """Devuelve (perfil elegido, si hay que leer en voz alta)."""
@@ -155,8 +111,6 @@ def _barra_lateral() -> tuple[dict, bool]:
     return perfil, leer
 
 
-# --- Entrada por voz -------------------------------------------------------
-
 def _guardar_audio_temporal(datos: bytes, sufijo: str = ".wav") -> str:
     """transcribir() espera una ruta, no bytes."""
     with tempfile.NamedTemporaryFile(delete=False, suffix=sufijo) as f:
@@ -165,8 +119,7 @@ def _guardar_audio_temporal(datos: bytes, sufijo: str = ".wav") -> str:
 
 
 def _es_nuevo(huella: str) -> bool:
-    """Streamlit vuelve a ejecutar el script ante cualquier interacción: sin
-    esto, el mismo audio se procesaría otra vez con cada clic."""
+    """Evita reprocesar el mismo audio en cada reejecución de Streamlit."""
     if huella == st.session_state.ultimo_audio:
         return False
     st.session_state.ultimo_audio = huella
@@ -174,12 +127,7 @@ def _es_nuevo(huella: str) -> bool:
 
 
 def _otras_formas_de_audio() -> str | None:
-    """Audio que no se graba en el momento: un archivo o los ejemplos del
-    corpus (para mostrar el guardrail con ruido). La grabación en vivo está en
-    la barra del chat.
-
-    Devuelve la ruta de un audio nuevo a procesar, o None.
-    """
+    """Audio por archivo o de los ejemplos del corpus. Devuelve la ruta de un audio nuevo, o None."""
     with st.expander(textos.OTRAS_FORMAS_DE_AUDIO):
         archivo, ejemplos = st.tabs([textos.PESTANA_ARCHIVO, textos.PESTANA_EJEMPLOS])
 
@@ -200,8 +148,7 @@ def _otras_formas_de_audio() -> str | None:
                 ruta = CORPUS / disponibles[elegido]
                 st.audio(str(ruta))
                 if st.button(textos.BOTON_ENVIAR_EJEMPLO, use_container_width=True):
-                    # Sin _es_nuevo: enviar dos veces el mismo ejemplo es
-                    # legítimo en una demo.
+                    # Sin _es_nuevo: en una demo se reenvía el mismo ejemplo.
                     st.session_state.ultimo_audio = f"ejemplo:{elegido}"
                     return str(ruta)
     return None
@@ -212,12 +159,9 @@ def _elegir_sugerencia(texto: str) -> None:
 
 
 def _sugerencias() -> None:
-    """Preguntas de ejemplo, solo mientras la conversación está vacía.
+    """Preguntas de ejemplo mientras la conversación está vacía.
 
-    El clic no responde en esta misma ejecución: deja la pregunta pendiente y
-    Streamlit vuelve a ejecutar el script. Así las sugerencias ya no se dibujan
-    mientras se procesa la elegida (antes quedaban a la vista encima de la
-    conversación).
+    El clic solo deja la pregunta pendiente; se responde en la siguiente ejecución.
     """
     st.caption(textos.TITULO_SUGERENCIAS)
     columnas = st.columns(2)
@@ -225,8 +169,6 @@ def _sugerencias() -> None:
         columnas[i % 2].button(sugerencia, key=f"sugerencia_{i}", use_container_width=True,
                                on_click=_elegir_sugerencia, args=(sugerencia,))
 
-
-# --- Ejecución del grafo ---------------------------------------------------
 
 def _responder(consulta: str, ruta_audio: str | None, id_perfil: str) -> dict:
     """Corre el grafo mostrando por dónde va. Devuelve el estado final."""
@@ -248,8 +190,6 @@ def _responder(consulta: str, ruta_audio: str | None, id_perfil: str) -> dict:
     return estado_final
 
 
-# --- Página ----------------------------------------------------------------
-
 _estado_inicial()
 _precargar_whisper()
 perfil, leer_en_voz_alta = _barra_lateral()
@@ -257,8 +197,7 @@ perfil, leer_en_voz_alta = _barra_lateral()
 st.markdown(encabezado_html(textos.TITULO, textos.BAJADA), unsafe_allow_html=True)
 
 consulta = st.session_state.pop("pendiente", None)
-# Las sugerencias van en un lugar que se puede vaciar: si llega un audio o un
-# texto en esta misma ejecución, desaparecen antes de mostrar el progreso.
+# Se vacía si llega un mensaje en esta ejecución, antes de mostrar el progreso.
 zona_sugerencias = st.empty()
 if not st.session_state.historial and not consulta:
     with zona_sugerencias.container():
@@ -270,15 +209,13 @@ for i, mensaje in enumerate(st.session_state.historial):
     else:
         dibujar_turno_asistente(mensaje, i, leer_habilitado=leer_en_voz_alta)
 
-# El turno nuevo se dibuja ACÁ, debajo de lo ya conversado, aunque se procese
-# después: así la conversación queda en orden.
+# Reserva el lugar del turno nuevo debajo del historial, aunque se procese después.
 zona_turno_nuevo = st.container()
 
 audio_nuevo = _otras_formas_de_audio()
 st.markdown(pie_html(textos.PIE), unsafe_allow_html=True)
 
-# Texto y voz en la misma barra. Se bloquea mientras el asistente responde y se
-# vacía sola al enviar: ver entrada.py para el porqué.
+# Texto y voz en la misma barra, bloqueada mientras responde (ver entrada.py).
 mensaje = leer_mensaje(st.chat_input(
     textos.PLACEHOLDER_CHAT,
     accept_audio=True,
@@ -301,9 +238,7 @@ if audio_nuevo or consulta:
     st.session_state.historial.append(turno_usuario)
 
     with zona_turno_nuevo:
-        # Con voz, todavía no se sabe qué dijo la persona: se reserva su lugar
-        # para que su mensaje quede ARRIBA del progreso y de la respuesta, y se
-        # completa cuando llega la transcripción.
+        # Con voz, el mensaje queda arriba y se completa al llegar la transcripción.
         lugar_usuario = st.empty()
         with lugar_usuario.container():
             dibujar_turno_usuario(turno_usuario if not audio_nuevo
@@ -312,8 +247,7 @@ if audio_nuevo or consulta:
             resultado = _responder(consulta or "", audio_nuevo, perfil["id"])
             resultado["rol"] = "assistant"
             if audio_nuevo:
-                # Lo que dijo la persona lo escribe el ASR. Si se descartó,
-                # queda vacío y se muestra "(no se entendió el audio)".
+                # Audio descartado por el ASR: queda vacío y se muestra "no se entendió".
                 turno_usuario["consulta"] = None if resultado.get("entrada_descartada") else resultado.get("consulta")
                 with lugar_usuario.container():
                     dibujar_turno_usuario(turno_usuario)
@@ -321,14 +255,12 @@ if audio_nuevo or consulta:
             dibujar_turno_asistente(
                 resultado,
                 len(st.session_state.historial) - 1,
-                # Se lee sola si la pregunta llegó por voz: quien habla espera
-                # que le contesten hablando.
+                # Si la pregunta llegó por voz, la respuesta se lee sola.
                 leer_al_cargar=bool(audio_nuevo) and leer_en_voz_alta,
                 leer_habilitado=leer_en_voz_alta,
             )
         except Exception as error:
-            # Con los endpoints rotando de modelo, la caída es un estado
-            # esperable: se dice claro, y el detalle queda plegado.
+            # Los endpoints rotan de modelo: la caída es esperable, el detalle queda plegado.
             st.error(textos.ERROR_SIN_SERVIDOR)
             with st.expander(textos.ERROR_DETALLE):
                 st.code(str(error), language=None)

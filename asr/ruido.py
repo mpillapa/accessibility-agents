@@ -1,21 +1,5 @@
-# Generación de la matriz de ruido para evaluar el ASR.
-#
-# La idea: en vez de grabar la misma frase en la cocina, en la calle y en
-# silencio — donde no se controla nada y los resultados no son comparables
-# entre sí —, se graba UNA vez en silencio y se le superpone ruido a niveles
-# medidos. Así la única variable que cambia entre condiciones es el ruido, y la
-# degradación que se mida es atribuible a él.
-#
-# El nivel se expresa en SNR (signal-to-noise ratio, en decibelios): cuánto más
-# fuerte es la voz que el ruido. Valores de referencia:
-#
-#   20 dB  ambiente tranquilo, la voz domina claramente
-#   10 dB  televisión de fondo, conversación en otra habitación
-#    5 dB  cocina en uso, calle con tráfico
-#    0 dB  ruido tan fuerte como la voz
-#
-# Todo esto usa solo la librería estándar (wave, array, math, random): no hace
-# falta numpy ni scipy para sumar dos señales.
+# Matriz de ruido para evaluar el ASR: superpone ruido sintético a un audio
+# limpio con SNR controlado (asr/README.md, "La matriz de ruido"). Solo stdlib.
 
 import array
 import math
@@ -23,12 +7,9 @@ import random
 import wave
 from pathlib import Path
 
-# Niveles de la matriz. 'None' significa el audio original sin tocar, que es la
-# condición de control contra la cual se comparan las demás.
+# None = audio original, condición de control.
 NIVELES_SNR_DB = [None, 20, 10, 5, 0]
 
-# Tipos de ruido. 'blanco' y 'rosa' son sintéticos y reproducibles; para ruido
-# real (cocina, televisión, calle) hay que grabarlo y pasarlo como archivo.
 TIPOS_RUIDO_SINTETICO = ["blanco", "rosa"]
 
 
@@ -66,17 +47,13 @@ def _ruido_blanco(n: int, semilla: int) -> list[float]:
 
 
 def _ruido_rosa(n: int, semilla: int) -> list[float]:
-    """Ruido rosa: la energía decae con la frecuencia, así que suena más a
-    ambiente real (murmullo, tráfico lejano) que el ruido blanco, que es
-    siseante. Aproximación por el método de Voss-McCartney con 8 generadores.
-    """
+    """Ruido rosa por Voss-McCartney con 8 generadores."""
     generador = random.Random(semilla)
     generadores = 8
     valores = [generador.gauss(0, 1) for _ in range(generadores)]
     salida = []
     for i in range(n):
-        # En cada muestra se renueva un subconjunto de los generadores: el
-        # generador k se actualiza cada 2^k muestras.
+        # El generador k se renueva cada 2^k muestras.
         for k in range(generadores):
             if i % (1 << k) == 0:
                 valores[k] = generador.gauss(0, 1)
@@ -85,11 +62,7 @@ def _ruido_rosa(n: int, semilla: int) -> list[float]:
 
 
 def generar_ruido(n: int, tipo: str = "blanco", semilla: int = 0) -> list[float]:
-    """Ruido normalizado a potencia media 1, para poder escalarlo por SNR.
-
-    La semilla se fija a propósito: el mismo audio con el mismo SNR tiene que
-    dar el mismo archivo en cada corrida, o los resultados no son reproducibles.
-    """
+    """Ruido normalizado a potencia media 1, para escalarlo por SNR."""
     if tipo == "blanco":
         crudo = _ruido_blanco(n, semilla)
     elif tipo == "rosa":
@@ -107,11 +80,7 @@ def generar_ruido(n: int, tipo: str = "blanco", semilla: int = 0) -> list[float]
 def mezclar_con_ruido(
     muestras: array.array, snr_db: float, tipo: str = "blanco", semilla: int = 0
 ) -> array.array:
-    """Superpone ruido a la señal al SNR pedido, en decibelios.
-
-    SNR = 10 * log10(potencia_senal / potencia_ruido), así que la potencia de
-    ruido que hace falta es potencia_senal / 10^(snr/10).
-    """
+    """Superpone ruido a la señal al SNR pedido, en decibelios."""
     potencia_senal = potencia_media(muestras)
     if potencia_senal == 0:
         return array.array("h", muestras)
@@ -121,9 +90,7 @@ def mezclar_con_ruido(
 
     ruido = generar_ruido(len(muestras), tipo=tipo, semilla=semilla)
 
-    # Se recorta a los límites de 16 bits en vez de reescalar toda la señal:
-    # reescalar cambiaría el volumen y con él el SNR efectivo. Con los niveles
-    # de esta matriz el recorte es mínimo.
+    # Recortar en vez de reescalar: reescalar cambiaría el SNR efectivo.
     mezcla = array.array("h")
     for muestra, r in zip(muestras, ruido):
         valor = int(muestra + amplitud * r)
@@ -132,9 +99,7 @@ def mezclar_con_ruido(
 
 
 def snr_medido_db(limpio: array.array, con_ruido: array.array) -> float:
-    """SNR real de un par (limpio, con ruido), para verificar que la mezcla
-    quedó al nivel pedido. El ruido se estima como la diferencia entre ambas
-    señales."""
+    """SNR real de un par (limpio, con ruido); el ruido es la diferencia."""
     potencia_senal = potencia_media(limpio)
     diferencia = [float(b) - float(a) for a, b in zip(limpio, con_ruido)]
     potencia_ruido = potencia_media(diferencia)
@@ -149,11 +114,8 @@ def generar_matriz(
     niveles=None,
     tipos=None,
 ) -> list[dict]:
-    """Genera todas las variantes con ruido de un audio limpio.
-
-    Devuelve una fila por variante, con el SNR pedido y el medido, para poder
-    guardarlas en el índice del corpus.
-    """
+    """Genera las variantes con ruido de un audio limpio; una fila por variante
+    con el SNR pedido y el medido."""
     niveles = NIVELES_SNR_DB if niveles is None else niveles
     tipos = TIPOS_RUIDO_SINTETICO if tipos is None else tipos
 
@@ -176,8 +138,7 @@ def generar_matriz(
             continue
 
         for tipo in tipos:
-            # La semilla depende del nombre del archivo y del nivel, así que
-            # cada variante tiene su propio ruido pero siempre el mismo.
+            # Semilla distinta por variante.
             semilla = abs(hash((base, tipo, snr))) % (2**31)
             mezcla = mezclar_con_ruido(muestras, snr, tipo=tipo, semilla=semilla)
             destino = Path(directorio_salida) / f"{base}__{tipo}_{snr}dB.wav"

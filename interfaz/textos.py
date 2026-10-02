@@ -1,12 +1,5 @@
-# Todo el texto que ve la persona, en un solo lugar.
-#
-# Criterios de redacción:
-#   - Se trata de USTED, igual que los agentes (orquestacion_langgraph/ y
-#     medicacion/). Antes la interfaz tuteaba y los agentes trataban de usted.
-#   - Sin emojis ni fórmulas de chatbot ("¡Hola! Soy tu asistente virtual").
-#   - Sin jerga en la vista principal. Los nombres técnicos (Orchestrator,
-#     RAG, Whisper, VAD) quedan en "Cómo se llegó a esta respuesta", que es para
-#     quien evalúa el sistema, no para quien lo usa.
+# Todo el texto que ve la persona. Trato de usted, como los agentes, sin emojis
+# ni fórmulas de chatbot; los nombres técnicos solo en el panel de detalles.
 
 TITULO_PESTANA = "Asistente en casa"
 
@@ -16,7 +9,7 @@ BAJADA = (
     "Puede hablarle o escribirle."
 )
 
-# --- Voz -------------------------------------------------------------------
+# Voz
 OTRAS_FORMAS_DE_AUDIO = "Enviar un audio ya grabado"
 PESTANA_ARCHIVO = "Desde un archivo"
 PESTANA_EJEMPLOS = "Audios de prueba"
@@ -34,7 +27,7 @@ SIN_EJEMPLOS = (
 ETIQUETA_POR_VOZ = "Por voz"
 NO_SE_ENTENDIO_EL_AUDIO = "(no se entendió el audio)"
 
-# --- Escritura -------------------------------------------------------------
+# Escritura
 PLACEHOLDER_CHAT = "Escriba su pregunta o toque el micrófono para hablar"
 TITULO_SUGERENCIAS = "Puede empezar por aquí"
 SUGERENCIAS = [
@@ -44,13 +37,12 @@ SUGERENCIAS = [
     "Quiero preparar sushi",
 ]
 
-# --- Mientras trabaja ------------------------------------------------------
+# Mientras trabaja
 TRABAJANDO_TEXTO = "Un momento, por favor"
 TRABAJANDO_VOZ = "Escuchando lo que dijo"
 LISTO = "Respuesta lista"
 
-# Qué está haciendo, en palabras de persona. La clave es el nombre del nodo
-# del grafo (orquestacion_langgraph/grafo.py).
+# Clave: nombre del nodo en orquestacion_langgraph/grafo.py.
 PASOS = {
     "transcribir_voz": "Escuchando lo que dijo",
     "no_se_entendio": "No se entendió bien el audio",
@@ -87,7 +79,7 @@ TEMAS = {
     "NO_SE_ENTENDIO": "No se entendió el audio",
 }
 
-# --- Detalles (para quien evalúa) -------------------------------------------
+# Detalles (para quien evalúa)
 TITULO_DETALLES = "Cómo se llegó a esta respuesta"
 DETALLE_TEMA = "Tema"
 DETALLE_TIEMPO = "Tiempo de respuesta"
@@ -97,7 +89,7 @@ DETALLE_DESCARTADO = "Se pidió repetir porque"
 DETALLE_POR_QUE = "Por qué se eligió ese tema"
 DETALLE_RECORRIDO = "Recorrido por el sistema"
 
-# --- Barra lateral ---------------------------------------------------------
+# Barra lateral
 TITULO_PERSONA = "¿Quién usa el asistente?"
 AYUDA_PERSONA = "Cada persona tiene su propia receta médica. Son personas y recetas de prueba."
 LEER_EN_VOZ_ALTA = "Leer las respuestas en voz alta"
@@ -112,14 +104,14 @@ TECNICO_TRAZAS_ACTIVAS = "Trazas en LangSmith activas, proyecto"
 TECNICO_TRAZAS_INACTIVAS = "Trazas en LangSmith desactivadas"
 TECNICO_VER_TRAZAS = "Abrir LangSmith"
 
-# --- Errores ---------------------------------------------------------------
+# Errores
 ERROR_SIN_SERVIDOR = (
     "No pude responder en este momento. El servidor que usa el asistente no está "
     "disponible; intente de nuevo en unos minutos."
 )
 ERROR_DETALLE = "Detalle del error"
 
-# --- Pie -------------------------------------------------------------------
+# Pie
 PIE = (
     "Prototipo de tesis de maestría · Universidad San Francisco de Quito USFQ.<br>"
     "Las personas y las recetas médicas son ficticias. El asistente no reemplaza "

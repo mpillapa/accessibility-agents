@@ -1,22 +1,6 @@
-# EL CRUCE medicamento × comida: la regla de negocio de esta tarea.
-#
-# Dada una persona y las recetas de cocina que recuperó el RAG, ¿qué
-# medicamentos vigentes de la persona interactúan con qué alimentos del plato?
-#
-# Es código determinista a propósito, igual que la verificación de la
-# prescripción (medicacion/prescripciones.py): lo que puede hacer daño no lo
-# decide el modelo. El LLM del nodo integrador solo redacta lo que sale de acá.
-#
-# Reglas, en orden:
-#   1. Sin prescripción no hay cruce posible: NO EVALUABLE. Decir "no hay
-#      problema" sin saber qué toma la persona es inventar una respuesta.
-#   2. Sin receta reconocida tampoco: NO EVALUABLE.
-#   3. Solo cuentan las prescripciones VIGENTES a la fecha.
-#   4. Una interacción aplica si el medicamento está en la prescripción
-#      vigente, la categoría está entre los alimentos marcados de la receta y
-#      se cumple su condición `solo_si` sobre el perfil (si la tiene).
-#   5. Si el RAG devolvió varias recetas, se cruzan todas y cada interacción
-#      dice de qué receta sale.
+# Cruce medicamento × comida, en código determinista: el LLM del integrador solo redacta.
+# Reglas: sin perfil, prescripción vigente o receta reconocida, NO EVALUABLE; una interacción
+# aplica si el medicamento es vigente, la categoría está en el plato y se cumple `solo_si`.
 
 from datetime import date
 from typing import Optional
@@ -37,7 +21,7 @@ VEREDICTO_NO_EVALUABLE = "no_evaluable"
 
 
 def medicamentos_vigentes(id_perfil: str, hoy: Optional[date] = None) -> list[str]:
-    """Los medicamentos de las prescripciones vigentes, sin repetir y en orden."""
+    """Medicamentos de las prescripciones vigentes, sin repetir y en orden."""
     nombres = [
         indicacion["medicamento"]
         for prescripcion in prescripciones_de(id_perfil)
@@ -52,8 +36,7 @@ def _cumple_condicion(solo_si: Optional[dict], perfil: dict) -> bool:
 
 
 def _veredicto(encontradas: list[dict]) -> str:
-    """El más grave de los encontrados: basta una interacción 'evitar' para
-    que el veredicto sea evitar."""
+    """El más grave: basta una interacción 'evitar'."""
     severidades = {i["severidad"] for i in encontradas}
     if VEREDICTO_EVITAR in severidades:
         return VEREDICTO_EVITAR
@@ -64,23 +47,10 @@ def _veredicto(encontradas: list[dict]) -> str:
 
 def cruzar(id_perfil: str, fuentes: list[str], hoy: Optional[date] = None,
            medicamentos: Optional[list[str]] = None) -> dict:
-    """El resultado del cruce, como datos.
+    """El cruce como datos; los campos son los de `base`. Se cruzan todas las fuentes dadas.
 
-    Devuelve:
-    `medicamentos`: los vigentes, si ya los calculó la rama de medicación del
-    grafo. Si no se pasan, se calculan aquí con la misma regla.
-
-      evaluable          False si falta la persona, su prescripción o la receta
-      veredicto          evitar | precaucion | sin_interaccion | no_evaluable
-      motivo             por qué no es evaluable (None si lo es)
-      hay_interaccion    True si al menos una interacción aplica
-      interacciones      lista de {medicamento, categoria, severidad, motivo,
-                         recomendacion, fuente, alimentos: [{alimento, parte, plato}]}
-      medicamentos       los vigentes que se cruzaron
-      sin_revisar        medicamentos vigentes que el catálogo no cubre (debería
-                         ser vacío: lo garantiza prueba_datos_interacciones)
-      fuentes_cruzadas   las recetas que se pudieron cruzar
-      fuentes_desconocidas  las que no están en ingredientes_recetas.json
+    `medicamentos`: los vigentes si ya los calculó la rama de medicación; si no, se calculan aquí.
+    `sin_revisar` debería quedar vacío (lo verifica prueba_datos_interacciones).
     """
     base = {
         "evaluable": False, "motivo": None, "veredicto": VEREDICTO_NO_EVALUABLE,
@@ -138,6 +108,5 @@ def cruzar(id_perfil: str, fuentes: list[str], hoy: Optional[date] = None,
 
 
 def pares(resultado: dict) -> set[tuple[str, str]]:
-    """Los pares (medicamento, categoría) de un resultado, para compararlo con
-    la verdad de referencia sin importar de qué receta salió cada uno."""
+    """Pares (medicamento, categoría), para comparar con la referencia sin importar la fuente."""
     return {(i["medicamento"], i["categoria"]) for i in resultado["interacciones"]}

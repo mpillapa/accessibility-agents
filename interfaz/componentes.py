@@ -24,8 +24,7 @@ def _segundos(valor) -> str:
 
 def dibujar_turno_usuario(mensaje: dict) -> None:
     with st.chat_message("user", avatar=avatar_usuario(mensaje.get("nombre"))):
-        # Marca invisible: permite dar otro fondo a los mensajes de la persona
-        # desde el CSS (ver estilo.py, selector :has(.marca-usuario)).
+        # Marca invisible para el selector :has(.marca-usuario) de estilo.py.
         st.markdown('<span class="marca-usuario"></span>', unsafe_allow_html=True)
         if mensaje.get("por_voz"):
             st.markdown(f'<span class="etiqueta-voz">{textos.ETIQUETA_POR_VOZ}</span>',
@@ -37,15 +36,13 @@ def dibujar_turno_asistente(mensaje: dict, indice: int, leer_al_cargar: bool = F
                             leer_habilitado: bool = True) -> None:
     """La respuesta, el botón para escucharla y el detalle plegado.
 
-    `leer_al_cargar` va en True solo para la respuesta recién generada: al
-    redibujar el historial no se vuelve a leer nada (ver voz_salida.py).
+    `leer_al_cargar` solo para la respuesta recién generada (ver voz_salida.py).
     """
     with st.chat_message("assistant", avatar=avatar_asistente()):
         respuesta = quitar_emojis(mensaje.get("respuesta") or "")
 
         if mensaje.get("intencion") == "EMERGENCY":
-            # La respuesta de emergencia se enmarca en rojo: es la única que
-            # tiene que verse aunque la persona no lea nada más.
+            # Enmarcada en rojo: tiene que verse aunque no se lea nada más.
             with st.container(key=f"emergencia_{indice}"):
                 st.markdown(respuesta)
         else:
@@ -67,9 +64,7 @@ def _dibujar_detalles(mensaje: dict) -> None:
     with st.expander(textos.TITULO_DETALLES):
         transcripcion = mensaje.get("transcripcion")
         if transcripcion:
-            # Se muestra aunque la transcripción se haya descartado —sobre todo
-            # en ese caso—: ver qué oyó Whisper y por qué no se le creyó es el
-            # punto entero del guardrail (orquestacion_langgraph/voz.py).
+            # Se muestra también si se descartó: es lo que hace visible el guardrail del ASR.
             st.caption(textos.DETALLE_QUE_OYO)
             st.code(transcripcion.get("texto") or "(nada)", language=None, wrap_lines=True)
             voz = "no encontró voz" if transcripcion.get("sin_voz") else "encontró voz"
@@ -91,8 +86,7 @@ def _dibujar_detalles(mensaje: dict) -> None:
 
 
 def _recorrido(pasos: list[str], traza_rag) -> str:
-    """El camino por el grafo, con los nombres técnicos entre paréntesis para
-    quien quiera cruzarlo con el diagrama o con LangSmith."""
+    """Camino por el grafo, con el nombre técnico de cada nodo para cruzarlo con LangSmith."""
     lineas = []
     for nodo in pasos:
         lineas.append(f"1. {textos.PASOS.get(nodo, nodo)} `({nodo})`")

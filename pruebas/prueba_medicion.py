@@ -1,11 +1,7 @@
-# Pruebas del arnés de medición (medicion/).
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_medicion
-#
-# NO requieren VPN: el registro de tokens se prueba con un modelo falso sobre un
-# grafo chico que reproduce la forma del real (un nodo con subgrafo adentro y
-# dos ramas en paralelo). Escrito sin pytest, igual que el resto de pruebas/.
+# Pruebas del arnés de medición (medicion/), con un modelo falso sobre un grafo chico
+# con la forma del real (subgrafo anidado y dos ramas en paralelo).
+# Uso: python -m pruebas.prueba_medicion
+# No requiere VPN.
 
 import csv
 import sys

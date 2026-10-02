@@ -1,8 +1,5 @@
-# Los casos de la campaña: qué se pregunta, a quién y qué se espera.
-#
-# T1-T5 viven en medicion/datos/casos_campana.json. T6 se lee de
-# interacciones/datos/casos_prueba.json para no duplicar su verdad de
-# referencia (es por usuario y ya la usa pruebas/evaluar_interacciones_real.py).
+# Casos de la campaña: qué se pregunta, a quién y qué se espera.
+# T6 se lee de interacciones/datos/casos_prueba.json para no duplicar su verdad de referencia.
 
 import json
 import random
@@ -29,13 +26,9 @@ def frases_de(tarea: str, campana: dict | None = None) -> list[dict]:
 
 def plan_de_ejecuciones(tareas: list[str], usuarios: list[str], repeticiones: int,
                         frases_por_tarea: int | None = None, semilla: int = 42) -> list[dict]:
-    """La lista ordenada de ejecuciones de la campaña.
+    """Ejecuciones de la campaña, intercaladas al azar (semilla fija) dentro de cada repetición.
 
-    Se INTERCALA (protocolo, chuleta 7.5): dentro de cada repetición el orden de
-    tarea × usuario × frase es aleatorio con semilla fija. Así una degradación
-    del servidor a media tarde no cae entera sobre una tarea o un usuario, y la
-    repetición r se completa antes de empezar la r+1, lo que permite repetir un
-    bloque si cambia el modelo del servidor.
+    La repetición r termina antes de la r+1, para poder repetir un bloque (chuleta 7.5).
     """
     campana = cargar_campana()
     generador = random.Random(semilla)

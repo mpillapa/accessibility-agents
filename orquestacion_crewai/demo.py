@@ -1,15 +1,9 @@
-# Demo en vivo: el Orchestrator identifica la intención y delega al
-# especialista (allow_delegation=True, sin clasificador). Con verbose=True se
-# ve en pantalla cómo el agente razona y a quién delega.
+# Antecedente fuera de alcance: demo de la delegación del Orchestrator en CrewAI
+# (verbose=True muestra a quién delega).
 #
-# Uso (desde la raíz del repo):
+# Uso (desde la raíz del repo, con VPN):
 #   python -m orquestacion_crewai.demo                 -> corre las frases de ejemplo
 #   python -m orquestacion_crewai.demo "tu frase aquí" -> corre una frase que tú escribes
-#
-# El LLM corre en el servidor vLLM remoto de la universidad (ver agentes.py:
-# VLLM_CHAT_BASE_URL / VLLM_CHAT_MODEL), no local. La demo comprueba ese
-# endpoint (OpenAI-compatible: GET /models) y mide el round-trip real contra
-# el servidor para dejar visible que sí se conecta.
 
 import sys
 import time
@@ -35,9 +29,7 @@ CONSULTAS_DEMO = [
 ]
 
 
-# Comprueba que el servidor vLLM remoto responde antes de arrancar la demo.
-# Imprime host, modelo y latencia del round-trip para dejar visible ante los
-# tutores que la demo sí está hablando con el servidor de la universidad.
+# Comprueba que el servidor vLLM responde y muestra la latencia del round-trip.
 def verificar_vllm():
     print(f"Servidor vLLM: {VLLM_CHAT_BASE_URL}")
     print(f"Modelo:        {VLLM_CHAT_MODEL}\n")
@@ -63,7 +55,6 @@ def verificar_vllm():
         return False
 
 
-# Ensambla la crew con verbose=True para que la delegación sea visible.
 def construir_crew(consulta):
     orchestrator = crear_orchestrator()
     especialistas = [
@@ -88,11 +79,10 @@ def construir_crew(consulta):
         agents=[orchestrator] + especialistas,
         tasks=[tarea],
         process=Process.sequential,
-        verbose=True,   # <- clave de la demo: muestra el razonamiento y la delegación
+        verbose=True,   # muestra el razonamiento y la delegación
     )
 
 
-# Corre una sola consulta y muestra la respuesta final con su latencia.
 def correr(consulta):
     print("=" * 70)
     print(f"CONSULTA: {consulta}")
@@ -112,7 +102,6 @@ def main():
     if not verificar_vllm():
         return
 
-    # Si pasas una frase por línea de comandos, corre solo esa.
     if len(sys.argv) > 1:
         correr(" ".join(sys.argv[1:]))
     else:

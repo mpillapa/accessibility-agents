@@ -118,7 +118,10 @@ independiente y descartable, hecho el 2026-09-30, coincidió en los 31 casos.
 4. **El cacao no cuenta como cafeína**, para no alertar por una torta de
    chocolate.
 5. **Una persona sin prescripción no es evaluable.** El sistema no puede decir
-   "no hay problema" si no sabe qué toma (caso `d11`, Luis).
+   "no hay problema" si no sabe qué toma (caso `d11`, Luis). Tampoco si
+   ninguna prescripción está vigente o la receta no se reconoce.
+7. **Solo cuentan las prescripciones vigentes.** Si el RAG devuelve varias
+   recetas se cruzan todas, y cada interacción dice de cuál sale.
 6. **Los datos van en archivos propios y `medicamentos.json` no se toca.** El
    plan inicial era agregarle un campo al vademécum; se separó para no alterar
    los datos que ya usa el agente de medicación y sus pruebas.

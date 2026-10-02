@@ -1,15 +1,6 @@
 # Pruebas del control de calidad del OCR y del troceado de la ingesta.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_calidad_ingesta
-#
-# NO requieren VPN ni servidor: son funciones puras sobre texto.
-#
-# Motivo de estas pruebas: el 2026-08-19, GLM-OCR entró en un bucle al leer una
-# doble página densa de un libro de cocina y produjo 60.648 caracteres de una
-# frase repetida, que fueron a dar al índice vectorial y pasaron a ser el 66%
-# del recetario. El detector tiene que atrapar eso sin descartar recetas
-# legítimas.
+# Uso: python -m pruebas.prueba_calidad_ingesta
+# No requiere VPN.
 
 import sys
 
@@ -25,7 +16,7 @@ from rag.ingesta import (
     _trocear,
 )
 
-# Extracto real de lo que devolvió el OCR en el caso que motivó todo esto.
+# Extracto real del bucle de GLM-OCR que contaminó el índice.
 OCR_DEGENERADO = (
     "7 Con una cuchara, dibujue la carne entre las dos fujentes para el homo. "
     "Echá la mantequilla, hasta que se dore por ambio. "
@@ -43,8 +34,6 @@ RECETA_LEGITIMA = (
 )
 
 
-# --- Control de calidad ----------------------------------------------------
-
 def caso_detecta_el_bucle_real():
     d = evaluar_texto(OCR_DEGENERADO)
     assert d.es_degenerado, "no detectó el bucle del OCR real"
@@ -60,10 +49,7 @@ def caso_acepta_receta_legitima():
 
 
 def caso_detecta_bucles_de_cualquier_periodo():
-    """Una primera versión del detector comparaba n-gramas separados por n
-    posiciones, así que solo veía bucles cuyo período coincidía con el tamaño
-    del n-grama. Una frase de 8 palabras repetida 30 veces pasaba sin ser
-    detectada."""
+    """El período del bucle no tiene que coincidir con el tamaño del n-grama."""
     periodos = {
         3: "no se ve. " * 40,
         5: "el texto no se entiende " * 40,
@@ -94,13 +80,11 @@ def caso_no_marca_listas_ni_textos_cortos():
 
 
 def caso_metricas_coherentes():
-    # Texto más corto que dos n-gramas: no hay repetición que medir, así que la
-    # función devuelve frecuencia 1 y ningún n-grama.
+    # Más corto que dos n-gramas: frecuencia 1 y ningún n-grama.
     frecuencia, ngrama = ngrama_mas_frecuente("uno dos tres cuatro cinco seis siete ocho")
     assert frecuencia == 1, f"frecuencia inesperada: {frecuencia}"
     assert ngrama is None, f"esperaba None para un texto corto, dio {ngrama!r}"
 
-    # Con suficientes palabras sí devuelve el n-grama dominante.
     frecuencia, ngrama = ngrama_mas_frecuente("uno dos tres cuatro cinco " * 4)
     assert frecuencia == 4, f"esperaba 4 repeticiones, dio {frecuencia}"
     assert ngrama is not None
@@ -111,26 +95,17 @@ def caso_metricas_coherentes():
     return "las métricas base son coherentes"
 
 
-# --- Troceado --------------------------------------------------------------
-
 def caso_trocea_por_parrafos():
     fragmentos = _trocear(RECETA_LEGITIMA)
     assert len(fragmentos) >= 2, f"trocear de más: dio {len(fragmentos)} fragmentos"
     assert all(f.strip() for f in fragmentos), "hay fragmentos vacíos"
-    # Cada fragmento debe traer contenido, no solo el encabezado de una sección.
     for f in fragmentos:
         assert len(f) >= MINIMO_CARACTERES_FRAGMENTO, f"fragmento muy corto: {f!r}"
     return f"trocea una receta normal en {len(fragmentos)} fragmentos con contenido"
 
 
 def caso_fusiona_encabezados_sueltos():
-    """El troceado por párrafos dejaba encabezados como fragmentos propios
-    ("PREPARACIÓN", "Ingredientes:", el título de la receta). Sin contenido, su
-    embedding no representa ninguna receta y quedan cerca de cualquier consulta:
-    buscar "sushi" devolvía tres fragmentos "PREPARACIÓN" de recetas distintas.
-
-    Deben quedar pegados a la sección que encabezan.
-    """
+    """Un encabezado solo queda cerca de cualquier consulta: va pegado a su sección."""
     texto = (
         "Llapingachos\n\nRecetas Ecuatorianas\n\nIngredientes:\n\n"
         "- 1 kg de papa chola\n- 500 g de queso fresco\n- 2 huevos\n\n"
@@ -146,7 +121,6 @@ def caso_fusiona_encabezados_sueltos():
             f"quedó un encabezado como fragmento propio: {f!r}"
         )
 
-    # "PREPARACIÓN" tiene que haber quedado junto a los pasos que encabeza.
     con_preparacion = [f for f in fragmentos if "PREPARACIÓN" in f]
     assert con_preparacion, "se perdió el encabezado PREPARACIÓN"
     assert "Pele las papas" in con_preparacion[0], (
@@ -156,9 +130,7 @@ def caso_fusiona_encabezados_sueltos():
 
 
 def caso_ningun_fragmento_excede_el_tope():
-    """Es la propiedad que importa: si un fragmento excede la ventana del
-    modelo de embeddings, rag/embeddings.py lo trunca para calcular el vector y
-    el embedding deja de corresponder al texto que se guarda en ChromaDB."""
+    """Si excede la ventana de embeddings, el vector no corresponde al texto guardado."""
     entradas = [
         "palabra " * 3000,                                             # un bloque enorme
         "\n".join(f"Paso {i}: hacer algo con la receta." for i in range(200)),
@@ -180,8 +152,6 @@ def caso_no_produce_fragmentos_vacios():
         assert all(f.strip() for f in fragmentos), f"fragmento vacío con {entrada!r}"
     return "no produce fragmentos vacíos"
 
-
-# --- Runner ----------------------------------------------------------------
 
 CASOS = [
     caso_detecta_el_bucle_real,

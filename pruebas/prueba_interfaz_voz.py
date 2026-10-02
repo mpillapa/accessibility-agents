@@ -1,13 +1,6 @@
-# Pruebas de la lectura en voz alta de la interfaz (interfaz/voz_salida.py).
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_interfaz_voz
-#
-# No necesitan navegador, VPN ni LLM: prueban la función pura que convierte el
-# markdown de una respuesta en texto para el lector de voz. La síntesis en sí la
-# hace el navegador y no se puede probar desde acá.
-#
-# Escrito sin pytest, igual que el resto de pruebas/.
+# Pruebas del texto que la interfaz manda al lector de voz (interfaz/voz_salida.py).
+# Uso: python -m pruebas.prueba_interfaz_voz
+# No requiere VPN ni navegador; la síntesis del navegador no se prueba.
 
 import sys
 
@@ -67,8 +60,7 @@ def prueba_tablas_y_enlaces_se_leen_como_texto():
 
 
 def prueba_respuesta_de_emergencia_se_lee_completa():
-    """La nota de que el asistente no llama por la persona SÍ se lee: es parte
-    de la respuesta crítica, no un aviso de formato."""
+    """Que el asistente no llama por la persona es parte de la respuesta, no formato."""
     emergencia = ("**Llame al 911 ahora mismo.**\n\nEs el número de emergencias.\n\n"
                   "_Este asistente todavía no puede llamar por usted._")
     texto = texto_para_leer(emergencia)

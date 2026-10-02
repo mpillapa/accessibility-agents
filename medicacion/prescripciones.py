@@ -1,45 +1,6 @@
-# La receta médica como FUENTE DE VERDAD, en código determinista.
-#
-# POR QUÉ SE REESCRIBIÓ ESTE MÓDULO
-# ---------------------------------
-# La primera versión del agente filtraba el vademécum por las condiciones de la
-# persona y presentaba el resultado como su tratamiento. Medido sobre los seis
-# perfiles, eso produjo respuestas clínicamente absurdas en LAS DOS variantes
-# (reglas y LLM): a Carmen, hipertensa, le indicaba SIETE antihipertensivos a la
-# vez —tres del mismo eje y dos betabloqueantes— con el texto "tome 7 pastillas,
-# una de cada medicamento".
-#
-# El error no era del modelo ni del filtro: era del planteamiento. Un catálogo
-# filtrado por condición devuelve OPCIONES ELEGIBLES, no un RÉGIMEN. Convertir
-# lo primero en lo segundo exige saber de interacciones, de clases terapéuticas
-# y de titulación de dosis, que es exactamente el conocimiento clínico que este
-# prototipo no tiene ni puede validar.
-#
-# La receta resuelve eso invirtiendo la responsabilidad: el médico decide, el
-# sistema lee, organiza y explica. Lo que el sistema aporta es lo que sí puede
-# hacer sin criterio clínico —consolidar varias recetas en un plan por horario,
-# explicarlo en lenguaje llano y VERIFICAR la coherencia de lo indicado— y nada
-# más.
-#
-# LA REGLA QUE GOBIERNA TODO ESTE MÓDULO
-# --------------------------------------
-# El sistema NUNCA quita nada del plan. Si detecta un problema —una alergia, una
-# contraindicación, una dosis por encima del tope ajustado, una receta vencida—
-# lo MARCA y lo avisa, pero la indicación sigue apareciendo.
-#
-# Suspender un tratamiento es una decisión clínica igual que recetarlo, y una
-# persona mayor que deja de tomar su antihipertensivo porque una aplicación se
-# lo ocultó corre más riesgo que una a la que se le advierte. Es el mismo
-# criterio del guardrail de voz (orquestacion_langgraph/voz.py): ante duda,
-# avisar en vez de decidir por cuenta propia.
-#
-# LIMITACIONES QUE HAY QUE DECLARAR
-# ---------------------------------
-# La validación cubre cuatro criterios sobre datos ficticios: alergia declarada,
-# contraindicación por condición, tope diario con ajuste renal e integridad de
-# los datos de la receta. NO modela interacciones entre fármacos, función
-# hepática, peso, edad ni duplicidad terapéutica. Una receta que pase las cuatro
-# validaciones NO está clínicamente validada.
+# Plan del día y verificación a partir de la prescripción, en código determinista.
+# Regla del módulo: marcar los problemas, nunca quitar una indicación (bitácora 16.3).
+# Cuatro criterios sobre datos ficticios; no modela interacciones entre fármacos ni duplicidad.
 
 from datetime import date
 from typing import Optional
@@ -57,8 +18,7 @@ from medicacion.reglas import (
     motivo_de_exclusion,
 )
 
-# Tipos de aviso que puede emitir la verificación. Son constantes y no texto
-# suelto porque las pruebas y el evaluador comparativo cuentan por tipo.
+# Constantes porque las pruebas y el evaluador cuentan avisos por tipo.
 AVISO_ALERGIA = "alergia"
 AVISO_CONTRAINDICACION = "contraindicacion"
 AVISO_EXCEDE_TOPE = "excede_tope"
@@ -69,19 +29,8 @@ AVISO_PRESCRIPCION_VENCIDA = "prescripcion_vencida"
 GRAVEDAD_ALTA = "alta"
 GRAVEDAD_MEDIA = "media"
 
-# Qué hacer ante cada tipo de aviso. NO todos los problemas piden lo mismo, y
-# tratarlos igual es un error que este proyecto cometió y midió: la primera
-# versión respondía "acá está su medicación, consulte a su médico" tanto para una
-# dosis un poco alta como para un antibiótico al que la persona es ALÉRGICA. La
-# variante LLM del experimento, en cambio, dijo sin rodeos "no la tome, llame hoy
-# mismo al médico", y para una alergia a penicilina eso es lo correcto.
-#
-# Que la acción salga de esta tabla y no del criterio del modelo es justamente el
-# punto: es una decisión de diseño explícita, revisable y probada, no algo que
-# cambie entre dos ejecuciones.
-#
-# Sigue valiendo la regla del módulo: el sistema NUNCA borra la indicación del
-# plan. Cambia lo que recomienda hacer con ella, no si la muestra.
+# Regla de negocio: qué recomendar ante cada aviso. Sale de esta tabla, no del
+# modelo (bitácora 16.7). Cambia la recomendación, nunca si la indicación se muestra.
 ACCION_POR_TIPO = {
     AVISO_ALERGIA: "NO tomarlo y llamar hoy mismo al médico para que lo reemplace",
     AVISO_CONTRAINDICACION: "NO tomarlo sin hablar antes con el médico",
@@ -102,12 +51,7 @@ _GRAVEDAD_POR_TIPO = {
 
 
 def horarios_de_indicacion(indicacion: dict) -> list[str]:
-    """A qué horas se toma una indicación.
-
-    Los horarios de la receta MANDAN: los fijó el médico y pueden no seguir
-    ninguna regla general ("no la tome de noche porque le da ganas de orinar").
-    La tabla de reglas.py es solo el respaldo para recetas que no los traigan.
-    """
+    """Mandan los horarios de la receta; la tabla de reglas.py es solo respaldo."""
     horarios = indicacion.get("horarios")
     if horarios:
         return list(horarios)
@@ -117,12 +61,7 @@ def horarios_de_indicacion(indicacion: dict) -> list[str]:
 
 
 def total_diario_mg(indicacion: dict) -> float:
-    """Miligramos que suma la indicación en un día.
-
-    Se calcula sobre los horarios efectivos, no sobre `tomas_por_dia`: lo que la
-    persona va a tomar es lo que está agendado. Si ambos campos no coinciden, la
-    verificación lo reporta como dato inconsistente.
-    """
+    """Miligramos al día, sobre los horarios agendados y no sobre `tomas_por_dia`."""
     return indicacion["dosis_mg"] * len(horarios_de_indicacion(indicacion))
 
 
@@ -146,17 +85,11 @@ def esta_vigente(prescripcion: dict, hoy: Optional[date] = None) -> bool:
 
 
 def verificar_indicacion(indicacion: dict, perfil: dict, id_prescripcion: str) -> list[dict]:
-    """Qué problemas tiene esta indicación para esta persona.
-
-    Función pura sobre datos: se prueba sin LLM, sin red y sin el grafo. Devuelve
-    una lista porque una misma indicación puede tener más de un problema.
-    """
+    """Avisos de esta indicación para esta persona (puede haber varios)."""
     nombre = indicacion["medicamento"]
     medicamento = buscar_medicamento(nombre)
 
-    # Un nombre que no está en el vademécum no se puede verificar. Decirlo es
-    # obligatorio: callarlo equivaldría a dar por buena una indicación que el
-    # sistema jamás revisó.
+    # Fuera del vademécum no se puede verificar, y callarlo sería darla por buena.
     if medicamento is None:
         return [_aviso(
             AVISO_MEDICAMENTO_DESCONOCIDO,
@@ -213,14 +146,9 @@ def verificar_prescripcion(prescripcion: dict, perfil: dict, hoy: Optional[date]
 
 
 def plan_diario(id_perfil: str, hoy: Optional[date] = None) -> dict:
-    """El día de esta persona, hora por hora, según sus recetas.
+    """Plan del día por hora, consolidando todas sus prescripciones.
 
-    Consolida TODAS sus prescripciones —una persona puede tener a la vez un
-    tratamiento crónico y uno agudo— y agrupa por horario, que es como se vive:
-    nadie toma "la receta A y la receta B", toma lo que le toca a las ocho.
-
-    Ninguna indicación se omite, ni siquiera las que disparan un aviso. Ver la
-    nota al inicio del módulo sobre por qué el sistema marca en vez de quitar.
+    No omite ninguna indicación, ni las que tienen aviso: se marcan.
     """
     perfil = obtener_perfil(id_perfil)
     if perfil is None:
@@ -240,8 +168,7 @@ def plan_diario(id_perfil: str, hoy: Optional[date] = None) -> dict:
     for receta in recetas:
         avisos.extend(verificar_prescripcion(receta, perfil, hoy))
 
-    # Un índice medicamento -> aviso más grave, para poder marcar cada renglón
-    # del plan y no solo encabezar la respuesta con una lista de advertencias.
+    # Primer aviso grave por medicamento, para marcarlo en su propio renglón.
     aviso_por_medicamento: dict[str, str] = {}
     accion_por_medicamento: dict[str, str] = {}
     for aviso in avisos:
@@ -288,17 +215,9 @@ def plan_diario(id_perfil: str, hoy: Optional[date] = None) -> dict:
 
 
 def alternativas_para(nombre_medicamento: str, id_perfil: str) -> dict:
-    """Qué otras opciones hay del mismo grupo que un medicamento de su receta.
+    """Opciones de la misma categoría para "se me acabó la pastilla". No sustituye.
 
-    Responde al caso "se me acabó la pastilla". El sistema NO sustituye: devuelve
-    qué existe en la misma categoría terapéutica para que la persona lo consulte
-    con su médico o su farmacéutico. Cambiar un fármaco por otro es una decisión
-    clínica, y la equivalencia dentro de una categoría es aproximada: mismo grupo
-    no significa misma potencia, misma dosis ni mismo perfil de efectos.
-
-    Por eso las dosis que devuelve se llaman `dosis_referencia_mg` y no
-    `dosis_mg`: son lo que figura en el vademécum, NO una pauta para esta
-    persona. Solo el médico puede fijar la pauta de un cambio.
+    `dosis_referencia_mg` es el valor del vademécum, no una pauta para la persona.
     """
     perfil = obtener_perfil(id_perfil)
     if perfil is None:
@@ -312,8 +231,7 @@ def alternativas_para(nombre_medicamento: str, id_perfil: str) -> dict:
             "encontrado": False,
         }
 
-    # Que esté o no en su receta cambia la respuesta: si nunca se lo indicaron,
-    # el sistema no tiene por qué ponerse a hablar de reemplazos.
+    # Si nunca se lo indicaron, la respuesta no debe hablar de reemplazos.
     en_su_receta = any(
         i["medicamento"].lower() == medicamento["nombre"].lower()
         for r in prescripciones_de(id_perfil)

@@ -1,15 +1,11 @@
-# Estadística mínima para las tablas de la campaña, sin dependencias nuevas.
-#
-# Por qué no scipy: el proyecto no la usa en ningún otro lado y estas tres
-# funciones son cortas. Se prueban contra valores conocidos en
-# pruebas/prueba_medicion.py.
+# Estadística mínima para las tablas de la campaña, sin scipy.
 
 import math
 import statistics
 
 
 def media_de(valores: list[float]) -> tuple[float | None, float | None]:
-    """Media y desviación estándar MUESTRAL (n-1). DE es None con n < 2."""
+    """Media y desviación estándar muestral (n-1); DE es None con n < 2."""
     valores = [v for v in valores if v is not None]
     if not valores:
         return None, None
@@ -17,11 +13,10 @@ def media_de(valores: list[float]) -> tuple[float | None, float | None]:
 
 
 def wilson(exitos: int, n: int, z: float = 1.959964) -> tuple[float, float]:
-    """Intervalo de confianza de Wilson (95% por defecto) para una proporción.
+    """Intervalo de Wilson (95% por defecto) para una proporción.
 
-    Se usa Wilson y no el intervalo normal porque con proporciones cerca de 0 o
-    de 1 (lo esperable en emergencia o small talk) el normal da límites fuera
-    de [0, 1] o de ancho cero con 20/20."""
+    No el normal: con proporciones cerca de 0 o 1 da límites fuera de [0, 1] o de ancho cero.
+    """
     if n == 0:
         return 0.0, 1.0
     p = exitos / n
@@ -46,8 +41,7 @@ def _rangos(valores: list[float]) -> list[float]:
 
 
 def _chi2_cola(x: float, gl: int) -> float:
-    """P(X > x) para chi-cuadrado con grados de libertad PARES (forma cerrada).
-    Con 5 usuarios gl = 4; con 3 grupos, gl = 2."""
+    """P(X > x) para chi-cuadrado con gl pares (forma cerrada; 5 usuarios dan gl = 4)."""
     if gl % 2:
         raise ValueError("solo grados de libertad pares (forma cerrada)")
     mitad = x / 2
@@ -55,9 +49,7 @@ def _chi2_cola(x: float, gl: int) -> float:
 
 
 def kruskal_wallis(grupos: list[list[float]]) -> dict:
-    """H de Kruskal-Wallis con corrección por empates y su valor p (chi² con
-    k-1 gl). Pensado para comparar usuarios: ¿la distribución de tiempos o
-    tokens cambia según la persona?"""
+    """H de Kruskal-Wallis con corrección por empates y su valor p (chi², k-1 gl)."""
     grupos = [[v for v in g if v is not None] for g in grupos]
     grupos = [g for g in grupos if g]
     todos = [v for g in grupos for v in g]

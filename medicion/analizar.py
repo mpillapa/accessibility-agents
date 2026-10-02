@@ -3,20 +3,13 @@
 # Uso (desde la raíz del repo; no necesita VPN):
 #   python -m medicion.analizar resultados/campana/campana_2026-10-01.jsonl
 #
-# Escribe junto al JSONL:
-#   <experimento>_tablas.md        las 6 tablas, listas para leer o pasar a LaTeX
-#   <experimento>_usuarios.png     tiempo por usuario en T1 y T6 (boxplot)
-#   <experimento>_rag.png          dónde se va el tiempo dentro del RAG (T2 y T6)
+# Escribe junto al JSONL <experimento>_tablas.md, _usuarios.png y _rag.png.
 #
 # Reglas de cálculo (declararlas en el paper):
-# - Media ± DE muestral sobre TODAS las ejecuciones completas de la tarea
-#   (5 usuarios × 4 frases × 3 repeticiones = 60 por tarea si no hubo cortes).
-# - Tiempos y tokens excluyen las ejecuciones con timeout o excepción: su
-#   tiempo es el del corte, no el del sistema. Se informan aparte y SÍ cuentan
-#   como fallo en la tasa de éxito.
-# - "Por agente" usa las ejecuciones donde ese agente corrió. Si el Orchestrator
-#   ruteó mal, el agente que corrió es el equivocado y aparece en la tabla de
-#   esa tarea con su propio n; así se ve el costo real de un error de ruteo.
+# - Media ± DE muestral sobre las ejecuciones completas de la tarea.
+# - Tiempos y tokens excluyen timeouts y excepciones, que sí cuentan como fallo.
+# - "Por agente" usa las ejecuciones donde corrió ese agente: un ruteo errado
+#   aparece con su propio n en la tarea.
 
 import argparse
 import json

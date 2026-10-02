@@ -5,20 +5,9 @@
 #   python -m medicion.campana --experimento campana_2026-10-03
 #   python -m medicion.campana --experimento campana_2026-10-03 --reanudar
 #
-# REQUIERE el LLM, los embeddings y el índice del recetario. Diseño en
-# medicion/README.md y en la chuleta (sección 7).
-#
-# Cada ejecución:
-#   - entra por TEXTO (la voz se midió aparte: corpus_audio/, bitácora 14-17);
-#   - pasa por el mismo procesar_consulta_en_vivo que usa la interfaz;
-#   - va etiquetada para LangSmith (tag = experimento, metadata = tarea,
-#     usuario, frase, repetición, id) y además se registra en local con el
-#     callback de medicion/registro.py;
-#   - se corta a los TIMEOUT_SEGUNDOS y cuenta como fallo.
-#
-# El resultado es un JSONL en resultados/campana/: una línea por ejecución, con
-# la respuesta completa. Se escribe tras cada ejecución, así que un corte de VPN
-# no pierde lo hecho y --reanudar sigue donde quedó.
+# Requiere el LLM, los embeddings y el índice del recetario. Diseño y protocolo
+# en medicion/README.md. El JSONL se escribe tras cada ejecución: --reanudar
+# sigue donde quedó.
 
 import argparse
 import json
@@ -39,19 +28,14 @@ from orquestacion_langgraph.grafo import procesar_consulta_en_vivo
 
 CARPETA = Path(__file__).parent.parent / "resultados" / "campana"
 
-# Pedido de Cristian (30-09): pasado este tiempo la ejecución es un fallo.
+# Regla de la campaña (Cristian, 30-09): pasado este tiempo la ejecución es fallo.
 TIMEOUT_SEGUNDOS = 120
 
-# Una ejecución cortada sigue corriendo en su hilo (Python no puede matarlo).
-# Se la espera hasta este tope ANTES de lanzar la siguiente, sin contarla, para
-# que dos consultas no compitan por el servidor y ensucien la latencia.
+# El hilo cortado sigue corriendo: se lo espera, sin contarlo, para no solapar consultas.
 ESPERA_TRAS_TIMEOUT_SEGUNDOS = 300
 
-# Verificación previa del servidor de embeddings. Motivo (bitácora 22.6): el
-# 2026-10-01 Ollama tenía BGE-M3 en CPU y el servidor estaba saturado por otro
-# usuario (carga 391 en 224 núcleos). Cada embedding tardaba ~25 s en vez de
-# décimas, y eso infla T2 y T6 con un tiempo que no es del sistema. En
-# condiciones normales una consulta tarda menos de 1 s.
+# Sonda previa: con Ollama en CPU los embeddings inflan T2 y T6 (bitácora 22.6).
+# Normal: menos de 1 s por consulta.
 UMBRAL_EMBEDDING_SEGUNDOS = 3.0
 SONDAS_EMBEDDING = 3
 
@@ -99,9 +83,7 @@ def ejecutar(entrada: dict, experimento: str, definiciones: dict, catalogo: list
              timeout: float = TIMEOUT_SEGUNDOS) -> dict:
     tarea, usuario, frase = entrada["tarea"], entrada["usuario"], entrada["frase"]
     registro = RegistroEjecucion()
-    # Único por ejecución: si un experimento se reanuda o se repite, el mismo
-    # `id` aparece más de una vez en LangSmith y el `uid` permite cruzarlos sin
-    # mezclar corridas.
+    # Al reanudar o repetir, un `id` se repite en LangSmith; el `uid` no.
     uid = uuid.uuid4().hex
     config = {
         "callbacks": [registro],

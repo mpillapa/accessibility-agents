@@ -1,15 +1,6 @@
 # Nodos del subgrafo de RAG agéntico.
-#
-# La diferencia con el RAG anterior (una llamada a buscar_receta() dentro del
-# nodo de recetas) es que aquí la recuperación es una DECISIÓN del agente y no
-# un paso fijo: decide si buscar, juzga si lo que encontró sirve, reformula la
-# consulta si no sirve, y admite que no encontró nada en vez de improvisar.
-#
-# Todos los nodos que piden un juicio al LLM usan el mismo patrón de salida:
-# texto libre terminado en una línea "ETIQUETA: <valor>", que se extrae con
-# regex y se valida con Pydantic. No se usa with_structured_output() porque
-# no fue confiable con los modelos disponibles — ver el hallazgo documentado
-# en ../README.md.
+# Los juicios del LLM salen en texto libre terminado en "ETIQUETA: <valor>",
+# extraído con regex y validado con Pydantic (por qué, en ../README.md).
 
 import re
 from typing import Literal
@@ -27,8 +18,6 @@ from orquestacion_langgraph.rag_agentico.estado import (
 )
 from rag.buscar import buscar_receta_detallado, fragmentos_de_fuente
 
-
-# --- Validación de los juicios del LLM -------------------------------------
 
 class DecisionBusqueda(BaseModel):
     necesita_recetario: bool
@@ -50,15 +39,8 @@ def _razonamiento_previo(texto: str, etiqueta: str) -> str:
     return texto.split(f"{etiqueta}:")[0].strip() or texto.strip()
 
 
-# --- Nodo 1: ¿hace falta consultar el recetario? ----------------------------
-
 def nodo_decidir_busqueda(estado: EstadoRAG) -> dict:
-    """No toda consulta de cocina necesita el recetario. 'gracias, ya me salió'
-    o '¿qué me recomiendas para hoy?' se responden sin buscar nada.
-
-    Cuesta una llamada extra al LLM en todas las consultas de recetas. Se
-    acepta ese costo porque es justamente lo que hace agéntica la recuperación:
-    el agente decide si usa la herramienta en vez de usarla siempre."""
+    """Decide si la consulta necesita el recetario ('gracias, ya me salió' no)."""
     respuesta = llm.invoke(
         "Eres el componente de un asistente de cocina para adultos mayores que "
         "decide si hace falta consultar el recetario.\n\n"
@@ -72,8 +54,7 @@ def nodo_decidir_busqueda(estado: EstadoRAG) -> dict:
     ).content
 
     valor = _extraer_etiqueta(respuesta, "DECISION")
-    # Ante una respuesta ambigua se busca igual: es preferible una búsqueda de
-    # más que responder sobre una receta sin haberla consultado.
+    # Ante duda, buscar.
     decision = DecisionBusqueda(
         necesita_recetario=(valor != "RESPONDER_DIRECTO"),
         razonamiento=_razonamiento_previo(respuesta, "DECISION"),
@@ -95,10 +76,8 @@ def ruta_tras_decidir(estado: EstadoRAG) -> Literal["recuperar", "responder_sin_
     return "recuperar" if estado["necesita_recetario"] else "responder_sin_recetario"
 
 
-# --- Nodo 2: recuperar de la base vectorial --------------------------------
-
 def nodo_recuperar(estado: EstadoRAG) -> dict:
-    """Búsqueda semántica pura. No juzga nada: eso es del nodo evaluador."""
+    """Búsqueda semántica; no juzga relevancia."""
     fragmentos = buscar_receta_detallado(
         estado["consulta_busqueda"], k=FRAGMENTOS_POR_BUSQUEDA
     )
@@ -117,40 +96,15 @@ def nodo_recuperar(estado: EstadoRAG) -> dict:
     }
 
 
-# --- Nodo 3: ¿lo recuperado sirve? -----------------------------------------
-
 def _nombre_legible_fuente(fuente: str) -> str:
-    """Convierte el nombre de archivo en algo que el LLM pueda leer como plato:
-    'arroz_con_leche.txt' -> 'arroz con leche'.
-
-    Algunos archivos del recetario se llaman 'receta1.jpeg' y no dicen de qué
-    plato son. En esos casos el nombre no aporta, pero tampoco estorba: el
-    evaluador sigue juzgando por el contenido del fragmento.
-    """
+    """'arroz_con_leche.txt' -> 'arroz con leche'. Con 'receta1.jpeg' no aporta, pero no estorba."""
     sin_extension = fuente.rsplit(".", 1)[0]
     return sin_extension.replace("_", " ").replace("-", " ").strip()
 
 
 def _juzgar_fragmento(consulta: str, fragmento: dict) -> VeredictoRelevancia:
-    # Tres decisiones de este prompt, cada una por un fallo medido:
-    #
-    # 1. El criterio es "pertenece a la receta pedida", no "es útil". Con
-    #    "¿ayuda a responder?" el modelo aceptaba fragmentos de otro plato que
-    #    compartía un ingrediente.
-    #
-    # 2. Se le dice de qué receta viene el fragmento. Sin eso, ante "quiero
-    #    preparar sushi" el fragmento "Paso 1: cocinar el arroz en 500ml de
-    #    agua" recibía SI en las tres corridas — y con razón, porque el
-    #    fragmento no dice de qué receta es y cocinar arroz sí es parte de
-    #    hacer sushi. Agregando la fuente ("receta: arroz con leche") pasó a NO
-    #    en las tres, sin volverse más estricto con las consultas legítimas.
-    #    Ningún prompt lo resolvió sin este dato: el problema era falta de
-    #    información, no redacción.
-    #
-    # 3. El ejemplo del final usa la papa a propósito, y no el caso que se
-    #    estaba tratando de corregir (sushi / arroz con leche): con ese ejemplo
-    #    dentro del prompt, evaluar una consulta real de sushi daba veredictos
-    #    peores — el modelo mezclaba el ejemplo con el caso a juzgar.
+    # Criterio de pertenencia y no de utilidad, con la fuente del fragmento y un
+    # ejemplo ajeno a los casos de prueba (la papa). Bitácora 3.2 y 3.3.
     respuesta = llm.invoke(
         "Eres un evaluador estricto de un buscador de recetas.\n\n"
         f"El usuario pidió: '{consulta}'\n\n"
@@ -191,9 +145,7 @@ def _juzgar_conjunto(consulta: str, fragmentos: list[dict]) -> VeredictoRelevanc
 
 
 def nodo_evaluar_relevancia(estado: EstadoRAG) -> dict:
-    """Filtra los fragmentos que no responden la consulta. Es el nodo que evita
-    que el generador reciba contexto de una receta equivocada y termine
-    respondiendo con seguridad sobre algo que el usuario no preguntó."""
+    """Filtra los fragmentos que no pertenecen a la receta pedida."""
     fragmentos = estado["fragmentos"] or []
 
     if not fragmentos:
@@ -233,8 +185,7 @@ def nodo_evaluar_relevancia(estado: EstadoRAG) -> dict:
 
 
 def ruta_tras_evaluar(estado: EstadoRAG) -> Literal["generar", "reformular", "sin_resultado"]:
-    """El corazón del ciclo: con material útil se genera; sin material se
-    reformula, salvo que ya se hayan agotado los intentos."""
+    """Con útiles se genera; sin útiles se reformula hasta agotar los intentos."""
     if estado["fragmentos_utiles"]:
         return "generar"
     if estado["intentos"] < MAX_INTENTOS_RECUPERACION:
@@ -242,16 +193,8 @@ def ruta_tras_evaluar(estado: EstadoRAG) -> Literal["generar", "reformular", "si
     return "sin_resultado"
 
 
-# --- Nodo 4: reformular y volver a intentar --------------------------------
-
 def nodo_reformular(estado: EstadoRAG) -> dict:
-    """Reescribe la consulta a términos de recetario.
-
-    Este nodo es el que más aporta con esta población concreta: un adulto
-    mayor rara vez usa el nombre técnico de un plato. Dice 'eso dulce del
-    arrocito que hacía mi mamá', y el recetario está indexado como 'arroz con
-    leche'. La primera búsqueda falla por vocabulario, no porque la receta
-    falte."""
+    """Reescribe la consulta a términos de recetario ('el arrocito dulce' -> arroz con leche)."""
     respuesta = llm.invoke(
         "La búsqueda en un recetario no dio resultados útiles. Reescribe la "
         "consulta del usuario para que funcione mejor en una búsqueda "
@@ -266,8 +209,7 @@ def nodo_reformular(estado: EstadoRAG) -> dict:
     ).content
 
     nueva = respuesta.strip().strip('"').split("\n")[-1].strip()
-    # Si el modelo devuelve algo vacío o absurdamente largo, se conserva la
-    # consulta original: es preferible repetir la búsqueda a buscar basura.
+    # Vacía o demasiado larga: se repite la consulta original.
     if not nueva or len(nueva) > 200:
         nueva = estado["consulta"]
 
@@ -281,20 +223,10 @@ def nodo_reformular(estado: EstadoRAG) -> dict:
     }
 
 
-# --- Nodo 5: recuperar la receta completa ----------------------------------
-
 def nodo_expandir_contexto(estado: EstadoRAG) -> dict:
-    """Trae el resto de los fragmentos de cada receta que pasó el filtro.
+    """Trae, en orden, el resto de los fragmentos de cada receta que pasó el filtro.
 
-    La búsqueda semántica devuelve fragmentos sueltos y el filtro de relevancia
-    es estricto, así que de una receta troceada en cinco párrafos puede quedar
-    aprobado uno solo. Redactar con ese único fragmento produce respuestas como
-    "para hacer llapingachos, fríelos en la manteca" — la receta correcta, pero
-    un paso aislado de ella.
-
-    Este nodo agrupa por archivo de origen y recupera la receta entera, en
-    orden. No vuelve a evaluar relevancia: si un fragmento de la receta pasó el
-    filtro, la receta es la que el usuario pidió.
+    No vuelve a evaluar relevancia (ver README, "Reglas de negocio").
     """
     utiles = estado["fragmentos_utiles"] or []
 
@@ -308,12 +240,10 @@ def nodo_expandir_contexto(estado: EstadoRAG) -> dict:
     contexto: list[dict] = []
     for fuente in fuentes:
         completos = fragmentos_de_fuente(fuente)
-        # Si la fuente no se puede reconstruir (colección vieja sin `orden`, o
-        # el archivo ya no está), se conserva lo que sí pasó el filtro.
+        # Colección vieja sin `orden` o archivo borrado: queda lo que pasó el filtro.
         contexto.extend(completos or [f for f in utiles if f["fuente"] == fuente])
 
-    # Recorte por presupuesto: primero los fragmentos que pasaron el filtro,
-    # porque son los que con seguridad responden la consulta.
+    # Al recortar se priorizan los que pasaron el filtro.
     textos_utiles = {f["texto"] for f in utiles}
     if sum(len(f["texto"]) for f in contexto) > MAXIMO_CARACTERES_CONTEXTO:
         priorizados = sorted(contexto, key=lambda f: f["texto"] not in textos_utiles)
@@ -323,7 +253,6 @@ def nodo_expandir_contexto(estado: EstadoRAG) -> dict:
                 continue
             recortado.append(fragmento)
             acumulado += len(fragmento["texto"])
-        # Se reordena para que la receta llegue al generador en su orden real.
         contexto = sorted(recortado, key=lambda f: (f["fuente"], f.get("orden", 0)))
 
     return {
@@ -337,8 +266,6 @@ def nodo_expandir_contexto(estado: EstadoRAG) -> dict:
         }],
     }
 
-
-# --- Nodos terminales ------------------------------------------------------
 
 def nodo_generar(estado: EstadoRAG) -> dict:
     """Redacta la respuesta final usando SOLO el contexto recuperado."""
@@ -370,13 +297,7 @@ def nodo_generar(estado: EstadoRAG) -> dict:
 
 
 def nodo_sin_resultado(estado: EstadoRAG) -> dict:
-    """Salida honesta cuando el recetario no tiene la receta.
-
-    Respuesta fija y sin LLM a propósito: es el punto donde el sistema tiene
-    más incentivo a inventar, y la forma más segura de no alucinar una receta
-    es no darle al modelo la oportunidad de redactarla. Una receta inventada
-    no es un error cosmético — puede terminar en alguien cocinando mal algo
-    que después se come."""
+    """Respuesta fija y sin LLM, para no inventar una receta (ver README)."""
     return {
         "respuesta": (
             "No encontré esa receta en tu recetario. Puedo ayudarte con otra, "
@@ -393,9 +314,7 @@ def nodo_sin_resultado(estado: EstadoRAG) -> dict:
 
 
 def nodo_responder_sin_recetario(estado: EstadoRAG) -> dict:
-    """Para consultas de cocina que no requieren buscar (agradecimientos,
-    comentarios). Responde el LLM, pero sin afirmar nada sobre recetas
-    concretas."""
+    """Consultas que no requieren buscar; el LLM responde sin afirmar recetas concretas."""
     respuesta = llm.invoke(
         "Eres un asistente culinario cálido y breve que conversa con una "
         "persona mayor. Responde en español, en dos o tres líneas como máximo.\n\n"

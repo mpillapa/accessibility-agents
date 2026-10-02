@@ -1,19 +1,7 @@
-# Pruebas de integridad de los datos de la tarea medicamento × comida.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_datos_interacciones
-#
-# NO requieren VPN ni LLM. Prueban que los tres JSON de interacciones/datos/
-# sean coherentes entre sí y con el resto del sistema: que los medicamentos
-# existan, que las recetas sean las del índice, que la evidencia de cada
-# alimento esté de verdad en el texto indexado y que los casos de prueba solo
-# esperen cosas posibles.
-#
-# NO prueban el cruce: eso es de pruebas/prueba_interacciones.py, cuando exista
-# reglas.py. Acá se verifica que la verdad de referencia sea consistente, sin
-# recalcularla (recalcularla con la misma lógica la volvería circular).
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Coherencia de los JSON de interacciones/datos/ entre sí y con el índice.
+# El cruce se prueba en prueba_interacciones.py; acá no se recalcula (sería circular).
+# Uso: python -m pruebas.prueba_datos_interacciones
+# No requiere VPN.
 
 import re
 import sys
@@ -33,24 +21,20 @@ from interacciones.datos import (
 )
 from medicacion.datos import cargar_medicamentos, cargar_perfiles, prescripciones_de
 
-# Ruta del índice, escrita a mano en vez de importar rag.config: ese módulo
-# consulta el servidor al importarse y esta prueba no debe depender de la red.
+# A mano: rag.config consulta el servidor al importarse.
 CHROMA_DIR = Path(__file__).parent.parent / "rag" / "chroma_db"
 CHROMA_COLLECTION = "recetas"
 
 
 def _normalizar(texto: str) -> str:
-    """Minúsculas, sin tildes y con los espacios colapsados. El OCR mete saltos
-    de línea y a veces letras de otro alfabeto que se ven iguales (una 'о'
-    cirílica en 'ajо'), así que la evidencia se compara normalizada."""
+    """Minúsculas, sin tildes y espacios colapsados: el OCR mete saltos y homoglifos."""
     texto = unicodedata.normalize("NFKD", texto)
     texto = "".join(c for c in texto if not unicodedata.combining(c))
     return re.sub(r"\s+", " ", texto).strip().lower()
 
 
 def _texto_indexado_por_fuente() -> dict[str, str] | None:
-    """El texto de ChromaDB agrupado por fuente, o None si el índice no está
-    (no se versiona: se regenera con `python -m rag.ingesta`)."""
+    """Texto de ChromaDB por fuente, o None si no hay índice local (no se versiona)."""
     if not CHROMA_DIR.exists():
         return None
     try:
@@ -86,8 +70,6 @@ def _categorias_de(fuente: str) -> set[str]:
     return {a["categoria"] for a in alimentos_marcados_de(fuente) or []}
 
 
-# --- Catálogo de interacciones ----------------------------------------------
-
 def prueba_medicamentos_del_catalogo_existen_en_el_vademecum():
     vademecum = _nombres_vademecum()
     desconocidos = medicamentos_revisados() - vademecum
@@ -96,8 +78,7 @@ def prueba_medicamentos_del_catalogo_existen_en_el_vademecum():
 
 
 def prueba_todo_medicamento_recetado_fue_revisado():
-    """Si alguien recibe un medicamento que el catálogo no cubre, el cruce
-    diría "sin interacciones" sin haberlo mirado. Eso tiene que fallar acá."""
+    """Si no, el cruce diría "sin interacciones" sin haberlo mirado."""
     sin_revisar = _medicamentos_recetados() - medicamentos_revisados()
     assert not sin_revisar, f"recetados pero sin revisar en el catálogo: {sin_revisar}"
     return f"los {len(_medicamentos_recetados())} medicamentos recetados están cubiertos por el catálogo"
@@ -123,8 +104,6 @@ def prueba_ningun_medicamento_esta_en_las_dos_listas():
     assert not ambas, f"con interacción y a la vez 'sin interacciones registradas': {ambas}"
     return "ningún medicamento figura a la vez con y sin interacciones"
 
-
-# --- Ingredientes por receta ------------------------------------------------
 
 def prueba_alimentos_marcados_bien_formados():
     categorias = categorias_alimento()
@@ -157,9 +136,7 @@ def prueba_las_fuentes_son_exactamente_las_del_indice():
 
 
 def prueba_la_evidencia_esta_en_el_texto_indexado():
-    """Cada alimento marcado cita un fragmento del texto indexado. Si la cita no
-    está, el dato salió de otro lado (de la foto, de lo que 'suele llevar' el
-    plato) y no de lo que el RAG realmente puede recuperar."""
+    """Si la cita no está, el dato no salió de lo que el RAG puede recuperar."""
     indice = _texto_indexado_por_fuente()
     if indice is None:
         return "OMITIDA: no hay índice local (correr `python -m rag.ingesta`)"
@@ -177,12 +154,8 @@ def prueba_la_evidencia_esta_en_el_texto_indexado():
     return f"las {revisadas} citas de evidencia aparecen literalmente en el texto indexado"
 
 
-# --- Casos de prueba --------------------------------------------------------
-
 def _revisar_esperado(usuario: str, fuente: str, esperado: dict, etiqueta: str):
-    """Condiciones NECESARIAS, no el cálculo: un par esperado solo puede
-    involucrar un medicamento que la persona tiene y una categoría que la
-    fuente contiene."""
+    """Condiciones necesarias, no el cálculo: medicamento de la persona y categoría de la fuente."""
     pares = {tuple(p) for p in esperado["interacciones"]}
     assert len(pares) == len(esperado["interacciones"]), f"{etiqueta}: pares repetidos"
     assert esperado["hay_interaccion"] == bool(pares), f"{etiqueta}: hay_interaccion no coincide con la lista"
@@ -218,8 +191,7 @@ def prueba_casos_de_campana_consistentes():
     con = sin = 0
     for frase in campana["frases"]:
         assert set(frase["esperado_por_usuario"]) == set(usuarios), f"{frase['id']}: no cubre a todos los usuarios"
-        # Si hay varias fuentes aceptadas, todas tienen que dar el mismo
-        # resultado; si no, el éxito dependería de cuál recuperó el RAG.
+        # Todas las fuentes aceptadas deben dar lo mismo, o el éxito dependería del RAG.
         categorias = {frozenset(_categorias_de(f)) for f in frase["fuentes_aceptadas"]}
         assert len(categorias) == 1, f"{frase['id']}: las fuentes aceptadas no contienen las mismas categorías"
         for usuario, esperado in frase["esperado_por_usuario"].items():

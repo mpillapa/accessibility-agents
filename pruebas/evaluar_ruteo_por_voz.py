@@ -1,5 +1,4 @@
-# ¿Cuánta precisión de ruteo pierde el sistema al entrar por voz en vez de por
-# texto?
+# Precisión de ruteo que se pierde al entrar por voz en vez de por texto (bitácora 10.3).
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_ruteo_por_voz
@@ -7,22 +6,10 @@
 #
 # Requiere VPN (usa el LLM) y haber corrido antes:
 #   python -m pruebas.evaluar_asr_corpus
-# que deja las transcripciones en corpus_audio/resultados_asr.json. Este script
-# las reutiliza en vez de volver a transcribir.
+# que deja las transcripciones en corpus_audio/resultados_asr.json.
 #
-# POR QUÉ ESTA MÉTRICA Y NO SOLO EL WER: el WER mide a Whisper, y es un número
-# que ya está en la literatura. Esto mide ESTE sistema: dado que el ruteo acierta
-# el 100% con texto limpio, cuánto se cae cuando la entrada es voz con ruido.
-# Un error de transcripción que no cambia la intención es inocuo; uno que
-# convierte una emergencia en conversación trivial no lo es.
-#
-# Se distinguen dos formas de fallar, porque tienen consecuencias distintas:
-#
-#   - RUTEO INCORRECTO: se transcribió algo y el Orchestrator eligió mal el
-#     agente. El sistema hace algo, pero lo equivocado.
-#   - NO RUTEABLE: no hubo transcripción (el VAD descartó el audio), así que no
-#     hay nada que rutear. El sistema no hace nada. Para una emergencia, esto
-#     es tan grave como lo anterior.
+# Distingue ruteo incorrecto (eligió mal el agente) de no ruteable (el VAD
+# descartó el audio y no hubo nada que rutear).
 
 import argparse
 import json
@@ -75,8 +62,7 @@ def main():
     for fila in datos:
         por_condicion[condicion_de(fila)].append(fila)
 
-    # Muestra estratificada por intención dentro de cada condición, para que la
-    # accuracy no quede sesgada por tener más frases de una intención.
+    # Muestra estratificada por intención para no sesgar la accuracy.
     if args.por_condicion:
         for clave, filas in por_condicion.items():
             agrupadas = defaultdict(list)
@@ -86,12 +72,11 @@ def main():
             por_condicion[clave] = [f for g in agrupadas.values() for f in g[:cupo]]
 
     total_llamadas = sum(len(v) for v in por_condicion.values())
-    # La línea base con texto se calcula una sola vez sobre la muestra limpia.
     base = por_condicion.get("limpio", [])
     print(f"Clasificando {total_llamadas} transcripciones + {len(base)} textos "
           f"de referencia (requiere VPN)...\n")
 
-    # --- línea base: el texto correcto, sin pasar por audio ---
+    # Línea base: el texto de referencia, sin pasar por audio.
     aciertos_texto = 0
     for fila in base:
         aciertos_texto += clasificar(fila["referencia"]) == fila["intencion"]
@@ -99,7 +84,6 @@ def main():
     print(f"Línea base con TEXTO de referencia: {accuracy_texto:.1%} "
           f"({aciertos_texto}/{len(base)})\n")
 
-    # --- por condición, sobre la transcripción ---
     filas_salida = []
     resumen = []
     for clave in sorted(por_condicion, key=orden_condicion):
@@ -147,7 +131,6 @@ def main():
         print(f"  {clave:<18} accuracy={resumen[-1]['accuracy']:.1%}  "
               f"(bien {correctos}, mal {incorrectos}, sin transcripción {no_ruteables})")
 
-    # --- reporte ---
     print("\n" + "=" * 78)
     print("DEGRADACIÓN DE RUTEO AL ENTRAR POR VOZ")
     print("=" * 78)

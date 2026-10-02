@@ -1,5 +1,5 @@
-# Demo en vivo de la réplica en LangGraph. Muestra la intención detectada por
-# el Orchestrator, el nodo especialista al que se ruteó y la respuesta final.
+# Demo en vivo: intención detectada, nodo especialista y respuesta final.
+# Requiere VPN institucional.
 #
 # Uso (desde la raíz del repo):
 #   python -m orquestacion_langgraph.demo                 -> corre las frases de ejemplo
@@ -21,8 +21,8 @@ CONSULTAS_DEMO = [
 ]
 
 
-# Comprueba que el servidor vLLM remoto responde antes de arrancar la demo.
 def verificar_vllm():
+    """Comprueba que el servidor vLLM responde y tiene el modelo configurado."""
     print(f"Servidor vLLM: {VLLM_CHAT_BASE_URL}")
     print(f"Modelo:        {VLLM_CHAT_MODEL}\n")
     try:
@@ -55,9 +55,6 @@ def correr(consulta):
 
     resultado = procesar_consulta_verbose(consulta)
 
-    # Si pasó por el especialista en recetas, muestra qué hizo el subgrafo de
-    # RAG por dentro: si decidió buscar, cuántos fragmentos aceptó o descartó,
-    # y si tuvo que reformular la consulta.
     if resultado.get("traza_rag"):
         print("-" * 70)
         print("CICLO DEL RAG AGÉNTICO (dentro del nodo de recetas):")

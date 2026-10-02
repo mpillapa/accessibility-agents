@@ -1,6 +1,5 @@
-# Carga del catálogo de interacciones, los ingredientes por receta y los casos
-# de prueba. No decide nada: solo lee y busca. El cruce (qué medicamento choca
-# con qué plato para qué persona) es regla de negocio y va en reglas.py.
+# Carga del catálogo de interacciones, ingredientes por receta y casos de prueba. No decide
+# nada: el cruce es regla de negocio y va en reglas.py.
 
 import json
 from functools import lru_cache
@@ -21,8 +20,7 @@ def _leer(archivo: Path) -> dict:
 
 @lru_cache(maxsize=1)
 def cargar_catalogo() -> dict:
-    """El catálogo completo: categorías de alimento, interacciones y la lista
-    de medicamentos revisados sin interacción registrada."""
+    """Categorías de alimento, interacciones y medicamentos revisados sin interacción."""
     return _leer(ARCHIVO_INTERACCIONES)
 
 
@@ -35,16 +33,12 @@ def interacciones() -> list[dict]:
 
 
 def interacciones_de(medicamento: str) -> list[dict]:
-    """Las interacciones registradas para un medicamento. Lista vacía si no
-    tiene ninguna, que NO es lo mismo que no haberlo revisado: para eso está
-    `medicamentos_revisados()`."""
+    """Lista vacía no implica revisado: para eso está `medicamentos_revisados()`."""
     return [i for i in interacciones() if i["medicamento"] == medicamento]
 
 
 def medicamentos_revisados() -> set[str]:
-    """Los medicamentos que el catálogo cubre, con o sin interacción. Un
-    medicamento recetado que no esté acá es un hueco del catálogo, no un
-    medicamento seguro."""
+    """Los que el catálogo cubre. Uno recetado que no esté es un hueco, no un medicamento seguro."""
     catalogo = cargar_catalogo()
     con_interaccion = {i["medicamento"] for i in catalogo["interacciones"]}
     return con_interaccion | set(catalogo["sin_interacciones_registradas"])
@@ -52,16 +46,14 @@ def medicamentos_revisados() -> set[str]:
 
 @lru_cache(maxsize=1)
 def cargar_ingredientes() -> dict[str, dict]:
-    """Los ingredientes de cada receta del índice, por nombre de fuente."""
+    """Ingredientes por nombre de fuente del índice."""
     return _leer(ARCHIVO_INGREDIENTES)["fuentes"]
 
 
 def alimentos_marcados_de(fuente: str) -> list[dict] | None:
-    """Los alimentos con categoría de interacción de una fuente, sumando todos
-    sus platos. Cada uno lleva el nombre del plato del que sale.
+    """Alimentos marcados de todos los platos de la fuente, cada uno con su plato.
 
-    Devuelve None si la fuente no está en el archivo. Quien llama tiene que
-    tratar eso como "no sé qué lleva", nunca como "no lleva nada".
+    None si la fuente no está: significa "no sé qué lleva", nunca "no lleva nada".
     """
     entrada = cargar_ingredientes().get(fuente)
     if entrada is None:
@@ -75,6 +67,5 @@ def alimentos_marcados_de(fuente: str) -> list[dict] | None:
 
 @lru_cache(maxsize=1)
 def cargar_casos() -> dict:
-    """Los casos con la verdad de referencia: 'desarrollo' (fuente dada) y
-    'campana' (frases de la tarea T6 para la medición)."""
+    """Verdad de referencia: 'desarrollo' (fuente dada) y 'campana' (frases de T6)."""
     return _leer(ARCHIVO_CASOS)

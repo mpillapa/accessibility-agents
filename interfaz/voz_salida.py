@@ -1,26 +1,5 @@
-# Lectura en voz alta de las respuestas.
-#
-# POR QUÉ EN EL NAVEGADOR Y NO EN EL SERVIDOR
-# -------------------------------------------
-# La síntesis de voz la hace el navegador (Web Speech API, `speechSynthesis`).
-# Tres razones:
-#   1. No agrega un modelo más que dependa del servidor de la Universidad, que
-#      ya rotó cuatro veces en trece días (bitácora, sección 11).
-#   2. A diferencia del micrófono, `speechSynthesis` NO exige HTTPS ni
-#      localhost: funciona también cuando la app se abre por IP.
-#   3. El texto de la respuesta ya está en la página; no hay que mandarlo a
-#      ningún lado.
-#
-# El costo, declarado: la voz depende del sistema operativo de quien mira. En
-# Windows y Android suele haber voces en español; en algunos Linux no hay
-# ninguna y el botón no suena.
-#
-# QUÉ SE LEE
-# ----------
-# `texto_para_leer()` convierte el markdown de la respuesta en texto hablable:
-# sin asteriscos, sin numerales de títulos, sin emojis (un lector de voz dice
-# "sol naciente" en vez de callarse) y sin el aviso de datos ficticios, que
-# sigue visible en pantalla pero leído en cada respuesta se vuelve ruido.
+# Lectura en voz alta de las respuestas con speechSynthesis del navegador, que no
+# depende del servidor ni exige HTTPS (ver interfaz/README.md).
 
 import json
 import re
@@ -29,8 +8,7 @@ import streamlit.components.v1 as componentes
 
 from interfaz.estilo import ROJO_TEXTO, BEIGE, CASI_NEGRO
 
-# Velocidad de lectura. 1.0 es la normal del navegador; algo más lenta se
-# entiende mejor, sobre todo con números y horarios.
+# 1.0 es la normal; algo más lenta se entiende mejor con números y horarios.
 VELOCIDAD_DE_LECTURA = 0.92
 
 # El aviso que medicacion/agente.py agrega al final de cada respuesta.
@@ -43,17 +21,12 @@ _EMOJIS = re.compile(
 
 
 def quitar_emojis(texto: str) -> str:
-    """Saca los emojis del texto. Se usa también para MOSTRAR las respuestas:
-    los agentes a veces encabezan con 🌅 o ⚠️, y es lo primero que delata que un
-    texto lo escribió un modelo."""
+    """Saca los emojis del texto; también se usa al mostrar las respuestas."""
     return re.sub(r"[ \t]{2,}", " ", _EMOJIS.sub("", texto))
 
 
 def texto_para_leer(markdown: str) -> str:
-    """El texto de una respuesta, listo para un lector de voz.
-
-    Función pura: se prueba sin navegador (pruebas/prueba_interfaz_voz.py).
-    """
+    """Markdown de una respuesta convertido en texto hablable, sin el aviso de datos ficticios."""
     texto = _AVISO_DATOS_FICTICIOS.sub("", markdown)
     texto = quitar_emojis(texto)
     texto = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", texto)           # [texto](url)
@@ -75,11 +48,8 @@ def texto_para_leer(markdown: str) -> str:
 def boton_escuchar(texto: str, leer_al_cargar: bool = False) -> None:
     """Botón "Escuchar la respuesta" / "Detener".
 
-    `leer_al_cargar` intenta leer apenas aparece. Solo se usa en la respuesta
-    recién generada, nunca al redibujar el historial (Streamlit vuelve a
-    ejecutar todo el script en cada interacción: sin esa regla, cada clic
-    volvería a leer todas las respuestas anteriores). Si el navegador bloquea la
-    lectura automática, el botón sigue ahí.
+    `leer_al_cargar` solo para la respuesta recién generada: Streamlit redibuja
+    el historial en cada interacción y releería todo.
     """
     hablado = texto_para_leer(texto)
     if not hablado:

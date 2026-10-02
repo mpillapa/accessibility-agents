@@ -1,35 +1,6 @@
-# Las dos formas de construir el agente de medicación, para poder compararlas.
-#
-# QUÉ SE COMPARA AHORA (Y POR QUÉ CAMBIÓ)
-# ---------------------------------------
-# La primera versión comparaba quién ELEGÍA mejor el medicamento. Esa pregunta
-# estaba mal planteada: es clínica, no de ingeniería, y no se puede evaluar sin
-# un profesional. Además producía disparates en las dos variantes (ver la nota
-# de medicacion/prescripciones.py).
-#
-# Con la receta como fuente de verdad la pregunta pasa a ser otra, y es
-# verificable con exactitud y sin criterio clínico externo:
-#
-#     Dada una receta ya emitida, ¿quién la transmite fielmente?
-#
-# Fielmente quiere decir: sin omitir indicaciones, sin agregar ninguna que no
-# esté, sin cambiar dosis ni horarios, y detectando los problemas que la receta
-# arrastra (alergia declarada, contraindicación, exceso sobre el tope ajustado).
-#
-#   VARIANTE_REGLAS   medicacion/prescripciones.py lee la receta, la consolida
-#                     por horario y la verifica en código determinista. El LLM
-#                     recibe el plan ya armado y SOLO lo redacta.
-#   VARIANTE_LLM      la receta, el perfil y el vademécum entran en el prompt y
-#                     el modelo hace todo: organizar, calcular y advertir.
-#
-# La variante LLM no es un hombre de paja: recibe exactamente la misma
-# información que las reglas, incluidas las alergias y la función renal. Lo
-# único que no recibe es el resultado ya calculado.
-#
-# La hipótesis, derivada de los dos hallazgos previos del proyecto (Whisper
-# inventando frases sobre ruido, GLM-OCR inventando 60.000 caracteres): ante un
-# dato que no está o que exige un cálculo, el modelo produce algo plausible en
-# vez de admitir que no sabe. Acá eso sería una dosis de medicamento.
+# Las dos variantes que se comparan: ¿quién transmite fielmente la receta? (bitácora 16.2, 16.8)
+#   VARIANTE_REGLAS: prescripciones.py arma y verifica el plan; el LLM solo lo redacta.
+#   VARIANTE_LLM:    receta, perfil y vademécum van al prompt y el modelo hace todo.
 
 import json
 import unicodedata
@@ -42,23 +13,17 @@ VARIANTE_REGLAS = "reglas"
 VARIANTE_LLM = "llm"
 Variante = Literal["reglas", "llm"]
 
-# Los dos tipos de consulta que atiende el agente.
 CONSULTA_PLAN = "plan"
 CONSULTA_ALTERNATIVAS = "alternativas"
 
-# Cómo dice una persona que se quedó sin una pastilla. Lista deliberadamente
-# corta y explícita: un sistema real clasificaría la intención con un modelo,
-# pero acá interesa que la detección sea determinista y se pueda probar. Su
-# limitación es evidente y hay que declararla: no cubre las formas que no estén
-# en la lista.
+# Lista cerrada: detección determinista, pero no cubre otras formas de decirlo.
 FRASES_DE_FALTANTE = (
     "se me acabo", "se me acabaron", "se acabo", "se termino", "se me termino",
     "no tengo", "no me queda", "no me quedan", "no consegui", "no encontre",
     "me falta", "se me perdio",
 )
 
-# Aviso obligatorio en toda respuesta. No es decorativo: el sistema habla de
-# medicación sobre datos ficticios y sin validación clínica.
+# Obligatorio en toda respuesta; se agrega en código, no en el prompt.
 AVISO = (
     "\n\n_Prototipo académico con datos ficticios. No reemplaza a su médico: "
     "consulte siempre antes de cambiar su medicación._"
@@ -78,14 +43,9 @@ def _normalizar(texto: str) -> str:
 
 
 def clasificar_consulta(consulta: str) -> tuple[str, Optional[str]]:
-    """Qué está preguntando la persona, y sobre qué medicamento.
+    """(CONSULTA_ALTERNATIVAS, nombre) si dice que le falta un medicamento del vademécum.
 
-    Devuelve (CONSULTA_ALTERNATIVAS, nombre) cuando dice que le falta algo Y
-    nombra un medicamento del vademécum; (CONSULTA_PLAN, None) en cualquier otro
-    caso. Que el caso por defecto sea el plan del día es deliberado: es la
-    consulta más frecuente y la menos riesgosa de responder de más.
-
-    Función pura sobre texto: se prueba sin LLM y sin red.
+    Si no, (CONSULTA_PLAN, None): el plan es la consulta más frecuente y la menos riesgosa.
     """
     normalizada = _normalizar(consulta)
 
@@ -148,13 +108,7 @@ def _prompt_alternativas_con_reglas(alternativas: dict, consulta: str) -> str:
 
 
 def _prompt_solo_llm(perfil: dict, recetas: list[dict], consulta: str) -> str:
-    """Todo al prompt: el modelo organiza, calcula y advierte por su cuenta.
-
-    Recibe la MISMA información que las reglas —receta, perfil completo con
-    alergias y función renal, y el vademécum con topes y contraindicaciones—
-    para que la comparación sea justa. Lo único que no recibe es el resultado
-    ya calculado.
-    """
+    """Recibe la misma información que las reglas, salvo el resultado ya calculado."""
     return (
         "Eres un gestor de medicación que le explica a una persona mayor qué "
         "tiene que tomar, en español claro y tratándola de usted.\n\n"
@@ -175,12 +129,9 @@ def _prompt_solo_llm(perfil: dict, recetas: list[dict], consulta: str) -> str:
 
 
 def responder(consulta: str, id_perfil: str, variante: Variante = VARIANTE_REGLAS) -> dict:
-    """Responde una consulta de medicación con la variante indicada.
+    """Responde con la variante indicada.
 
-    Devuelve la respuesta y, en la variante de reglas, lo que se decidió ANTES
-    de llamar al modelo (el plan y los avisos). Eso es lo que permite auditar la
-    respuesta: se puede comprobar renglón por renglón si el texto dice lo que la
-    receta dice.
+    En la de reglas devuelve también el plan y los avisos, para auditar el texto contra la receta.
     """
     from orquestacion_langgraph.llm import llm
 
@@ -190,10 +141,7 @@ def responder(consulta: str, id_perfil: str, variante: Variante = VARIANTE_REGLA
 
     recetas = prescripciones_de(id_perfil)
 
-    # Sin receta no hay nada que decir, y se responde SIN llamar al modelo: es
-    # justo el caso donde un LLM tiende a rellenar con un tratamiento plausible.
-    # Vale para las dos variantes a propósito: no es una ventaja de las reglas,
-    # es el piso mínimo de seguridad del sistema.
+    # Sin receta no se llama al LLM, en ninguna variante: es el piso de seguridad del sistema.
     if not recetas:
         return {
             "respuesta": SIN_PRESCRIPCION + AVISO,

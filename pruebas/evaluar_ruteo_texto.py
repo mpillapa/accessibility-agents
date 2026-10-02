@@ -1,25 +1,13 @@
-# Evaluación del ruteo del Orchestrator con las frases etiquetadas de dataset.csv.
+# Ruteo del Orchestrator sobre las frases etiquetadas de dataset.csv (bitácora 20.3).
+# Reporta accuracy, recall por intención, matriz de confusión y cómo se extrajo
+# la intención (`por_defecto` = el modelo no cerró con CATEGORIA:).
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_ruteo_texto --etiqueta base --json resultados/X.json
 #   python -m pruebas.evaluar_ruteo_texto --por-intencion 10     # muestra rápida
 #
-# REQUIERE el LLM del servidor.
-#
-# Qué mide, además de la accuracy:
-#   - recall por intención, en especial EMERGENCY: es la cifra más defendible
-#     del sistema, porque perder una emergencia es el fallo grave;
-#   - HACIA DÓNDE van los errores (matriz de confusión): con voz ya se vio que
-#     colapsan hacia SMALL_TALK (bitácora 10);
-#   - cómo se extrajo la intención (`formato`, `nombre_suelto`, `por_defecto`):
-#     `por_defecto` es el modelo que no cerró con CATEGORIA: y cayó a SMALL_TALK
-#     por el valor por defecto de _extraer_decision. Es la causa probable del bug
-#     "acabé de caerme, ayúdame" → small talk (CHULETA_CIERRE.md, 6.1).
-#
-# Las frases se corren en paralelo con varios hilos para que las 415 terminen en
-# minutos. Eso NO afecta a la decisión, pero sí a la latencia: la que se reporta
-# aquí es orientativa. La latencia que va al paper sale de la campaña, que corre
-# en serie.
+# Requiere el LLM del servidor. Corre en paralelo: la latencia es orientativa;
+# la del paper sale de la campaña, en serie.
 
 import argparse
 import csv
@@ -36,9 +24,7 @@ from orquestacion_langgraph.agentes import INTENCIONES, clasificar_detallado, de
 
 DATASET = Path(__file__).parent.parent / "dataset.csv"
 
-# --solo-llm mide el LLM sin la red de seguridad de emergencias, para poder
-# separar qué aporta cada uno. Por defecto se mide la decisión completa, que es
-# la que usa el grafo.
+# --solo-llm: sin la red de seguridad de emergencias. Por defecto, la decisión completa del grafo.
 SOLO_LLM = False
 
 

@@ -1,18 +1,12 @@
 # Extrae de LangSmith los tokens y tiempos de un experimento de la campaña y
-# los contrasta con el registro local (medicion/campana.py).
+# los contrasta con el registro local. Si difieren, se investiga antes de reportar.
 #
 # Uso (desde la raíz del repo, con LANGSMITH_API_KEY en el .env):
 #   python -m medicion.extraer_langsmith --experimento piloto_2026-10-01
 #   python -m medicion.extraer_langsmith --experimento piloto_2026-10-01 \
 #       --comparar resultados/campana/piloto_2026-10-01.jsonl --json salida.json
 #
-# Por qué dos fuentes: Cristian pidió sacar los números de LangSmith; el
-# registro local existe para no depender solo de un servicio externo
-# (retención, cuotas). Si las dos coinciden, cualquiera vale para las tablas;
-# si no, la diferencia se investiga antes de reportar.
-#
-# Se filtra por el tag del experimento: medicion/campana.py lo pone en cada
-# ejecución y LangChain lo propaga a todas las llamadas hijas.
+# Filtra por el tag del experimento, que LangChain propaga a las llamadas hijas.
 
 import argparse
 import json
@@ -31,8 +25,8 @@ load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 def extraer(experimento: str, proyecto: str | None = None) -> dict[str, dict]:
     """{uid: {id_ejecucion, segundos_raiz, llamadas: [...], tokens_sistema, agentes, fingerprints}}
 
-    Se agrupa por `uid` (único por ejecución), no por `id_ejecucion`, que se
-    repite si el experimento se reanudó o se volvió a correr."""
+    Por `uid`: `id_ejecucion` se repite si el experimento se reanudó.
+    """
     from langsmith import Client
 
     proyecto = proyecto or os.getenv("LANGSMITH_PROJECT", "accessibility-agents")

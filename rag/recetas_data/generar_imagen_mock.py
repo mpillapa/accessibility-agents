@@ -1,12 +1,5 @@
-# Genera una imagen sintética a partir de texto para poder probar el pipeline
-# de OCR (glm-ocr) sin depender de una foto real de una receta manuscrita
-# (que no tenemos). NO es una receta manuscrita real: es texto tipeado y
-# renderizado como imagen, solo para ejercitar extremo a extremo la ruta
-# imagen -> OCR -> chunk -> embedding -> ChromaDB.
-#
-# Cuando exista una foto real de una receta manuscrita, reemplaza el archivo
-# generado aquí por esa foto (mismo nombre o cualquier .jpg/.png dentro de
-# esta carpeta) y vuelve a correr rag/ingesta.py.
+# Genera una imagen sintética (texto tipeado, no manuscrito) para probar la ruta
+# imagen -> OCR -> embeddings -> ChromaDB sin una foto real.
 #
 # Uso:
 #   python rag/recetas_data/generar_imagen_mock.py

@@ -1,12 +1,6 @@
 # Pruebas de cómo la interfaz interpreta la barra del chat (interfaz/entrada.py).
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_interfaz_entrada
-#
-# NO requieren Streamlit corriendo, VPN ni GPU: se prueba la función pura con
-# dobles del valor que devuelve st.chat_input(accept_audio=True).
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Uso: python -m pruebas.prueba_interfaz_entrada
+# No requiere VPN, GPU ni Streamlit corriendo: dobles de st.chat_input(accept_audio=True).
 
 import sys
 from dataclasses import dataclass

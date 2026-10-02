@@ -1,3 +1,6 @@
+# Antecedente fuera de alcance desde el 2026-09-24: la misma orquestación en
+# CrewAI, usada en la comparación de frameworks (ver README.md raíz, sección 3).
+
 import os
 import re
 from pathlib import Path
@@ -9,15 +12,13 @@ from crewai.tools import tool
 from infraestructura.modelos import resolver_modelo
 from rag.buscar import buscar_receta
 
-# override=True: el .env del proyecto manda sobre variables ya presentes en el
-# entorno (p. ej. las que VSCode inyecta desde un .env del workspace padre).
+# override=True: el .env del proyecto manda sobre el que inyecta VSCode.
 load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 
 VLLM_CHAT_BASE_URL = os.getenv("VLLM_CHAT_BASE_URL", "http://172.28.230.10:12559/v1")
 VLLM_API_KEY = os.getenv("VLLM_API_KEY", "local")
 
-# Mismo endpoint y mismo modelo que LangGraph, resuelto igual: la comparación
-# LangGraph vs CrewAI solo tiene sentido si ambos corren sobre el mismo modelo.
+# Mismo modelo que LangGraph, para que la comparación sea válida.
 VLLM_CHAT_MODEL = resolver_modelo(
     base_url=VLLM_CHAT_BASE_URL,
     modelo_preferido=os.getenv("VLLM_CHAT_MODEL", "google/gemma-4-12B-it"),
@@ -192,9 +193,7 @@ def crear_crew():
     return crew
 
 
-# Versión async: CrewAI exige kickoff_async cuando ya hay un event loop
-# corriendo (Jupyter). Devuelve el mismo dict que procesar_consulta(). En una
-# celda de notebook: `res = await procesar_consulta_async("...")`.
+# Para Jupyter: con un event loop activo CrewAI exige kickoff_async.
 async def procesar_consulta_async(consulta: str) -> dict:
     import time
 
@@ -228,21 +227,9 @@ def procesar_consulta(consulta: str) -> dict:
     }
 
 
-# --- Solo para la comparación de accuracy de ruteo (notebooks/comparativa.ipynb) ---
-#
-# clasificar_consulta() mide ÚNICAMENTE la decisión de clasificación del
-# Orchestrator, no la delegación completa + respuesta del especialista. Se
-# implementa con el mismo estilo de prompt que el nodo orchestrator de
-# LangGraph (texto libre terminando en "CATEGORIA: <intención>"), para que la
-# comparación entre frameworks mida la misma tarea con el mismo LLM.
-#
-# Nota metodológica: como ambos frameworks delegan la decisión al mismo modelo
-# (google/gemma-4-12B-it), se espera una accuracy parecida; lo que difiere
-# entre CrewAI y LangGraph es el MECANISMO de ruteo (delegación vs edge
-# condicional), la latencia y qué tan explícito queda el flujo de datos — no
-# la calidad de la clasificación en sí. Verificado el 2026-07-23 en el notebook
-# (notebooks/comparativa.ipynb): ambos 100% en muestra de 50, latencias
-# similares.
+# Solo para la accuracy de ruteo (notebooks/comparativa.ipynb): mide la
+# clasificación del Orchestrator con el mismo formato "CATEGORIA: <intención>"
+# que LangGraph. Resultado en la bitácora, sección 4.
 def _extraer_categoria(texto: str) -> str:
     match = re.search(r"CATEGORIA:\s*([A-Z_]+)", texto)
     candidata = match.group(1) if match else None
@@ -267,15 +254,12 @@ def _crew_clasificacion(consulta: str) -> Crew:
 
 
 def clasificar_consulta(consulta: str) -> str:
-    """Devuelve la intención (una de INTENCIONES) que el Orchestrator asigna a
-    la consulta. Una sola llamada al LLM, comparable con
-    langgraph.grafo.clasificar_consulta(). Versión síncrona (scripts/demos)."""
+    """Intención que asigna el Orchestrator, en una llamada; comparable con la de LangGraph."""
     resultado = str(_crew_clasificacion(consulta).kickoff(inputs={"consulta": consulta}))
     return _extraer_categoria(resultado)
 
 
 async def clasificar_consulta_async(consulta: str) -> str:
-    """Igual que clasificar_consulta pero con kickoff_async, para Jupyter
-    (donde CrewAI exige kickoff_async por el event loop activo)."""
+    """clasificar_consulta con kickoff_async, para Jupyter."""
     resultado = str(await _crew_clasificacion(consulta).kickoff_async(inputs={"consulta": consulta}))
     return _extraer_categoria(resultado)

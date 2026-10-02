@@ -32,7 +32,7 @@ bloqueada**, así que un toque no corta la respuesta.
 > porque el micrófono se vaciaba cambiándole la clave a mitad del proceso. Y
 > cualquier toque mientras el asistente trabajaba cortaba la respuesta.
 > `st.chat_input(accept_audio=True, submit_mode="disable")` resuelve las dos
-> cosas. Detalle en `entrada.py`.
+> cosas.
 >
 > **Whisper se precarga en segundo plano al abrir la página.** Antes, la
 > primera grabación esperaba ~37 s a que cargara el modelo.

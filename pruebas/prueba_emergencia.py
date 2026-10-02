@@ -1,18 +1,6 @@
-# Pruebas del especialista en emergencias.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_emergencia
-#
-# NO requieren VPN: el nodo no llama al LLM, y esa es justamente una de las
-# propiedades que se verifican acá.
-#
-# Por qué este nodo tiene pruebas propias siendo tan corto: es el único camino
-# del sistema donde equivocarse tiene consecuencias físicas. Sobre el corpus se
-# midió que 31 de 180 emergencias (17%) no llegaban a este nodo por fallos del
-# ASR (secciones 10 y 13 de la bitácora); lo mínimo es garantizar que, cuando
-# una llega, la respuesta sea correcta y no dependa de nada externo.
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Pruebas del especialista en emergencias y de la red de seguridad previa al LLM.
+# Uso: python -m pruebas.prueba_emergencia
+# No requiere VPN (que el nodo no llame al LLM es una de las propiedades probadas).
 
 import sys
 
@@ -31,12 +19,7 @@ def prueba_da_el_numero_de_emergencias():
 
 
 def prueba_no_llama_al_llm():
-    """El nodo no debe depender del servidor de modelos.
-
-    Si llamara al LLM, una VPN caída o una rotación de modelo —que pasaron
-    cuatro veces en trece días— dejarían sin respuesta justo el camino crítico.
-    Se verifica reemplazando el LLM por un doble que falla si alguien lo usa.
-    """
+    """Una VPN caída o una rotación de modelo no deben dejar sin respuesta el camino crítico."""
     class LLMQueExplota:
         def invoke(self, *a, **k):
             raise AssertionError("el nodo de emergencia NO debe llamar al LLM")
@@ -66,9 +49,7 @@ def prueba_no_afirma_haber_avisado_a_nadie():
 
 
 def prueba_no_da_instrucciones_fisicas():
-    """El sistema clasifica en una sola categoría EMERGENCY: no distingue una
-    caída de un incendio. Un consejo físico único sería contraproducente en
-    alguno de los casos ("no se mueva" ante humo en la cocina)."""
+    """EMERGENCY no distingue caída de incendio: "no se mueva" sería peligroso ante humo."""
     respuesta = nodo_emergencia({"consulta": "hay humo en la cocina"})["respuesta"].lower()
     for frase in ["no se mueva", "no se levante", "acuéstese", "salga corriendo", "trate de no moverse"]:
         assert frase not in respuesta, f"no debe instruir {frase!r}: {respuesta}"
@@ -93,8 +74,6 @@ def prueba_el_numero_es_configurable():
     return "el número de emergencias es configurable, no está fijado por código"
 
 
-# --- Red de seguridad antes del LLM (orquestacion_langgraph/red_emergencia.py) ---
-
 def prueba_red_atrapa_el_caso_de_la_demo():
     """La transcripción real de Whisper en la demo del 2026-09-24."""
     from orquestacion_langgraph.red_emergencia import detectar_emergencia
@@ -113,9 +92,7 @@ def prueba_red_no_alarma_con_frases_parecidas():
 
 
 def prueba_red_sin_falsas_alarmas_en_el_dataset():
-    """Cero falsas alarmas en las 332 frases que NO son emergencias. Ojo: los
-    patrones se diseñaron mirando este mismo dataset, así que el 0 es optimista;
-    sobre 2.957 transcripciones de Whisper con ruido hubo 1 (bitácora 20)."""
+    """Optimista: los patrones se diseñaron sobre este dataset (con ruido hubo 1, bitácora 20)."""
     import csv
     from pathlib import Path
     from orquestacion_langgraph.red_emergencia import detectar_emergencia

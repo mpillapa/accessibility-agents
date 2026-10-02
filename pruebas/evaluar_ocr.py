@@ -1,33 +1,15 @@
-# Evaluación del OCR sobre el recetario real, SIN texto de referencia.
+# Evaluación del OCR sobre el recetario real, sin texto de referencia (bitácora 19).
 #
 # Uso (desde la raíz del repo):
 #   python -m pruebas.evaluar_ocr                      # corre el OCR y guarda
 #   python -m pruebas.evaluar_ocr --reanudar ARCHIVO   # completa una corrida cortada
 #   python -m pruebas.evaluar_ocr --comparar A.json B.json
 #
-# REQUIERE acceso al endpoint de OCR (hoy qwen2.5vl:7b en Ollama).
+# Requiere acceso al endpoint de OCR (hoy qwen2.5vl:7b en Ollama).
 #
-# QUÉ MIDE Y QUÉ NO
-# -----------------
-# No hay transcripción de referencia de las fotos, así que esto NO mide
-# exactitud (CER/WER). Mide lo que se puede medir sin ella:
-#   - si el texto sale degenerado (bucle, repetición), con el mismo control de
-#     calidad que usa la ingesta (rag/calidad.py);
-#   - cuánto texto produce y cuánto tarda por imagen;
-#   - con --comparar, cuánto coinciden dos OCR sobre la misma foto. Coincidir no
-#     dice cuál acierta; señala dónde leen distinto, que es donde hay que mirar.
-# La medida de utilidad real es indirecta: si el RAG encuentra la receta correcta
-# con este texto (campaña de medición, tareas T2 y T6).
-#
-# POR QUÉ GUARDA EL TEXTO
-# -----------------------
-# El servidor rota de modelo sin aviso (bitácora 11) y GLM-OCR ya no existe: el
-# índice anterior no se puede regenerar. Guardar la salida cruda del OCR permite
-# reconstruir el índice sin volver a llamar al modelo (`python -m rag.ingesta
-# --desde-ocr ARCHIVO`), y deja evidencia de qué leyó exactamente.
-#
-# El archivo se escribe después de CADA imagen: si el endpoint se cae a mitad de
-# corrida, lo hecho no se pierde y se completa con --reanudar.
+# No mide exactitud (CER/WER): mide texto degenerado, volumen y tiempo, y con
+# --comparar cuánto coinciden dos OCR. Guarda el texto crudo tras cada imagen,
+# para reanudar y para reconstruir el índice con `rag.ingesta --desde-ocr`.
 
 import argparse
 import hashlib
@@ -142,7 +124,7 @@ def resumir(datos: dict):
         print(f"  ERROR {nombre}: {datos['imagenes'][nombre]['error']}")
 
 
-# --- Comparación entre dos OCR ------------------------------------------------
+# Comparación entre dos OCR
 
 def _palabras_normalizadas(texto: str) -> list[str]:
     texto = unicodedata.normalize("NFKD", texto.lower())

@@ -1,13 +1,6 @@
-# Pruebas de las reglas de gestión de medicación.
-#
-# Uso (desde la raíz del repo):
-#   python -m pruebas.prueba_reglas_medicacion
-#
-# NO requieren VPN ni LLM: las reglas son funciones puras sobre los JSON. Que se
-# puedan probar así es precisamente el argumento para que NO vivan en un prompt
-# (ver medicacion/reglas.py).
-#
-# Escrito sin pytest, igual que el resto de pruebas/ (ver prueba_ciclo_rag.py).
+# Pruebas de las reglas de gestión de medicación (ver medicacion/reglas.py).
+# Uso: python -m pruebas.prueba_reglas_medicacion
+# No requiere VPN.
 
 import sys
 
@@ -27,11 +20,8 @@ def _medicamento(nombre):
     return next(m for m in cargar_medicamentos() if m["nombre"] == nombre)
 
 
-# --- Exclusión --------------------------------------------------------------
-
 def prueba_excluye_por_contraindicacion():
-    """Jorge tiene úlcera y artrosis: lo que alivia la artrosis está
-    contraindicado. Es el conflicto que el tutor pidió contemplar."""
+    """Jorge tiene úlcera y artrosis: el conflicto que pidió contemplar el tutor."""
     jorge = obtener_perfil("jorge")
     motivo = motivo_de_exclusion(_medicamento("Ibuprofeno"), jorge)
     assert motivo and "ulcera_gastrica" in motivo, motivo
@@ -48,8 +38,7 @@ def prueba_excluye_por_alergia():
 
 
 def prueba_el_motivo_es_explicable():
-    """Devolver el motivo y no un booleano permite que el sistema explique por
-    qué no recomienda algo, en vez de omitirlo en silencio."""
+    """Un motivo y no un booleano, para explicar en vez de omitir en silencio."""
     excluidos = medicamentos_excluidos_para(obtener_perfil("jorge"))
     assert excluidos, "Jorge debería tener exclusiones"
     assert all(e["motivo"] for e in excluidos), excluidos
@@ -64,11 +53,8 @@ def prueba_no_excluye_de_mas():
     return "no excluye medicamentos aptos (Rosa conserva sus opciones)"
 
 
-# --- Dosis ------------------------------------------------------------------
-
 def prueba_ajusta_la_dosis_por_funcion_renal():
-    """El requisito textual del tutor: 'que no me devuelva lo que me tengo que
-    tomar con un exceso de gramos'."""
+    """Requisito del tutor: 'que no me devuelva lo que me tengo que tomar con un exceso de gramos'."""
     carmen = obtener_perfil("carmen")  # función renal reducida
     furosemida = _medicamento("Furosemida")
     ajustada = dosis_maxima_para(furosemida, carmen)
@@ -86,8 +72,7 @@ def prueba_no_ajusta_a_quien_no_corresponde():
 
 
 def prueba_recorta_las_tomas_si_el_tope_ajustado_no_alcanza():
-    """Si el tope baja a la mitad, las tomas previstas pueden superarlo. Se
-    recortan tomas antes que partir la dosis unitaria."""
+    """Con el tope a la mitad se recortan tomas antes que partir la dosis unitaria."""
     carmen = obtener_perfil("carmen")
     plan = plan_de(_medicamento("Furosemida"), carmen)
     assert plan["tomas_por_dia"] * plan["dosis_por_toma_mg"] <= plan["max_diario_mg"], plan
@@ -96,8 +81,7 @@ def prueba_recorta_las_tomas_si_el_tope_ajustado_no_alcanza():
 
 
 def prueba_ninguna_recomendacion_supera_su_tope():
-    """Invariante sobre TODOS los perfiles: nunca se indica más de lo permitido.
-    Es la garantía que un prompt no puede dar."""
+    """Invariante sobre todos los perfiles: nunca más de lo permitido."""
     from medicacion.datos import cargar_perfiles
 
     for perfil in cargar_perfiles():
@@ -106,8 +90,6 @@ def prueba_ninguna_recomendacion_supera_su_tope():
             assert total <= plan["max_diario_mg"], f"{perfil['nombre']}/{plan['nombre']}: {total} > {plan['max_diario_mg']}"
     return "ningún plan supera su tope diario, en ninguno de los 6 perfiles"
 
-
-# --- Horarios ---------------------------------------------------------------
 
 def prueba_los_horarios_siguen_el_numero_de_tomas():
     """Tres tomas dan 08:00, 15:00 y 20:00 — los que propuso el tutor."""
@@ -124,11 +106,8 @@ def prueba_el_plan_dice_como_tomarlo():
     return "el plan indica la forma y si va con comida"
 
 
-# --- El caso que más importa ------------------------------------------------
-
 def prueba_no_inventa_tratamiento_a_quien_no_declaro_condiciones():
-    """Luis no tiene condiciones registradas. Un LLM tiende a responder algo
-    igual; las reglas devuelven vacío y el sistema tiene que admitirlo."""
+    """Luis no tiene condiciones: las reglas devuelven vacío, donde un LLM respondería algo."""
     luis = obtener_perfil("luis")
     assert medicamentos_para(luis) == [], medicamentos_para(luis)
     assert medicamentos_excluidos_para(luis) == []

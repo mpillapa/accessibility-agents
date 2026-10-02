@@ -1,35 +1,6 @@
-# Registro de tokens y tiempos por nodo durante una ejecución del grafo.
-#
-# QUÉ RESUELVE
-# ------------
-# Cristian pidió (reunión del 30-09) tokens y tiempo POR AGENTE y POR SISTEMA.
-# LangSmith ya los registra, pero depender solo de un servicio externo para los
-# números del paper es frágil: retención de trazas, cuotas, cambios de su API.
-# Este callback escribe lo mismo en local y sirve para contrastar las dos
-# fuentes (medicion/extraer_langsmith.py).
-#
-# CÓMO ATRIBUYE CADA LLAMADA A UN AGENTE SIN TOCAR LOS AGENTES
-# ------------------------------------------------------------
-# LangGraph agrega a la metadata de cada llamada al LLM el nodo que la hizo
-# (`langgraph_node`) y la ruta de nodos padre (`langgraph_checkpoint_ns`, con la
-# forma "recetas_cruce:<id>|evaluar_relevancia:<id>"). El primer tramo es el
-# agente del grafo principal; el último, el subnodo del RAG. Verificado contra
-# el servidor real el 2026-10-01 (sonda en la bitácora 22).
-#
-# Los nodos se cronometran con on_chain_start/on_chain_end: LangGraph abre una
-# "chain" por cada nodo, con el mismo nombre que el nodo. Las funciones de ruteo
-# y el subgrafo como tal también abren chains, pero con otro nombre, y se
-# ignoran.
-#
-# LÍMITES (declararlos al reportar)
-# ---------------------------------
-# - Solo cuenta tokens de llamadas a modelos de CHAT. Las de embeddings (BGE-M3,
-#   en la recuperación del RAG) no pasan por estos callbacks: su costo queda
-#   dentro del TIEMPO del nodo `recuperar`, no en los tokens.
-# - El tiempo de un agente es el de su nodo completo (lógica + LLM + red). En la
-#   tarea medicamento × comida las dos ramas corren en paralelo, así que la suma
-#   de los tiempos por agente es MAYOR que el tiempo del sistema. Es correcto:
-#   el tiempo del sistema es el que vive la persona.
+# Callback que registra en local tokens y tiempos por nodo de una ejecución del
+# grafo, para no depender solo de LangSmith (se contrastan en extraer_langsmith.py).
+# Atribución por agente y límites: ver medicion/README.md.
 
 import threading
 import time
@@ -38,10 +9,10 @@ from langchain_core.callbacks import BaseCallbackHandler
 
 
 def ubicacion(metadata: dict | None) -> tuple[str | None, str | None]:
-    """(agente, nodo) de una llamada según la metadata que pone LangGraph.
+    """(agente, nodo) según la metadata de LangGraph.
 
-    El agente es el nodo del grafo principal; el nodo, el que hizo la llamada
-    (igual al agente salvo dentro de un subgrafo)."""
+    Agente: primer tramo de langgraph_checkpoint_ns; nodo: el que hizo la llamada.
+    """
     metadata = metadata or {}
     nodo = metadata.get("langgraph_node")
     ns = metadata.get("langgraph_checkpoint_ns") or metadata.get("checkpoint_ns") or ""
@@ -52,9 +23,8 @@ def ubicacion(metadata: dict | None) -> tuple[str | None, str | None]:
 def _uso(response) -> dict:
     """Tokens, modelo, fingerprint y motivo de fin de una respuesta del LLM.
 
-    Lee primero el mensaje (usage_metadata es el formato estándar de
-    LangChain) y completa con llm_output, que es donde langchain-openai deja
-    `system_fingerprint`."""
+    llm_output completa lo que falta: ahí deja langchain-openai `system_fingerprint`.
+    """
     generacion = response.generations[0][0] if response.generations and response.generations[0] else None
     mensaje = getattr(generacion, "message", None)
     uso = getattr(mensaje, "usage_metadata", None) or {}
@@ -73,11 +43,10 @@ def _uso(response) -> dict:
 
 
 class RegistroEjecucion(BaseCallbackHandler):
-    """Acumula las llamadas al LLM y los tiempos de nodo de UNA ejecución.
+    """Llamadas al LLM y tiempos de nodo de una ejecución.
 
-    Una instancia por ejecución: así una ejecución que se pasa del tiempo y
-    sigue corriendo en segundo plano no ensucia la siguiente. Es seguro entre
-    hilos porque las ramas en paralelo del grafo llaman al callback a la vez.
+    Una instancia por ejecución, para que una que siga corriendo tras el timeout
+    no ensucie la siguiente. Con candado: las ramas paralelas llaman a la vez.
     """
 
     def __init__(self):
@@ -87,7 +56,6 @@ class RegistroEjecucion(BaseCallbackHandler):
         self.llamadas: list[dict] = []
         self.nodos: list[dict] = []
 
-    # --- llamadas al LLM -------------------------------------------------
     def on_chat_model_start(self, serialized, messages, *, run_id, metadata=None, **kwargs):
         with self._candado:
             self._llm_abiertas[run_id] = (time.perf_counter(), *ubicacion(metadata))
@@ -113,7 +81,7 @@ class RegistroEjecucion(BaseCallbackHandler):
                                       "segundos": round(time.perf_counter() - inicio, 3),
                                       "error": f"{type(error).__name__}: {error}"})
 
-    # --- nodos del grafo -------------------------------------------------
+    # LangGraph abre una chain por nodo con el mismo nombre; las demás se ignoran.
     def on_chain_start(self, serialized, inputs, *, run_id, metadata=None, **kwargs):
         agente, nodo = ubicacion(metadata)
         if nodo is None or kwargs.get("name") != nodo or nodo.startswith("__"):
@@ -135,7 +103,6 @@ class RegistroEjecucion(BaseCallbackHandler):
     def on_chain_error(self, error, *, run_id, **kwargs):
         self._cerrar_nodo(run_id, f"{type(error).__name__}: {error}")
 
-    # --- resumen ----------------------------------------------------------
     def resumen(self) -> dict:
         with self._candado:
             return resumir(list(self.llamadas), list(self.nodos))
@@ -149,9 +116,8 @@ def _suma(valores) -> int | None:
 def resumir(llamadas: list[dict], nodos: list[dict]) -> dict:
     """Agrega por agente y por sistema.
 
-    `agentes[a].segundos` es la duración del nodo del grafo principal (incluye
-    su subgrafo, si tiene). `subnodos` son los pasos internos de un agente
-    (los del RAG), para desglosar dónde se va su tiempo."""
+    `agentes[a].segundos` incluye su subgrafo; `subnodos` son los pasos internos (RAG).
+    """
     agentes: dict[str, dict] = {}
     for n in nodos:
         if n["nodo"] == n["agente"]:
