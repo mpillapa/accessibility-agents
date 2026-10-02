@@ -47,6 +47,14 @@ TIMEOUT_SEGUNDOS = 120
 # que dos consultas no compitan por el servidor y ensucien la latencia.
 ESPERA_TRAS_TIMEOUT_SEGUNDOS = 300
 
+# Verificación previa del servidor de embeddings. Motivo (bitácora 22.6): el
+# 2026-10-01 Ollama tenía BGE-M3 en CPU y el servidor estaba saturado por otro
+# usuario (carga 391 en 224 núcleos). Cada embedding tardaba ~25 s en vez de
+# décimas, y eso infla T2 y T6 con un tiempo que no es del sistema. En
+# condiciones normales una consulta tarda menos de 1 s.
+UMBRAL_EMBEDDING_SEGUNDOS = 3.0
+SONDAS_EMBEDDING = 3
+
 
 def _commit_actual() -> str | None:
     try:
@@ -63,6 +71,18 @@ def _hay_cambios_sin_commit() -> bool | None:
         return bool(salida.strip())
     except Exception:
         return None
+
+
+def sondear_embeddings(veces: int = SONDAS_EMBEDDING) -> list[float]:
+    """Segundos de `veces` embeddings de una consulta corta, como los del RAG."""
+    from rag.embeddings import embed_textos
+
+    tiempos = []
+    for _ in range(veces):
+        inicio = time.perf_counter()
+        embed_textos(["¿Qué ingredientes lleva el hornado?"])
+        tiempos.append(round(time.perf_counter() - inicio, 2))
+    return tiempos
 
 
 def _recorrer(consulta: str, usuario: str, config: dict) -> tuple[list[str], dict | None]:
@@ -156,6 +176,8 @@ def main():
     parser.add_argument("--reanudar", action="store_true", help="saltar las ejecuciones ya registradas")
     parser.add_argument("--timeout", type=float, default=TIMEOUT_SEGUNDOS)
     parser.add_argument("--semilla", type=int, default=42)
+    parser.add_argument("--sin-sonda", action="store_true",
+                        help="no verificar la latencia de embeddings antes de empezar")
     args = parser.parse_args()
 
     campana = cargar_campana()
@@ -193,6 +215,16 @@ def main():
         meta["fingerprints_vistos"] = anterior.get("fingerprints_vistos", [])
         meta["reanudaciones"] = anterior.get("reanudaciones", []) + [meta["inicio"]]
         meta["inicio"] = anterior["inicio"]
+
+    if not args.sin_sonda:
+        sonda = sondear_embeddings()
+        meta["sonda_embeddings_segundos"] = sonda
+        print(f"Sonda de embeddings: {sonda} s (umbral {UMBRAL_EMBEDDING_SEGUNDOS} s)")
+        if min(sonda) > UMBRAL_EMBEDDING_SEGUNDOS:
+            print("  El servidor de embeddings está lento: los tiempos de T2 y T6 no serían los del "
+                  "sistema. No se empieza. Revisar `uptime` y `curl .../api/ps` (size_vram), o "
+                  "usar --sin-sonda si se quiere medir igual.")
+            return 2
 
     print(f"{args.experimento}: {len(plan)} planificadas, {len(hechas)} ya hechas, {len(pendientes)} por correr")
     print(f"  trazas LangSmith: {meta['trazas']['activo']} ({meta['trazas']['motivo']})\n")

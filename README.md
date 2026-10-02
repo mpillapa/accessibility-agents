@@ -189,7 +189,11 @@ accessibility-agents/
 │   ├── criterios.py              Criterios de éxito por tarea (funciones puras)
 │   ├── campana.py                Corre la campaña y escribe resultados/campana/<experimento>.jsonl
 │   ├── extraer_langsmith.py      Saca el experimento de LangSmith y lo cruza con el registro local
+│   ├── analizar.py               Tablas (media ± DE, Wilson, Kruskal-Wallis) y gráficos desde el JSONL
+│   ├── estadistica.py            Media ± DE, intervalo de Wilson y Kruskal-Wallis sin dependencias nuevas
 │   └── datos/casos_campana.json  Frases T1-T5 y verdad de referencia
+├── docs/
+│   └── prompts.md                Catálogo de los 11 prompts: texto literal, variables y por qué están así
 ├── orquestacion_crewai/           ANTECEDENTE: primera etapa, fuera del alcance desde el 2026-09-24
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
 │   └── demo.py                   Demo en vivo (verbose=True: muestra razonamiento y delegación)
@@ -216,7 +220,7 @@ accessibility-agents/
 │   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
 │   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
-│   ├── prueba_*.py               13 suites, 127 casos, sin VPN ni LLM (ver "Cómo ejecutar")
+│   ├── prueba_*.py               13 suites, 128 casos, sin VPN ni LLM (ver "Cómo ejecutar")
 │   ├── prueba_datos_interacciones.py  Coherencia de los datos de medicamento × comida
 │   ├── prueba_interacciones.py   El cruce y el camino del grafo con dobles
 │   ├── evaluar_ruteo_texto.py    Ruteo del Orchestrator sobre las 415 frases (recall de EMERGENCY, matriz de confusión)
@@ -299,7 +303,7 @@ Comparativa de la primera etapa (cruce de información entre agentes + ciclo del
 jupyter notebook notebooks/comparativa.ipynb
 ```
 
-Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 13 suites, 127 casos al 2026-10-01:
+Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 13 suites, 128 casos al 2026-10-01:
 ```bash
 # Todas de una vez
 for f in pruebas/prueba_*.py; do python -m pruebas.$(basename $f .py) | tail -1; done
@@ -333,6 +337,7 @@ python -m medicion.campana --experimento piloto_AAAA-MM-DD --piloto   # 6 ejecuc
 python -m medicion.campana --experimento campana_AAAA-MM-DD           # 360 ejecuciones
 python -m medicion.extraer_langsmith --experimento campana_AAAA-MM-DD \
     --comparar resultados/campana/campana_AAAA-MM-DD.jsonl
+python -m medicion.analizar resultados/campana/campana_AAAA-MM-DD.jsonl
 ```
 
 ---

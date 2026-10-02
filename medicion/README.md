@@ -18,6 +18,8 @@ archivo local. No es un sistema de monitoreo productivo.
 | `criterios.py` | Criterios de éxito por tarea. Son funciones puras y se prueban sin servidor |
 | `campana.py` | Ejecuta la campaña y escribe `resultados/campana/<experimento>.jsonl`, con una línea por ejecución |
 | `extraer_langsmith.py` | Saca el mismo experimento de LangSmith y lo compara con el JSONL |
+| `analizar.py` | Genera las tablas (por agente, del sistema, por usuario, éxito, caminos de T6 y desglose del RAG) y los gráficos a partir del JSONL. No necesita VPN |
+| `estadistica.py` | Media ± DE, intervalo de Wilson y Kruskal-Wallis, sin dependencias nuevas, probados contra valores conocidos |
 
 ## Matriz
 
@@ -61,13 +63,20 @@ Hace falta la VPN, el `.env` con los modelos y, para cruzar con LangSmith, la
 clave de LangSmith. Todo se corre desde la raíz del repo.
 
 ```bash
-python -m pruebas.prueba_medicion                                  # 9 pruebas, sin VPN
+python -m pruebas.prueba_medicion                                  # 10 pruebas, sin VPN
 python -m medicion.campana --experimento piloto_AAAA-MM-DD --piloto  # 6 ejecuciones, ~1 min
 python -m medicion.campana --experimento campana_AAAA-MM-DD          # 360 ejecuciones
 python -m medicion.campana --experimento campana_AAAA-MM-DD --reanudar
 python -m medicion.extraer_langsmith --experimento campana_AAAA-MM-DD \
     --comparar resultados/campana/campana_AAAA-MM-DD.jsonl
+python -m medicion.analizar resultados/campana/campana_AAAA-MM-DD.jsonl   # tablas y gráficos
 ```
+
+**Sonda previa.** Antes de empezar, `campana.py` mide 3 embeddings. Si el mejor
+tarda más de 3 s, no arranca. Motivo: el 2026-10-01 Ollama tenía BGE-M3 en CPU,
+con el servidor saturado por otro usuario, y cada `recuperar` tardaba ~30 s
+(bitácora 22.6). Para comprobarlo a mano:
+`uptime` y `curl -s http://172.28.230.10:11434/api/ps` (`size_vram: 0` = CPU).
 
 **Protocolo (chuleta 7.5):**
 - Correr la campaña con todo commiteado. El `_meta.json` guarda el commit y si
@@ -100,4 +109,7 @@ Rosa × 6 tareas × 1 frase:
   (chuleta 3.2). Los tokens de razonamiento son **parte** de los de salida y se
   reportan aparte. En el piloto son el 61-86% de la salida, según el nodo.
 - **Servidor compartido:** la latencia depende de su carga (bitácora 11). Por eso
-  se intercala y se repite.
+  se intercala y se repite. Los embeddings corren en un Ollama compartido que
+  puede caer a CPU; la sonda previa lo detecta, pero no lo puede evitar durante
+  una corrida larga. El tiempo de `recuperar` de cada ejecución queda registrado
+  y es lo primero que hay que revisar.

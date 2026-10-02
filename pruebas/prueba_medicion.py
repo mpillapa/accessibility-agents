@@ -20,6 +20,7 @@ from interacciones.datos import cargar_ingredientes
 from medicacion.datos import prescripciones_de
 from medicion.casos import TAREAS, cargar_campana, frases_de, plan_de_ejecuciones
 from medicion.criterios import evaluar, nombra
+from medicion.estadistica import kruskal_wallis, media_de, wilson
 from medicion.registro import RegistroEjecucion, ubicacion
 
 RAIZ = Path(__file__).parent.parent
@@ -191,6 +192,22 @@ def prueba_nombra_palabra_completa():
     return "la búsqueda de nombres ignora tildes y exige palabra completa"
 
 
+def prueba_estadistica_contra_valores_conocidos():
+    m, de = media_de([2, 4, 4, 4, 5, 5, 7, 9])
+    assert m == 5 and abs(de - 2.138) < 1e-3  # DE muestral (n-1)
+    bajo, alto = wilson(20, 20)
+    assert abs(bajo - 0.8389) < 1e-3 and alto == 1.0  # 20/20 no da [1, 1]
+    bajo, alto = wilson(0, 10)
+    assert bajo == 0.0 and abs(alto - 0.2775) < 1e-3
+    # Tres grupos sin solapamiento: H = 7.2, p = exp(-3.6) = 0.0273 (gl = 2).
+    r = kruskal_wallis([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    assert abs(r["H"] - 7.2) < 1e-9 and r["gl"] == 2 and abs(r["p"] - 0.02732) < 1e-4
+    # Grupos idénticos: H = 0, p = 1.
+    r = kruskal_wallis([[1, 2], [1, 2], [1, 2], [1, 2], [1, 2]])
+    assert abs(r["H"]) < 1e-9 and abs(r["p"] - 1) < 1e-9
+    return "media ± DE muestral, Wilson y Kruskal-Wallis dan los valores de referencia"
+
+
 CASOS = [
     prueba_ubicacion_desde_metadata,
     prueba_registro_por_agente_en_un_grafo,
@@ -201,6 +218,7 @@ CASOS = [
     prueba_casos_coherentes_con_los_datos,
     prueba_plan_intercalado_por_repeticion,
     prueba_nombra_palabra_completa,
+    prueba_estadistica_contra_valores_conocidos,
 ]
 
 
