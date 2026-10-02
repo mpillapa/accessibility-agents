@@ -29,14 +29,8 @@ from pathlib import Path
 from infraestructura.modelos import describir_resolucion
 from interacciones.datos import cargar_casos
 from interacciones.reglas import pares
+from medicion.criterios import camino_t6_correcto as _camino_correcto
 from orquestacion_langgraph.grafo import procesar_consulta_en_vivo
-
-CAMINO_ESPERADO = ["orchestrator", {"medicacion_cruce", "recetas_cruce"}, "integrador"]
-
-
-def _camino_correcto(nodos: list[str]) -> bool:
-    return (len(nodos) == 4 and nodos[0] == "orchestrator"
-            and set(nodos[1:3]) == {"medicacion_cruce", "recetas_cruce"} and nodos[3] == "integrador")
 
 
 def ejecutar(frase: dict, usuario: str) -> dict:

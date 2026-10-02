@@ -1,0 +1,90 @@
+{
+  "_aviso": "Casos de la campaña de medición (reunión con Cristian del 2026-09-30). Verdad de referencia escrita A MANO desde los datos (prescripciones.json, el recetario, dataset.csv), no calculada con el código del sistema. Datos ficticios.",
+  "_fecha": "2026-10-01",
+  "_matriz": "6 tareas × 5 usuarios × 4 frases × 3 repeticiones = 360 ejecuciones. Las frases son las mismas para todos los usuarios; lo que cambia con el usuario es la receta (T1, T6).",
+  "usuarios": ["rosa", "manuel", "carmen", "jorge", "elena"],
+  "_por_que_no_luis": "luis no tiene receta (a propósito). En T1 y T6 la respuesta correcta es 'no tengo su receta', que no mide lo mismo que en los otros cinco.",
+
+  "tareas": {
+    "T1": {
+      "nombre": "medicación",
+      "intencion": "MEDICATION_HEALTH",
+      "criterio": "Ruteó a medicación, la respuesta nombra TODOS los medicamentos de la receta del usuario y NINGÚN otro del catálogo (medicamentos.json).",
+      "como_se_eligieron_las_frases": "Del dataset etiquetado (dataset.csv), preguntas sobre el plan o el horario que NO nombran un medicamento concreto: así el criterio 'nombra todos los de su receta' es aplicable a los cinco usuarios. La línea es la del archivo, contando el encabezado.",
+      "frases": [
+        {"id": "t1_f1", "consulta": "Dime a qué hora es mi próxima medicación por favor", "linea_dataset": 20},
+        {"id": "t1_f2", "consulta": "Oye mijito ¿ya me toca tomar la pastillita del corazón?", "linea_dataset": 2},
+        {"id": "t1_f3", "consulta": "A ver dime ¿cada cuánto debo tomarme estas cápsulas que me dio el doctor?", "linea_dataset": 17},
+        {"id": "t1_f4", "consulta": "¿La dosis es igual en la mañana que en la noche o cambia?", "linea_dataset": 43}
+      ],
+      "medicamentos_por_usuario": {
+        "_por_que_manuel_tiene_amoxicilina": "rx-manuel-002 venció el 2026-09-27, pero plan_diario no omite indicaciones: las marca con aviso (regla 'NO quites ninguno'). Debe nombrarse.",
+        "rosa": ["Metformina", "Losartan", "Aspirina"],
+        "manuel": ["Paracetamol", "Omeprazol", "Amoxicilina"],
+        "carmen": ["Amlodipino", "Furosemida"],
+        "jorge": ["Naproxeno", "Omeprazol"],
+        "elena": ["Sertralina", "Melatonina"]
+      }
+    },
+
+    "T2": {
+      "nombre": "recetas",
+      "intencion": "RECIPE_MULTIMEDIA",
+      "criterio": "Ruteó a recetas y la fuente usada para responder está entre las aceptadas; si el plato no está en el recetario, no usó ninguna fuente.",
+      "como_se_eligieron_las_frases": "Las cuatro consultas de recetas de pruebas/evaluar_rag_real.py (la quinta de ese archivo es small talk). Cubren: nombre exacto, descripción sin nombrar el plato, plato ausente y plato con dos fuentes.",
+      "frases": [
+        {"id": "t2_f1", "consulta": "léeme la receta del bolón de verde", "fuentes_aceptadas": ["bolon de verde.png"]},
+        {"id": "t2_f2", "consulta": "quiero hacer eso de plátano verde majado con chicharrón adentro", "fuentes_aceptadas": ["bolon de verde.png"]},
+        {"id": "t2_f3", "consulta": "quiero preparar sushi", "fuentes_aceptadas": []},
+        {"id": "t2_f4", "consulta": "como hago el llapingacho", "fuentes_aceptadas": ["llapingacho.jpg", "receta1.jpeg"]}
+      ]
+    },
+
+    "T3": {
+      "nombre": "emergencia",
+      "intencion": "EMERGENCY",
+      "criterio": "Ruteó a emergencia (por la red de seguridad o por el LLM).",
+      "como_se_eligieron_las_frases": "Muestra aleatoria de 4 frases EMERGENCY de dataset.csv con random.Random(42).sample. Una la atrapa la red de seguridad (t3_f3) y tres pasan por el LLM.",
+      "frases": [
+        {"id": "t3_f1", "consulta": "Llama al número de emergencias por favor que es grave", "linea_dataset": 335},
+        {"id": "t3_f2", "consulta": "Tengo un mareo terrible y siento que me voy a caer", "linea_dataset": 268},
+        {"id": "t3_f3", "consulta": "Me caí en la cocina y me golpié la cabeza ayúdame", "linea_dataset": 257},
+        {"id": "t3_f4", "consulta": "Me desperté y no recuerdo nada de lo que pasó", "linea_dataset": 289}
+      ]
+    },
+
+    "T4": {
+      "nombre": "familia",
+      "intencion": "FAMILY_COMMUNICATION",
+      "criterio": "Ruteó a familia.",
+      "como_se_eligieron_las_frases": "Muestra aleatoria de 4 frases FAMILY_COMMUNICATION de dataset.csv con random.Random(42).sample. t4_f1 es ambigua (una cita médica etiquetada como familia): se deja porque es la etiqueta del dataset y elegir a mano sesgaría el resultado.",
+      "frases": [
+        {"id": "t4_f1", "consulta": "Modifica lo de la cita médica que me cambiaron para la próxima semana", "linea_dataset": 172},
+        {"id": "t4_f2", "consulta": "¿Mi hijo me escribió algo mientras yo dormía?", "linea_dataset": 105},
+        {"id": "t4_f3", "consulta": "Avísale a mi hija que ya tomé las pastillas de la mañana", "linea_dataset": 94},
+        {"id": "t4_f4", "consulta": "Dile a mi nieto que su cuarto está listo para cuando venga", "linea_dataset": 126}
+      ]
+    },
+
+    "T5": {
+      "nombre": "small talk",
+      "intencion": "SMALL_TALK",
+      "criterio": "Ruteó a small talk.",
+      "como_se_eligieron_las_frases": "Muestra aleatoria de 4 frases SMALL_TALK de dataset.csv con random.Random(42).sample.",
+      "frases": [
+        {"id": "t5_f1", "consulta": "Mi vecina está enferma y nadie la visita qué tristeza", "linea_dataset": 415},
+        {"id": "t5_f2", "consulta": "Qué calor tan bravo hace hoy en la tarde", "linea_dataset": 348},
+        {"id": "t5_f3", "consulta": "Buenas ¿me escuchas bien hoy?", "linea_dataset": 337},
+        {"id": "t5_f4", "consulta": "Qué lento pasa el tiempo cuando uno está solo", "linea_dataset": 369}
+      ]
+    },
+
+    "T6": {
+      "nombre": "medicamento × comida",
+      "intencion": "MEDICATION_FOOD_CHECK",
+      "criterio": "Camino orchestrator → {medicacion_cruce, recetas_cruce} → integrador, fuente entre las aceptadas e interacciones exactamente iguales a las esperadas.",
+      "como_se_eligieron_las_frases": "Se toman de interacciones/datos/casos_prueba.json (sección 'campana'), donde está la verdad de referencia por usuario. No se duplican aquí.",
+      "frases_desde": "interacciones/datos/casos_prueba.json#campana"
+    }
+  }
+}

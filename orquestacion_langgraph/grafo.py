@@ -182,15 +182,21 @@ def procesar_consulta_verbose(consulta: str) -> dict:
 #
 # Entrega dicts {"nodo": str, "cambios": dict}; el último trae el estado final
 # acumulado bajo la clave "estado_final".
+#
+# `config` es el RunnableConfig de LangChain y se pasa tal cual al grafo. Lo usa
+# la campaña de medición (medicion/campana.py) para etiquetar la ejecución en
+# LangSmith y enganchar el callback que registra tokens y tiempos por nodo. Así
+# la interfaz y la medición recorren exactamente el mismo camino.
 def procesar_consulta_en_vivo(consulta: str, ruta_audio: str | None = None,
-                              id_perfil: str | None = None):
+                              id_perfil: str | None = None, config: dict | None = None):
     import time
 
     app = construir_grafo()
     estado_acumulado = _estado_inicial(consulta, ruta_audio, id_perfil)
 
     inicio = time.time()
-    for actualizacion in app.stream(_estado_inicial(consulta, ruta_audio, id_perfil), stream_mode="updates"):
+    for actualizacion in app.stream(_estado_inicial(consulta, ruta_audio, id_perfil),
+                                    config=config, stream_mode="updates"):
         for nodo, cambios in actualizacion.items():
             estado_acumulado.update(cambios)
             yield {"nodo": nodo, "cambios": cambios}

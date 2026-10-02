@@ -6,7 +6,7 @@ Mini tesis de maestría. Manuel Pillapa. 2026.
 
 ---
 
-## Alcance actual (2026-09-30)
+## Alcance actual (2026-10-01)
 
 El proyecto empezó como una comparación de frameworks (CrewAI vs LangGraph). **El 24-09, de acuerdo con el tutor, CrewAI salió del alcance**: el sistema se construyó y evalúa en LangGraph, y `orquestacion_crewai/` queda en el repo como antecedente exploratorio, sin cambios desde agosto. Las secciones de este README anteriores a esa fecha se conservan como registro.
 
@@ -20,7 +20,8 @@ El proyecto empezó como una comparación de frameworks (CrewAI vs LangGraph). *
 | Interfaz Streamlit y trazas en LangSmith | Hecho |
 | **Tarea medicamento × comida** (`interacciones/`): intención nueva, dos ramas en paralelo e integrador | Hecho (2026-09-30) |
 | Red de seguridad determinista para emergencias antes del LLM | Hecho (2026-09-30) |
-| Campaña de medición: tokens, tiempos, tasa de éxito y caminos por tarea y usuario | Pendiente |
+| Arnés de medición (`medicion/`): tokens, tiempos, tasa de éxito y caminos por tarea, usuario y agente; piloto validado contra LangSmith | Hecho (2026-10-01) |
+| Campaña de 360 ejecuciones y tablas | Pendiente |
 
 **Fuera del alcance:** la integración con Signal o cualquier API de mensajería para avisar a familiares o servicios de emergencia. Queda como trabajo futuro.
 
@@ -182,6 +183,13 @@ accessibility-agents/
 │       ├── interacciones_alimentarias.json  Catálogo: 4 categorías de alimento, 10 interacciones
 │       ├── ingredientes_recetas.json        Alimentos marcados de las 29 recetas del índice, con cita literal
 │       └── casos_prueba.json                Verdad de referencia escrita a mano (desarrollo + campaña)
+├── medicion/                      CAMPAÑA DE MEDICIÓN (ver medicion/README.md)
+│   ├── registro.py               Callback: tokens (entrada, salida, razonamiento) y tiempo por agente y nodo
+│   ├── casos.py                  Carga los casos y arma el plan intercalado de ejecuciones
+│   ├── criterios.py              Criterios de éxito por tarea (funciones puras)
+│   ├── campana.py                Corre la campaña y escribe resultados/campana/<experimento>.jsonl
+│   ├── extraer_langsmith.py      Saca el experimento de LangSmith y lo cruza con el registro local
+│   └── datos/casos_campana.json  Frases T1-T5 y verdad de referencia
 ├── orquestacion_crewai/           ANTECEDENTE: primera etapa, fuera del alcance desde el 2026-09-24
 │   ├── agentes.py                Agentes (Orchestrator + especialistas + stubs), procesar_consulta(), clasificar_consulta()
 │   └── demo.py                   Demo en vivo (verbose=True: muestra razonamiento y delegación)
@@ -202,13 +210,13 @@ accessibility-agents/
 ├── rag/                           CAPA DE ACCESO A DATOS (no decide nada, solo consulta)
 │   ├── config.py                 Endpoints de embeddings y OCR; los ids se resuelven vía infraestructura/modelos.py
 │   ├── embeddings.py              Llama a BGE-M3 en lotes que quepan en su ventana de contexto
-│   ├── ocr.py                    Llama a glm-ocr para imágenes (OpenAI-compatible, formato "vision")
+│   ├── ocr.py                    Llama al modelo de visión (qwen2.5vl:7b desde el 2026-09-30) con tope de tokens
 │   ├── calidad.py                 Detecta texto degenerado del OCR antes de indexarlo
 │   ├── ingesta.py                 Lee rag/recetas_data/, OCR+calidad+troceado+embeddings, ChromaDB
 │   ├── buscar.py                  Búsqueda semántica: buscar_receta() y buscar_receta_detallado()
 │   └── recetas_data/              Recetario real: fotos de libros de cocina + 2 recetas en texto
 ├── pruebas/
-│   ├── prueba_*.py               12 suites, 118 casos, sin VPN ni LLM (ver "Cómo ejecutar")
+│   ├── prueba_*.py               13 suites, 127 casos, sin VPN ni LLM (ver "Cómo ejecutar")
 │   ├── prueba_datos_interacciones.py  Coherencia de los datos de medicamento × comida
 │   ├── prueba_interacciones.py   El cruce y el camino del grafo con dobles
 │   ├── evaluar_ruteo_texto.py    Ruteo del Orchestrator sobre las 415 frases (recall de EMERGENCY, matriz de confusión)
@@ -291,7 +299,7 @@ Comparativa de la primera etapa (cruce de información entre agentes + ciclo del
 jupyter notebook notebooks/comparativa.ipynb
 ```
 
-Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 12 suites, 118 casos al 2026-09-30:
+Pruebas (**no** requieren VPN: usan dobles en lugar del LLM, o son funciones puras). 13 suites, 127 casos al 2026-10-01:
 ```bash
 # Todas de una vez
 for f in pruebas/prueba_*.py; do python -m pruebas.$(basename $f .py) | tail -1; done
@@ -306,6 +314,7 @@ python -m pruebas.prueba_prescripciones       # la prescripcion como fuente de v
 python -m pruebas.prueba_reglas_medicacion    # criterios de exclusion y tope ajustado
 python -m pruebas.prueba_datos_interacciones  # coherencia de los datos de medicamento x comida
 python -m pruebas.prueba_interacciones        # el cruce y el camino del grafo (fan-out + integrador)
+python -m pruebas.prueba_medicion             # arnés de medición: atribución de tokens y criterios de éxito
 python -m pruebas.prueba_metricas             # WER y CER
 python -m pruebas.prueba_ruido                # matriz de ruido con SNR controlado
 ```
@@ -315,6 +324,15 @@ Guardar el `--json` antes de cambiar prompts o estrategia de recuperación, y
 volver a correrlo después, permite comparar el antes y el después:
 ```bash
 python -m pruebas.evaluar_rag_real --json antes.json
+```
+
+Campaña de medición (tokens, tiempo y éxito por tarea, usuario y agente). Diseño,
+criterios y límites en [medicion/README.md](medicion/README.md):
+```bash
+python -m medicion.campana --experimento piloto_AAAA-MM-DD --piloto   # 6 ejecuciones
+python -m medicion.campana --experimento campana_AAAA-MM-DD           # 360 ejecuciones
+python -m medicion.extraer_langsmith --experimento campana_AAAA-MM-DD \
+    --comparar resultados/campana/campana_AAAA-MM-DD.jsonl
 ```
 
 ---
