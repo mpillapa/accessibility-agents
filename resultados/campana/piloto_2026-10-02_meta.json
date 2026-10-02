@@ -1,0 +1,65 @@
+{
+ "experimento": "piloto_2026-10-02",
+ "inicio": "2026-10-02T14:02:37",
+ "commit": "73031da",
+ "cambios_sin_commit": false,
+ "argumentos": {
+  "experimento": "piloto_2026-10-02",
+  "tareas": [
+   "T1",
+   "T2",
+   "T3",
+   "T4",
+   "T5",
+   "T6"
+  ],
+  "usuarios": null,
+  "repeticiones": 3,
+  "frases": null,
+  "piloto": true,
+  "reanudar": false,
+  "timeout": 120,
+  "semilla": 42,
+  "sin_sonda": false
+ },
+ "usuarios": [
+  "rosa"
+ ],
+ "repeticiones": 1,
+ "total_planificado": 6,
+ "timeout_segundos": 120,
+ "resolucion_de_modelos": {
+  "http://172.28.230.10:12559/v1": {
+   "preferido": "zai-org/GLM-5.3-Flash",
+   "resuelto": "zai-org/GLM-5.3-Flash",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.28.230.10:11434/v1": {
+   "preferido": "bge-m3:latest",
+   "resuelto": "bge-m3:latest",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.21.230.33:11434/v1": {
+   "preferido": "qwen2.5vl:7b",
+   "resuelto": "qwen2.5vl:7b",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  }
+ },
+ "trazas": {
+  "activo": "True",
+  "motivo": "trazando al proyecto 'accessibility-agents'",
+  "proyecto": "accessibility-agents"
+ },
+ "fingerprints_vistos": [
+  "vllm-0.30.1rc1.dev193+gddd6fbca1-tp4-ep-4db57b97"
+ ],
+ "sonda_embeddings_segundos": [
+  0.12,
+  0.12,
+  0.11
+ ],
+ "fin": "2026-10-02T14:03:26"
+}

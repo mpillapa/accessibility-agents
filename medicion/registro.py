@@ -105,7 +105,10 @@ class RegistroEjecucion(BaseCallbackHandler):
 
     def resumen(self) -> dict:
         with self._candado:
-            return resumir(list(self.llamadas), list(self.nodos))
+            r = resumir(list(self.llamadas), list(self.nodos))
+            # Llamadas que nunca respondieron: distinguen un cuelgue de un agente lento.
+            r["llamadas_sin_respuesta"] = [{"agente": a, "nodo": n} for _, a, n in self._llm_abiertas.values()]
+            return r
 
 
 def _suma(valores) -> int | None:

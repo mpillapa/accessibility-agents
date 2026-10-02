@@ -21,7 +21,7 @@ El proyecto empezó como una comparación de frameworks (CrewAI vs LangGraph). *
 | **Tarea medicamento × comida** (`interacciones/`): intención nueva, dos ramas en paralelo e integrador | Hecho (2026-09-30) |
 | Red de seguridad determinista para emergencias antes del LLM | Hecho (2026-09-30) |
 | Arnés de medición (`medicion/`): tokens, tiempos, tasa de éxito y caminos por tarea, usuario y agente; piloto validado contra LangSmith | Hecho (2026-10-01) |
-| Campaña de 360 ejecuciones y tablas | Pendiente |
+| Campaña de 360 ejecuciones y tablas: 92,5% de éxito; tokens y tiempos por agente y usuario (`resultados/campana/`) | Hecho (2026-10-02) |
 
 **Fuera del alcance:** la integración con Signal o cualquier API de mensajería para avisar a familiares o servicios de emergencia. Queda como trabajo futuro.
 

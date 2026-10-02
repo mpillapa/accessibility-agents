@@ -102,7 +102,10 @@ def _kw(r) -> str:
 
 
 def tabla_exito(filas, nombres) -> list[str]:
-    lineas = ["| Tarea | Éxitos | % | IC 95% (Wilson) | Timeouts | Errores | Chequeos que fallaron |",
+    # Una ejecución cortada no tiene estado final: sus chequeos de intención y
+    # camino salen en falso aunque el ruteo haya sido correcto. Se cuentan solo
+    # como timeout/error para no inflar los fallos de ruteo.
+    lineas = ["| Tarea | Éxitos | % | IC 95% (Wilson) | Timeouts | Errores | Chequeos que fallaron (sin cortes) |",
               "|---|---|---|---|---|---|---|"]
     grupos = [(f"{t} {nombres[t]}", [f for f in filas if f["tarea"] == t]) for t in TAREAS] + [("Todas", filas)]
     for etiqueta, grupo in grupos:
@@ -110,10 +113,30 @@ def tabla_exito(filas, nombres) -> list[str]:
             continue
         k, n = sum(f["exito"] for f in grupo), len(grupo)
         bajo, alto = wilson(k, n)
-        fallos = Counter(c for f in grupo for c, ok in f["chequeos"].items() if not ok)
+        fallos = Counter(c for f in _completas(grupo) for c, ok in f["chequeos"].items() if not ok)
         detalle = ", ".join(f"{c} {v}" for c, v in fallos.most_common()) or "—"
         lineas.append(f"| {etiqueta} | {k}/{n} | {100 * k / n:.1f}% | {100 * bajo:.1f}–{100 * alto:.1f}% | "
                       f"{sum(f['timeout'] for f in grupo)} | {sum(bool(f['error']) for f in grupo)} | {detalle} |")
+    return lineas
+
+
+def tabla_cortes(filas) -> list[str]:
+    """Por qué se cortó cada ejecución: un agente que terminó tarde o una llamada sin respuesta.
+
+    Un agente cuya llamada nunca volvió no cierra su nodo y no aparece en `agentes`;
+    desde 2026-10-02 el registro lo anota en `llamadas_sin_respuesta`.
+    """
+    cortadas = [f for f in filas if f["timeout"] or f["error"]]
+    if not cortadas:
+        return ["Ninguna."]
+    lineas = ["| Ejecución | Motivo | Agente más lento que terminó | Segundos | Tokens salida (razonamiento) | Sin respuesta |",
+              "|---|---|---|---|---|---|"]
+    for f in cortadas:
+        agente, datos = max(f["agentes"].items(), key=lambda x: x[1]["segundos"], default=("—", {}))
+        motivo = "timeout" if f["timeout"] else f["error"][:60]
+        colgadas = ", ".join(f"{c['agente']}/{c['nodo']}" for c in f.get("llamadas_sin_respuesta", [])) or "—"
+        lineas.append(f"| {f['id']} | {motivo} | {agente} | {datos.get('segundos', 0):.0f} | "
+                      f"{datos.get('tokens_salida', 0)} ({datos.get('tokens_razonamiento', 0)}) | {colgadas} |")
     return lineas
 
 
@@ -173,6 +196,10 @@ def figuras(filas, usuarios, base: Path) -> list[str]:
     plt.close(fig)
     hechas.append(ruta.name)
 
+    # Color fijo por subnodo (orden del ciclo, paleta categórica validada); los pasos
+    # que no llegan a 1 s de media van juntos en "otros" para no pintar astillas.
+    colores = {"decidir_busqueda": "#2a78d6", "evaluar_relevancia": "#eb6834",
+               "reformular": "#1baf7a", "generar": "#eda100", "otros": "#a3a29b"}
     fig, eje = plt.subplots(figsize=(7, 4))
     for i, (tarea, agente) in enumerate((("T2", "recetas"), ("T6", "recetas_cruce"))):
         completas = [f for f in _completas([f for f in filas if f["tarea"] == tarea]) if agente in f["agentes"]]
@@ -182,16 +209,24 @@ def figuras(filas, usuarios, base: Path) -> list[str]:
         for f in completas:
             for s in f["subnodos"]:
                 if s["agente"] == agente:
-                    suma[s["nodo"]] += s["segundos"]
+                    suma[s["nodo"] if s["nodo"] in colores else "otros"] += s["segundos"]
         abajo = 0.0
-        for nodo, total in sorted(suma.items()):
-            media = total / len(completas)
-            eje.bar(i, media, bottom=abajo, label=nodo if i == 0 or nodo not in eje.get_legend_handles_labels()[1] else None)
+        for nodo, color in colores.items():
+            media = suma.get(nodo, 0.0) / len(completas)
+            if media <= 0:
+                continue
+            eje.bar(i, media, bottom=abajo, width=0.5, color=color, edgecolor="white", linewidth=2,
+                    label=nodo if nodo not in eje.get_legend_handles_labels()[1] else None)
+            if media >= 1:
+                eje.text(i, abajo + media / 2, f"{media:.1f} s", ha="center", va="center", fontsize=8, color="#1a1a19")
             abajo += media
     eje.set_xticks([0, 1], ["T2 recetas", "T6 recetas_cruce"])
     eje.set_ylabel("segundos por ejecución (media)")
     eje.set_title("Dónde se va el tiempo dentro del RAG")
-    eje.legend(fontsize=8)
+    eje.spines[["top", "right"]].set_visible(False)
+    eje.grid(axis="y", color="#e5e4df", linewidth=0.8)
+    eje.set_axisbelow(True)
+    eje.legend(fontsize=8, frameon=False, loc="upper right")
     fig.tight_layout()
     ruta = base.with_name(base.name + "_rag.png")
     fig.savefig(ruta, dpi=150)
@@ -204,9 +239,18 @@ def main():
     parser = argparse.ArgumentParser(description="Tablas de la campaña de medición")
     parser.add_argument("jsonl", type=Path)
     parser.add_argument("--sin-figuras", action="store_true")
+    parser.add_argument("--langsmith", type=Path,
+                        help="extracto de extraer_langsmith.py --json: completa las llamadas sin respuesta "
+                             "de campañas registradas antes de que el registro las anotara")
     args = parser.parse_args()
 
     filas = cargar(args.jsonl)
+    if args.langsmith:
+        remoto = json.loads(args.langsmith.read_text(encoding="utf-8"))["ejecuciones"]
+        for f in filas:
+            if "llamadas_sin_respuesta" not in f and f["uid"] in remoto:
+                f["llamadas_sin_respuesta"] = [{"agente": c["agente"], "nodo": c["nodo"]}
+                                               for c in remoto[f["uid"]]["llamadas"] if c["segundos"] is None]
     campana = cargar_campana()
     nombres = {t: campana["tareas"][t]["nombre"] for t in TAREAS}
     usuarios = campana["usuarios"]
@@ -230,6 +274,7 @@ def main():
         "## 2. Tokens y tiempo del sistema", "", *tabla_sistema(filas, nombres), "",
         "## 3. ¿Cambia con el usuario? Tiempo del sistema (s) por usuario", "", *tabla_usuarios(filas, usuarios), "",
         "## 4. Tasa de éxito", "", *tabla_exito(filas, nombres), "",
+        "### Ejecuciones cortadas", "", *tabla_cortes(filas), "",
         "## 5. Caminos en T6", "", *tabla_caminos_t6(filas), "",
         "## 6. Desglose del tiempo dentro del RAG", "", *tabla_rag(filas), "",
     ]

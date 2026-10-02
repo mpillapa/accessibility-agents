@@ -69,7 +69,8 @@ python -m medicion.campana --experimento campana_AAAA-MM-DD          # 360 ejecu
 python -m medicion.campana --experimento campana_AAAA-MM-DD --reanudar
 python -m medicion.extraer_langsmith --experimento campana_AAAA-MM-DD \
     --comparar resultados/campana/campana_AAAA-MM-DD.jsonl
-python -m medicion.analizar resultados/campana/campana_AAAA-MM-DD.jsonl   # tablas y gráficos
+python -m medicion.analizar resultados/campana/campana_AAAA-MM-DD.jsonl \
+    --langsmith resultados/campana/campana_AAAA-MM-DD_langsmith.json     # tablas y gráficos
 ```
 
 **Sonda previa.** Antes de empezar, `campana.py` mide 3 embeddings. Si el mejor
@@ -113,3 +114,20 @@ Rosa × 6 tareas × 1 frase:
   puede caer a CPU; la sonda previa lo detecta, pero no lo puede evitar durante
   una corrida larga. El tiempo de `recuperar` de cada ejecución queda registrado
   y es lo primero que hay que revisar.
+
+## Resultado de la campaña (2026-10-02)
+
+360 ejecuciones, **333 correctas (92,5%, IC 95% 89,3-94,8%)**. Tablas en
+`resultados/campana/campana_2026-10-02_tablas.md` y lectura de los fallos en la
+bitácora 22.7. En resumen:
+- **20 fallos de ruteo**, todos de dos frases (t4_f1 y t3_f4).
+- **7 timeouts:** razonamiento sin tope, llamadas que nunca respondieron y un
+  bache del servidor.
+- **El tiempo de T1 depende del usuario** (cuantos más avisos trae su receta,
+  más razona el modelo).
+
+**Límite que mostró la campaña:** el cliente del LLM no tiene `max_tokens` ni
+timeout. El registro anota ahora las llamadas sin respuesta
+(`llamadas_sin_respuesta`). En esta campaña se completaron desde LangSmith con
+`--langsmith`.
+
