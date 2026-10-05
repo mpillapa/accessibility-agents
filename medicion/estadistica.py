@@ -71,3 +71,27 @@ def kruskal_wallis(grupos: list[list[float]]) -> dict:
         h /= correccion
     gl = len(grupos) - 1
     return {"H": h, "gl": gl, "p": _chi2_cola(h, gl) if gl % 2 == 0 else None}
+
+
+def mann_whitney(a: list[float], b: list[float]) -> dict:
+    """U de Mann-Whitney con aproximación normal (corrección por empates) y p a dos colas.
+
+    Adecuada con n ≥ ~20 por grupo, como en la comparación entre campañas (60 por tarea).
+    """
+    a = [v for v in a if v is not None]
+    b = [v for v in b if v is not None]
+    n1, n2 = len(a), len(b)
+    if not n1 or not n2:
+        return {"U": None, "z": None, "p": None}
+    rangos = _rangos(a + b)
+    u = sum(rangos[:n1]) - n1 * (n1 + 1) / 2
+    n = n1 + n2
+    conteos: dict[float, int] = {}
+    for v in a + b:
+        conteos[v] = conteos.get(v, 0) + 1
+    empates = sum(t ** 3 - t for t in conteos.values())
+    varianza = n1 * n2 / 12 * ((n + 1) - empates / (n * (n - 1)))
+    if varianza <= 0:
+        return {"U": u, "z": 0.0, "p": 1.0}
+    z = (u - n1 * n2 / 2) / math.sqrt(varianza)
+    return {"U": u, "z": z, "p": math.erfc(abs(z) / math.sqrt(2))}

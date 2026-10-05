@@ -1,0 +1,76 @@
+{
+ "experimento": "base_2026-10-04",
+ "inicio": "2026-10-04T22:16:27",
+ "commit": "460f412",
+ "cambios_sin_commit": true,
+ "argumentos": {
+  "experimento": "base_2026-10-04",
+  "tareas": [
+   "T1",
+   "T2",
+   "T3",
+   "T4",
+   "T5",
+   "T6"
+  ],
+  "usuarios": null,
+  "repeticiones": 1,
+  "frases": null,
+  "piloto": false,
+  "reanudar": false,
+  "timeout": 120,
+  "semilla": 42,
+  "sin_sonda": false
+ },
+ "usuarios": [
+  "rosa",
+  "manuel",
+  "carmen",
+  "jorge",
+  "elena"
+ ],
+ "repeticiones": 1,
+ "total_planificado": 120,
+ "timeout_segundos": 120,
+ "resolucion_de_modelos": {
+  "http://172.28.230.10:12559/v1": {
+   "preferido": "zai-org/GLM-5.3-Flash",
+   "resuelto": "zai-org/GLM-5.3-Flash",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.28.230.10:11434/v1": {
+   "preferido": "bge-m3:latest",
+   "resuelto": "bge-m3:latest",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.21.230.33:11434/v1": {
+   "preferido": "qwen2.5vl:7b",
+   "resuelto": "qwen2.5vl:7b",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  }
+ },
+ "configuracion_llm": {
+  "modelo": "zai-org/GLM-5.3-Flash",
+  "temperatura": 0.3,
+  "reasoning_effort": null,
+  "max_tokens": null,
+  "timeout_segundos": null
+ },
+ "trazas": {
+  "activo": "True",
+  "motivo": "trazando al proyecto 'accessibility-agents'",
+  "proyecto": "accessibility-agents"
+ },
+ "fingerprints_vistos": [
+  "vllm-0.30.1rc1.dev630+g18f8f9602-tp4-ep-90ac72a8"
+ ],
+ "sonda_embeddings_segundos": [
+  0.12,
+  0.15,
+  0.12
+ ],
+ "fin": "2026-10-04T22:40:20"
+}

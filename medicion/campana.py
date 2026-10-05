@@ -25,6 +25,7 @@ from medicion.casos import TAREAS, cargar_campana, plan_de_ejecuciones
 from medicion.criterios import catalogo_de_medicamentos, evaluar
 from medicion.registro import RegistroEjecucion
 from orquestacion_langgraph.grafo import procesar_consulta_en_vivo
+from orquestacion_langgraph.llm import describir_configuracion_llm
 
 CARPETA = Path(__file__).parent.parent / "resultados" / "campana"
 
@@ -189,6 +190,7 @@ def main():
         "total_planificado": len(plan),
         "timeout_segundos": args.timeout,
         "resolucion_de_modelos": describir_resolucion(),
+        "configuracion_llm": describir_configuracion_llm(),
         "trazas": describir_trazas(),
         "fingerprints_vistos": [],
     }

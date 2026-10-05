@@ -19,7 +19,9 @@ archivo local. No es un sistema de monitoreo productivo.
 | `campana.py` | Ejecuta la campaña y escribe `resultados/campana/<experimento>.jsonl`, con una línea por ejecución |
 | `extraer_langsmith.py` | Saca el mismo experimento de LangSmith y lo compara con el JSONL |
 | `analizar.py` | Genera las tablas (por agente, del sistema, por usuario, éxito, caminos de T6 y desglose del RAG) y los gráficos a partir del JSONL. No necesita VPN |
-| `estadistica.py` | Media ± DE, intervalo de Wilson y Kruskal-Wallis, sin dependencias nuevas, probados contra valores conocidos |
+| `estadistica.py` | Media ± DE, intervalo de Wilson, Kruskal-Wallis y Mann-Whitney, sin dependencias nuevas, probados contra valores conocidos |
+| `evaluar_rag.py` + `datos/casos_rag.json` | RAG aislado con 30 consultas × 3 repeticiones, por tipo (exacta, descripción, coloquial, ambigua, fuera del recetario). Guarda las fuentes crudas y puntúa aparte (`--solo-puntuar`) |
+| `comparar.py` | Compara dos campañas con la misma matriz y un factor distinto: éxito, tiempo, tokens, frases mal ruteadas y T1 por usuario |
 
 ## Matriz
 
@@ -130,4 +132,19 @@ bitácora 22.7. En resumen:
 timeout. El registro anota ahora las llamadas sin respuesta
 (`llamadas_sin_respuesta`). En esta campaña se completaron desde LangSmith con
 `--langsmith`.
+
+## Ajustes del razonamiento (2026-10-04)
+
+`orquestacion_langgraph/llm.py` lee `LLM_REASONING_EFFORT`, `LLM_MAX_TOKENS` y
+`LLM_TIMEOUT_SEGUNDOS`. Si no se definen, el cliente queda igual que en la
+campaña del 02-10. El experimento corre las dos configuraciones el mismo día,
+porque el servidor cambió de versión entre el 02 y el 04 (bitácora 22.9):
+
+```bash
+python -m medicion.campana --experimento base_2026-10-04 --repeticiones 1
+LLM_REASONING_EFFORT=low LLM_MAX_TOKENS=4096 LLM_TIMEOUT_SEGUNDOS=60 \
+    python -m medicion.campana --experimento ajustada_2026-10-04 --repeticiones 1
+python -m medicion.comparar resultados/campana/base_2026-10-04.jsonl \
+    resultados/campana/ajustada_2026-10-04.jsonl --nombres "tal como está" "razonamiento bajo"
+```
 

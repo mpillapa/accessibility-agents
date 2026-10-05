@@ -16,7 +16,7 @@ from interacciones.datos import cargar_ingredientes
 from medicacion.datos import prescripciones_de
 from medicion.casos import TAREAS, cargar_campana, frases_de, plan_de_ejecuciones
 from medicion.criterios import evaluar, nombra
-from medicion.estadistica import kruskal_wallis, media_de, wilson
+from medicion.estadistica import kruskal_wallis, mann_whitney, media_de, wilson
 from medicion.registro import RegistroEjecucion, ubicacion
 
 RAIZ = Path(__file__).parent.parent
@@ -201,7 +201,11 @@ def prueba_estadistica_contra_valores_conocidos():
     # Grupos idénticos: H = 0, p = 1.
     r = kruskal_wallis([[1, 2], [1, 2], [1, 2], [1, 2], [1, 2]])
     assert abs(r["H"]) < 1e-9 and abs(r["p"] - 1) < 1e-9
-    return "media ± DE muestral, Wilson y Kruskal-Wallis dan los valores de referencia"
+    # Mann-Whitney: grupos separados por completo, n = 10 y 10 → U = 0, z = -3.78, p = 0.00016.
+    r = mann_whitney(list(range(10)), list(range(10, 20)))
+    assert r["U"] == 0 and abs(r["z"] + 3.7796) < 1e-3 and abs(r["p"] - 0.000157) < 1e-5
+    assert mann_whitney([1, 2, 3], [1, 2, 3])["p"] == 1.0
+    return "media ± DE muestral, Wilson, Kruskal-Wallis y Mann-Whitney dan los valores de referencia"
 
 
 CASOS = [

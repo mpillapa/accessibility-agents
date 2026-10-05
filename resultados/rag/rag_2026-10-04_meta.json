@@ -1,0 +1,29 @@
+{
+ "inicio": "2026-10-04T21:51:06",
+ "sonda_embeddings_segundos": [
+  0.12,
+  0.12,
+  0.15
+ ],
+ "resolucion_de_modelos": {
+  "http://172.28.230.10:12559/v1": {
+   "preferido": "zai-org/GLM-5.3-Flash",
+   "resuelto": "zai-org/GLM-5.3-Flash",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.28.230.10:11434/v1": {
+   "preferido": "bge-m3:latest",
+   "resuelto": "bge-m3:latest",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  },
+  "http://172.21.230.33:11434/v1": {
+   "preferido": "qwen2.5vl:7b",
+   "resuelto": "qwen2.5vl:7b",
+   "motivo": "el endpoint sigue sirviendo el modelo configurado en el .env",
+   "hubo_cambio": "False"
+  }
+ },
+ "repeticiones": 3
+}

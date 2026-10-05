@@ -1,0 +1,47 @@
+{
+  "_aviso": "Consultas para evaluar el RAG agéntico aislado (sin Orchestrator). BORRADOR del 2026-10-04 para revisar a mano: la fuente esperada se escribió leyendo ingredientes_recetas.json, no con el sistema. Si se corrige una fuente esperada, se vuelve a calcular con medicion/evaluar_rag.py --solo-puntuar, sin volver a correr.",
+  "_por_que": "T2 de la campaña usa 4 consultas: un 4/4 da un IC 95% de 51-100%. Con 30 consultas × 3 repeticiones el intervalo se vuelve útil y se puede ver en qué tipo de consulta falla.",
+  "_tipos": {
+    "exacto": "Nombra el plato como figura en el recetario.",
+    "descripcion": "Describe el plato por sus ingredientes, sin nombrarlo.",
+    "coloquial": "Diminutivos, muletillas y referencias personales, como habla la población objetivo.",
+    "ambigua": "Plato con más de una fuente, varios platos en una misma página, o fuente con OCR degradado.",
+    "fuera": "Plato que NO está en el recetario y comparte ingredientes con uno que sí está (trampa). Lo correcto es no usar ninguna fuente."
+  },
+  "casos": [
+    {"id": "r01", "tipo": "exacto", "consulta": "léeme la receta del corviche", "fuentes_aceptadas": ["corviche.png"]},
+    {"id": "r02", "tipo": "exacto", "consulta": "cómo se prepara el yaguarlocro", "fuentes_aceptadas": ["receta11.jpeg"]},
+    {"id": "r03", "tipo": "exacto", "consulta": "quiero hacer mote pillo", "fuentes_aceptadas": ["receta8.jpeg"]},
+    {"id": "r04", "tipo": "exacto", "consulta": "dame la receta del repe lojano", "fuentes_aceptadas": ["repe lojano.jpg"]},
+    {"id": "r05", "tipo": "exacto", "consulta": "cómo hago la menestra de lenteja", "fuentes_aceptadas": ["receta6.jpeg"]},
+    {"id": "r06", "tipo": "exacto", "consulta": "receta del consomé de pollo", "fuentes_aceptadas": ["receta9.jpeg"]},
+    {"id": "r07", "tipo": "exacto", "consulta": "cómo se hace el hornado", "fuentes_aceptadas": ["receta13.jpeg"]},
+    {"id": "r08", "tipo": "exacto", "consulta": "quiero preparar cuy al carbón", "fuentes_aceptadas": ["receta10.jpeg"]},
+
+    {"id": "r09", "tipo": "descripcion", "consulta": "la sopa de papa con menudo y sangre de borrego", "fuentes_aceptadas": ["receta11.jpeg"]},
+    {"id": "r10", "tipo": "descripcion", "consulta": "eso de verde rallado relleno de pescado con maní", "fuentes_aceptadas": ["corviche.png"]},
+    {"id": "r11", "tipo": "descripcion", "consulta": "el postre de badea con guanábana y un poquito de ron", "fuentes_aceptadas": ["receta5.jpeg"]},
+    {"id": "r12", "tipo": "descripcion", "consulta": "el pastel de chocolate con cocoa y leche evaporada", "fuentes_aceptadas": ["receta4.jpeg"]},
+    {"id": "r13", "tipo": "descripcion", "consulta": "las papas rellenas de carne molida con pasas y aceitunas", "fuentes_aceptadas": ["receta2.jpeg"]},
+    {"id": "r14", "tipo": "descripcion", "consulta": "el pollo con curry, manzana verde y agua de coco", "fuentes_aceptadas": ["receta3.jpeg"]},
+    {"id": "r15", "tipo": "descripcion", "consulta": "la sopa de choclo, habas y fréjol tierno sin carne", "fuentes_aceptadas": ["receta12.jpeg"]},
+    {"id": "r16", "tipo": "descripcion", "consulta": "el guineo verde cocinado en leche con queso", "fuentes_aceptadas": ["repe lojano.jpg"]},
+
+    {"id": "r17", "tipo": "coloquial", "consulta": "mijito, ¿cómo era el mote con huevito revuelto?", "fuentes_aceptadas": ["receta8.jpeg"]},
+    {"id": "r18", "tipo": "coloquial", "consulta": "quiero hacer unos tomatitos al horno con albahaca", "fuentes_aceptadas": ["tomatitos asados.jpg"]},
+    {"id": "r19", "tipo": "coloquial", "consulta": "esa tortita de maduro que hacía la abuela", "fuentes_aceptadas": ["receta_manuscrita_simulada.png"]},
+    {"id": "r20", "tipo": "coloquial", "consulta": "¿cómo hago la sopita de verduras con zanahoria?", "fuentes_aceptadas": ["sopa_de_verduras.txt"]},
+    {"id": "r21", "tipo": "coloquial", "consulta": "el verde majado con huevito y queso para el desayuno", "fuentes_aceptadas": ["tigrillo.png"]},
+
+    {"id": "r22", "tipo": "ambigua", "consulta": "receta de arroz con leche", "fuentes_aceptadas": ["arroz_con_leche.txt", "receta7.jpeg"]},
+    {"id": "r23", "tipo": "ambigua", "consulta": "el pollo con champiñones y vino", "fuentes_aceptadas": ["2 recetas en 1.png"]},
+    {"id": "r24", "tipo": "ambigua", "consulta": "cómo hago los patacones", "fuentes_aceptadas": ["patacones.png"]},
+    {"id": "r25", "tipo": "ambigua", "consulta": "cómo hago la berenjena", "fuentes_aceptadas": ["berenjena.jpg"]},
+    {"id": "r26", "tipo": "ambigua", "consulta": "la ensalada con pepino y queso feta", "fuentes_aceptadas": ["ensalada griega.jpg"]},
+
+    {"id": "r27", "tipo": "fuera", "consulta": "quiero preparar encebollado de pescado", "fuentes_aceptadas": [], "trampa": "corviche.png lleva pescado"},
+    {"id": "r28", "tipo": "fuera", "consulta": "cómo hago ceviche de camarón", "fuentes_aceptadas": [], "trampa": "receta14.jpeg tiene camarones en salsa de tomate"},
+    {"id": "r29", "tipo": "fuera", "consulta": "receta de lasaña de carne", "fuentes_aceptadas": [], "trampa": "receta2.jpeg y receta13.jpeg llevan carne molida"},
+    {"id": "r30", "tipo": "fuera", "consulta": "cómo se hace la fanesca", "fuentes_aceptadas": [], "trampa": "receta12.jpeg (locro de ayuno) lleva choclo, habas y fréjol"}
+  ]
+}
