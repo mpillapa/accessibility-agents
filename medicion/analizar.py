@@ -97,7 +97,10 @@ def tabla_usuarios(filas, usuarios) -> list[str]:
 def _kw(r) -> str:
     if r["H"] is None:
         return "—"
-    p = f"p = {r['p']:.3f}" if r["p"] is not None else "p = ?"
+    if r["p"] is None:
+        p = "p = ?"
+    else:
+        p = "p < 0.001" if r["p"] < 0.001 else f"p = {r['p']:.3f}"
     return f"H = {r['H']:.2f}, {p}"
 
 
